@@ -62,6 +62,6 @@ get_type <- function(x,z,y=A01_msg){
   info_type
 }
 
-sha <- map2(block_info$block_id, block_info$type_p, get_type)
-
+sha <- map2(block_info$block_id, block_info$type_p, get_type)[-4]
+type_info <- bind_rows(sha)
 
