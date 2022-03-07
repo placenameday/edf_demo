@@ -1,5 +1,10 @@
 library(eyelinker)
-library(tidyverse)
+require(dplyr)
+require(tidyr)
+require(ggplot2)
+require(intervals)
+require(stringr)
+library(purrr)
 
 # define ascfile
 ascfile <- "edf/s01/A01.asc"
@@ -30,7 +35,8 @@ block_info$keywords <- block_key
 t3 <- map(block_info$keywords, which_block, msglist=A01_msg)
 block_info$min <- unlist(map(t3,1))
 block_info$max <- unlist(map(t3,2))
-block_info$type_p <- c("!V TRIAL_VAR b1a_type ", "!V TRIAL_VAR b1b_type ", "!V TRIAL_VAR b2_face_type ", "","!V TRIAL_VAR b4a_filename ", "!V TRIAL_VAR b4b_filename ", "!V TRIAL_VAR b5a_filename ", "!V TRIAL_VAR b5b_filename ")
+block_info$type_p <- c("!V TRIAL_VAR b1a_type ", "!V TRIAL_VAR b1b_type ", "!V TRIAL_VAR b2_face_type ", "","!V TRIAL_VAR b4a_filename ", "!V TRIAL_VAR b4b_filename ", "!V TRIAL_VAR b5a_type ", "!V TRIAL_VAR b5b_type ")
+block_info$file_p <- c("!V TRIAL_VAR b1a_filename ", "!V TRIAL_VAR b1b_filename ", "!V TRIAL_VAR b2_filename ", "", "!V TRIAL_VAR b4a_filename ", "!V TRIAL_VAR b4b_filename ", "!V TRIAL_VAR b5a_filename ", "!V TRIAL_VAR b5b_filename ")
 
 
 # get block name
@@ -65,3 +71,17 @@ get_type <- function(x,z,y=A01_msg){
 sha <- map2(block_info$block_id, block_info$type_p, get_type)[-4]
 type_info <- bind_rows(sha)
 
+b4type <- filter(type_info, str_detect(type_info$block_name, ("b4a|b4b")))
+b4type$type <- str_split_fixed(b4type$type, ".0", 2)[,1]
+othertype <- filter(type_info, !str_detect(type_info$block_name, ("b4a|b4b")))
+type_info <- bind_rows(othertype, b4type)
+
+# get trial name info
+tsha <- map2(block_info$block_id, block_info$file_p, get_type)[-4]
+trial_info <- bind_rows(tsha)
+trial_info <- rename(trial_info, trial_name = type)
+
+# merge all msg
+A01_msg_f <- left_join(select(trial_info, block, block_name, trial_id, trial_name), select(type_info, block, block_name, type))
+
+# 该解决b3 type 抓取的问题了
