@@ -35,6 +35,7 @@ block_info$keywords <- block_key
 t3 <- map(block_info$keywords, which_block, msglist=A01_msg)
 block_info$min <- unlist(map(t3,1))
 block_info$max <- unlist(map(t3,2))
+
 block_info$type_p <- c("!V TRIAL_VAR b1a_type ", "!V TRIAL_VAR b1b_type ", "!V TRIAL_VAR b2_face_type ", NA,"!V TRIAL_VAR b4a_filename ", "!V TRIAL_VAR b4b_filename ", "!V TRIAL_VAR b5a_type ", "!V TRIAL_VAR b5b_type ")
 block_info$file_p <- c("!V TRIAL_VAR b1a_filename ", "!V TRIAL_VAR b1b_filename ", "!V TRIAL_VAR b2_filename ", NA, "!V TRIAL_VAR b4a_filename ", "!V TRIAL_VAR b4b_filename ", "!V TRIAL_VAR b5a_filename ", "!V TRIAL_VAR b5b_filename ")
 block_info$key_1_p <- c("V TRIAL_VAR b1a_key_1 ", "V TRIAL_VAR b1b_key_1 ", "!V TRIAL_VAR b2_key ", NA, NA, NA, "!V TRIAL_VAR b5a_key ", "!V TRIAL_VAR b5b_key ")
@@ -103,7 +104,7 @@ acc_info <- getinfo("acc", block_info$acc_p)
 # get rt info
 rt_info <- getinfo("rt", block_info$RT_p)
 
-# merge all msg
+# merge all msg, b3 information id absence
 all_msg <- select(trial_info, block, block_name, trial_id, trial_name) %>% left_join(select(type_info, block, block_name, type)) %>%
   left_join(select(k1_info, block, k1)) %>%
   left_join(select(k2_info, block, k2)) %>%
@@ -112,5 +113,46 @@ all_msg <- select(trial_info, block, block_name, trial_id, trial_name) %>% left_
   left_join(select(acc_info, block, acc)) %>%
   left_join(select(rt_info, block, rt))
 
+# initial data frame contain stims's time zone
+time_info <- select(block_info, block_id, min, max)
+time_info$stim1_start_p <- c("b1a_pic$", "b1b_pic$", "b2_face$", "b3_pic$", "b4a_text$", "b4b_text$", "b5a_scale$", "-(\\d)* (scale_start)$")
+time_info$stim2_start_p <- c("b1a_q1$", "b1b_q1$", "b2_star$", NA, NA, NA, NA, NA)
+time_info$stim3_start_p <- c("b1a_q2$", "b1b_q2$", NA, NA, NA, NA, NA, NA)
+time_info$stim4_start_p <- c("b1a_q3$", "b1b_q3$", NA, NA, NA, NA, NA, NA)
+time_info$stim5_start_p <- c("b1a_q4$", "b1b_q4$", NA, NA, NA, NA, NA, NA)
+time_info$stim1_end_p <- c(NA, NA, NA, NA, "b4a_keyboard$", "b4b_keyboard$", "b5a_keyboard$", "0 scale_start")
+time_info$stim2_end_p <- c("b1a_keyboard_1$", "b1b_keyboard_1$", "b2_keyboard$", NA, NA, NA, NA, NA)
+time_info$stim3_end_p <- c("b1a_keyboard_2$", "b1b_keyboard_2$", NA, NA, NA, NA, NA, NA)
+time_info$stim4_end_p <- c("b1a_keyboard_3$", "b1b_keyboard_3$", NA, NA, NA, NA, NA, NA)
+time_info$stim5_end_p <- c("b1a_keyboard_4$", "b1b_keyboard_4$", NA, NA, NA, NA, NA, NA)
 
-# 该解决b3 type 抓取的问题了
+# define function1 get type time
+get_time <- function(z,y=A01_msg){
+  time <- y[which(str_detect(y$text,z)),c(1,2,4,5)]
+}
+
+# define function2 that get time
+get_time2 <- function(y, z){
+  time <- map(y, get_time)
+  time <- bind_rows(time)
+  names(time)[names(time) =="time"] <- z
+  time
+}
+
+stim_1_start <- get_time2(time_info$stim1_start_p, "stim_1_start")
+stim_2_start <- get_time2(time_info$stim2_start_p, "stim_2_start")
+stim_3_start <- get_time2(time_info$stim3_start_p, "stim_3_start")
+stim_4_start <- get_time2(time_info$stim4_start_p, "stim_4_start")
+stim_5_start <- get_time2(time_info$stim5_start_p, "stim_5_start")
+
+stim_1_end <- get_time2(time_info$stim1_end_p, "stim_1_end")
+stim_2_end <- get_time2(time_info$stim2_end_p, "stim_2_end")
+stim_3_end <- get_time2(time_info$stim3_end_p, "stim_3_end")
+stim_4_end <- get_time2(time_info$stim4_end_p, "stim_4_end")
+stim_5_end <- get_time2(time_info$stim5_end_p, "stim_5_end")
+
+time_list <- list(stim_1_start, stim_2_start, stim_3_start, stim_4_start, stim_5_start, stim_1_end, stim_2_end, stim_3_end, stim_4_end, stim_5_end)
+
+time_info <- reduce(time_list, full_join)
+
+all_msg <- full_join(all_msg, time_info)
