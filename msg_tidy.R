@@ -5,6 +5,7 @@ require(ggplot2)
 require(intervals)
 require(stringr)
 library(purrr)
+require(readxl)
 
 # define ascfile
 ascfile <- "edf/s01/A01.asc"
@@ -82,15 +83,61 @@ getinfo <- function(bb,y){
   dd
 }
 
+# get b3 type info
+b3_type_p <- c("!V TRIAL_VAR b3_n1 ", "!V TRIAL_VAR b3_n2 ", "!V TRIAL_VAR b3_n3 ", "!V TRIAL_VAR b3_n4 ")
+ne_list <- read_excel("ne.xlsx")
+nefil_list <- read_excel("nefil.xlsx")
+neg_list <- read_excel("neg.xlsx")
+pos_list <- read_excel("pos.xlsx")
+thr_list <- read_excel("thr.xlsx")
+ne_list$emo <- "ne"
+nefil_list$emo <- "nefil"
+neg_list$emo <- "neg"
+pos_list$emo <- "pos"
+thr_list$emo <- "thr"
+all_emo <- list(ne_list, nefil_list, neg_list, pos_list, thr_list)
+all_emo <- reduce(all_emo, bind_rows)
+
+b3_get <- function(x){
+  A01_msg_b3 <- filter(A01_msg, block_name=="b3")
+  A01_msg_b3$type <- str_split_fixed(A01_msg_b3$text,x,2)[,2]
+  qianmian <- str_split_fixed(A01_msg_b3$text, "!V TRIAL_VAR b3_",2)[,2]
+  A01_msg_b3$posi <- str_split_fixed(qianmian, " ",2)[,1]
+  A01_msg_b3 
+}
+
+b3_all <- b3_type_p %>% map(b3_get) %>%
+  reduce(full_join) %>%
+  filter(posi!="") %>%
+  filter(type!="") %>%
+  select(-2, -3) %>%
+  pivot_wider(names_from = "posi", values_from = "type")
+
+b3_match <- function(x){
+  a <- all_emo[which(str_detect(all_emo$filename, x)),2]
+  a
+}
+
+b3_all$n1_emo <- unlist(map(b3_all$n1, b3_match))
+b3_all$n2_emo <- unlist(map(b3_all$n2, b3_match))
+b3_all$n3_emo <- unlist(map(b3_all$n3, b3_match))
+b3_all$n4_emo <- unlist(map(b3_all$n4, b3_match))
+b3_all <- b3_all %>% mutate(type = paste(n1_emo, n2_emo, n3_emo, n4_emo, sep = "_")) %>%
+  mutate(trial_name = paste(n1, n2, n3, n4, sep = "_")) %>%
+  mutate(trial_name = paste(n1, n2, n3, n4, sep = "_")) %>%
+  select(1,2,3,type,trial_name)
+
 # get type info
 type_info <- getinfo("type", block_info$type_p)
 b4type <- filter(type_info, str_detect(type_info$block_name, ("b4a|b4b")))
 b4type$type <- str_split_fixed(b4type$type, ".0", 2)[,1]
 othertype <- filter(type_info, !str_detect(type_info$block_name, ("b4a|b4b")))
 type_info <- bind_rows(othertype, b4type)
+type_info <- full_join(type_info, b3_all)
 
 # get trial info
 trial_info <- getinfo("trial_name", block_info$file_p)
+trial_info <- full_join(trial_info, b3_all)
 
 # get keypress info
 k1_info <- getinfo("k1", block_info$key_1_p)
@@ -153,6 +200,7 @@ stim_5_end <- get_time2(time_info$stim5_end_p, "stim_5_end")
 
 time_list <- list(stim_1_start, stim_2_start, stim_3_start, stim_4_start, stim_5_start, stim_1_end, stim_2_end, stim_3_end, stim_4_end, stim_5_end)
 
-time_info <- reduce(time_list, full_join)
-
-all_msg <- full_join(all_msg, time_info)
+all_msg <- time_list %>% reduce(full_join) %>%
+  full_join(all_msg) %>%
+  arrange(block) %>%
+  select(block, block_name, trial_id, trial_name, type, k1, k2, k3, k4, acc, rt, stim_1_start, stim_1_end, stim_2_start, stim_2_end, stim_3_start, stim_3_end, stim_4_start, stim_4_end, stim_5_start, stim_5_end)
