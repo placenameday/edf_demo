@@ -3,7 +3,7 @@ require(tidyr)
 require(ggplot2)
 require(intervals)
 require(stringr)
-library(purrr)
+require(purrr)
 require(readxl)
 
 
