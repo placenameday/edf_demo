@@ -8,7 +8,7 @@ library(purrr)
 require(readxl)
 
 # define ascfile
-ascfile <- "edf/s01/1004.asc"
+ascfile <- "data/raw/eye_asc/1004.asc"
 # read asffile and extract msg info
 A01 <- read_asc(ascfile, parse_all = TRUE)
 A01_msg <- A01$msg
@@ -85,11 +85,11 @@ getinfo <- function(bb,y){
 
 # get b3 type info
 b3_type_p <- c("!V TRIAL_VAR b3_n1 ", "!V TRIAL_VAR b3_n2 ", "!V TRIAL_VAR b3_n3 ", "!V TRIAL_VAR b3_n4 ")
-ne_list <- read_excel("ne.xlsx")
-nefil_list <- read_excel("para_data/nefil.xlsx")
-neg_list <- read_excel("para_data/neg.xlsx")
-pos_list <- read_excel("para_data/pos.xlsx")
-thr_list <- read_excel("para_data/thr.xlsx")
+ne_list <- read_excel("para/para_data/ne.xlsx")
+nefil_list <- read_excel("para/para_data/nefil.xlsx")
+neg_list <- read_excel("para/para_data/neg.xlsx")
+pos_list <- read_excel("para/para_data/pos.xlsx")
+thr_list <- read_excel("para/para_data/thr.xlsx")
 ne_list$emo <- "ne"
 nefil_list$emo <- "nefil"
 neg_list$emo <- "neg"

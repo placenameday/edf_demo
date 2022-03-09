@@ -66,7 +66,7 @@ get_tidy_msg <- function(x){
   raw_msg <- mutate(raw_msg, trial_id=block- minl + 1)
   
   # define function1 get type info
-  get_type <- function(x,z,y=A01_msg){
+  get_type <- function(x,z,y=raw_msg){
     info_type <- filter(y, block_name==x)
     info_type$type <- str_split_fixed(info_type$text,z,2)[,2]
     info_type <- info_type[!(info_type$type==""), ]
@@ -83,11 +83,11 @@ get_tidy_msg <- function(x){
   
   # get b3 type info
   b3_type_p <- c("!V TRIAL_VAR b3_n1 ", "!V TRIAL_VAR b3_n2 ", "!V TRIAL_VAR b3_n3 ", "!V TRIAL_VAR b3_n4 ")
-  ne_list <- read_excel("para_data/ne.xlsx")
-  nefil_list <- read_excel("para_data/nefil.xlsx")
-  neg_list <- read_excel("para_data/neg.xlsx")
-  pos_list <- read_excel("para_data/pos.xlsx")
-  thr_list <- read_excel("para_data/thr.xlsx")
+  ne_list <- read_excel("para/para_data/ne.xlsx")
+  nefil_list <- read_excel("para/para_data/nefil.xlsx")
+  neg_list <- read_excel("para/para_data/neg.xlsx")
+  pos_list <- read_excel("para/para_data/pos.xlsx")
+  thr_list <- read_excel("para/para_data/thr.xlsx")
   ne_list$emo <- "ne"
   nefil_list$emo <- "nefil"
   neg_list$emo <- "neg"
@@ -97,11 +97,11 @@ get_tidy_msg <- function(x){
   all_emo <- reduce(all_emo, bind_rows)
   
   b3_get <- function(x){
-    A01_msg_b3 <- filter(raw_msg, block_name=="b3")
-    A01_msg_b3$type <- str_split_fixed(A01_msg_b3$text,x,2)[,2]
-    qianmian <- str_split_fixed(A01_msg_b3$text, "!V TRIAL_VAR b3_",2)[,2]
-    A01_msg_b3$posi <- str_split_fixed(qianmian, " ",2)[,1]
-    A01_msg_b3 
+    raw_msg_b3 <- filter(raw_msg, block_name=="b3")
+    raw_msg_b3$type <- str_split_fixed(raw_msg_b3$text,x,2)[,2]
+    qianmian <- str_split_fixed(raw_msg_b3$text, "!V TRIAL_VAR b3_",2)[,2]
+    raw_msg_b3$posi <- str_split_fixed(qianmian, " ",2)[,1]
+    raw_msg_b3 
   }
   
   b3_all <- b3_type_p %>% map(b3_get) %>%
@@ -172,7 +172,7 @@ get_tidy_msg <- function(x){
   time_info$stim5_end_p <- c("b1a_keyboard_4$", "b1b_keyboard_4$", NA, NA, NA, NA, NA, NA)
   
   # define function1 get type time
-  get_time <- function(z,y=A01_msg){
+  get_time <- function(z,y=raw_msg){
     time <- y[which(str_detect(y$text,z)),c(1,2,4,5)]
   }
   
