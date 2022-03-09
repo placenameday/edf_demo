@@ -8,7 +8,7 @@ library(purrr)
 require(readxl)
 
 # define ascfile
-ascfile <- "edf/s01/A01.asc"
+ascfile <- "edf/s01/1004.asc"
 # read asffile and extract msg info
 A01 <- read_asc(ascfile, parse_all = TRUE)
 A01_msg <- A01$msg
@@ -86,10 +86,10 @@ getinfo <- function(bb,y){
 # get b3 type info
 b3_type_p <- c("!V TRIAL_VAR b3_n1 ", "!V TRIAL_VAR b3_n2 ", "!V TRIAL_VAR b3_n3 ", "!V TRIAL_VAR b3_n4 ")
 ne_list <- read_excel("ne.xlsx")
-nefil_list <- read_excel("nefil.xlsx")
-neg_list <- read_excel("neg.xlsx")
-pos_list <- read_excel("pos.xlsx")
-thr_list <- read_excel("thr.xlsx")
+nefil_list <- read_excel("para_data/nefil.xlsx")
+neg_list <- read_excel("para_data/neg.xlsx")
+pos_list <- read_excel("para_data/pos.xlsx")
+thr_list <- read_excel("para_data/thr.xlsx")
 ne_list$emo <- "ne"
 nefil_list$emo <- "nefil"
 neg_list$emo <- "neg"
@@ -167,7 +167,7 @@ time_info$stim2_start_p <- c("b1a_q1$", "b1b_q1$", "b2_star$", NA, NA, NA, NA, N
 time_info$stim3_start_p <- c("b1a_q2$", "b1b_q2$", NA, NA, NA, NA, NA, NA)
 time_info$stim4_start_p <- c("b1a_q3$", "b1b_q3$", NA, NA, NA, NA, NA, NA)
 time_info$stim5_start_p <- c("b1a_q4$", "b1b_q4$", NA, NA, NA, NA, NA, NA)
-time_info$stim1_end_p <- c(NA, NA, NA, NA, "b4a_keyboard$", "b4b_keyboard$", "b5a_keyboard$", "0 scale_start")
+time_info$stim1_end_p <- c(NA, NA, NA, NA, "b4a_keyboard$", "b4b_keyboard$", "b5a_keyboard$", "^0 scale_start$")
 time_info$stim2_end_p <- c("b1a_keyboard_1$", "b1b_keyboard_1$", "b2_keyboard$", NA, NA, NA, NA, NA)
 time_info$stim3_end_p <- c("b1a_keyboard_2$", "b1b_keyboard_2$", NA, NA, NA, NA, NA, NA)
 time_info$stim4_end_p <- c("b1a_keyboard_3$", "b1b_keyboard_3$", NA, NA, NA, NA, NA, NA)
