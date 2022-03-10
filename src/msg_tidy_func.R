@@ -1,7 +1,5 @@
 require(dplyr)
 require(tidyr)
-require(ggplot2)
-require(intervals)
 require(stringr)
 require(purrr)
 require(readxl)
@@ -204,5 +202,8 @@ get_tidy_msg <- function(x){
     full_join(all_msg) %>%
     arrange(block) %>%
     select(block, block_name, trial_id, trial_name, type, k1, k2, k3, k4, acc, rt, stim_1_start, stim_1_end, stim_2_start, stim_2_end, stim_3_start, stim_3_end, stim_4_start, stim_4_end, stim_5_start, stim_5_end)
+  all_msg$participant_group <- x$participant_group$group
+  all_msg$participant_phone <- x$participant_phone$phone
   all_msg
 }
+
