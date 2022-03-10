@@ -1,11 +1,4 @@
-library(eyelinker)
-require(dplyr)
-require(tidyr)
-require(ggplot2)
-require(intervals)
-require(stringr)
-library(purrr)
-require(readxl)
+
 
 # define ascfile
 ascfile <- "data/raw/eye_asc/1004.asc"

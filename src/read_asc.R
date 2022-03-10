@@ -3,6 +3,7 @@
 read <- function(file){
   require(eyelinker)
   require(readxl)
+  require(stringr)
   dt <- read_asc(file, parse_all = T)
   check_list <- read_excel("para/para_data/check_list.xlsx")
   participant_id <- str_extract(file, "\\d\\d\\d\\d")

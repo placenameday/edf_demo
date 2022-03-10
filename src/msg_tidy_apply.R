@@ -5,7 +5,7 @@ require(purrr)
 require(readxl)
 
 
-get_tidy_msg <- function(x){
+apply_tidy_msg <- function(x){
   # read asffile and extract msg info
   raw_msg <- x$msg
   raw_msg <- mutate(raw_msg, block = floor(block))
@@ -212,5 +212,6 @@ get_tidy_msg <- function(x){
     mutate(stim_1_end=stim_1_start+30000)
   final <-filter(all_msg, block_name!="b3") %>% full_join(b3_fix) %>%
     arrange(block)
-  final
+  x$msg <- final
+  x
 }
