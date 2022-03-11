@@ -21,7 +21,8 @@ stamp_raw <- function(msg, raw){
     raw_2 <- bind_rows(raw_2, select(raw_l, time, stim))
   }
   
-  raw_3 <- full_join(raw, raw_2)
+  raw_3 <- raw %>% full_join(raw_2) %>%
+  full_join(select(msg, c(1,2,3,4,5,24,25)))
 }
 
 panduan2 <- function(t1, t2, stim_list){
@@ -42,12 +43,13 @@ stamp2 <- function(msg, tar){
     row.names(stim_list) <- NULL
     
     tar_l <- filter(tar, block == i)
-    tar_l$stim <- unlist(map2(tar_l$stime,tar_l$etime,panduan2,stim_list=stim_list))
-    tar_2 <- bind_rows(tar_2, select(tar_l, stime, etime, stim))
+    if (nrow(tar_l)!=0) {
+      tar_l$stim <- unlist(map2(tar_l$stime,tar_l$etime,panduan2,stim_list=stim_list))
+      tar_2 <- bind_rows(tar_2, select(tar_l, stime, etime, stim))
+    }
   }
   
-  tar_3 <- full_join(tar, tar_2)
+  tar_3 <- tar %>% full_join(tar_2) %>%
+    full_join(select(msg, c(1,2,3,4,5,24,25)))
 }
 
-#msg <- asc_1$msg
-#tar <- asc_1$fix
