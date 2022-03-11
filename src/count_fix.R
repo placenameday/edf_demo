@@ -1,6 +1,8 @@
 
-count_fix <- function(data, blockname=NULL, type=NULL, group=NULL, stim=NULL){
+stamp <- function(data){
   fixinfo <- data$fix
+  saccinfo <- data$sacc
+  blinksinfo <- data$blinks
   msg <- data$msg
   
   judge_time <- function(block, st, et){
@@ -25,9 +27,13 @@ count_fix <- function(data, blockname=NULL, type=NULL, group=NULL, stim=NULL){
   }
   
   fixinfo$stim_info <- unlist(pmap(list(fixinfo$block, fixinfo$stime, fixinfo$etime), judge_time))
+  saccinfo$stim_info <- unlist(pmap(list(saccinfo$block, saccinfo$stime, saccinfo$etime), judge_time))
+  blinksinfo$stim_info <- unlist(pmap(list(blinksinfo$block, blinksinfo$stime, blinksinfo$etime), judge_time))
   
-  fixinfo <- full_join(select(data$msg, c(1,2,3,4,5)), fixinfo)
-  fixinfo
+  data$fix <- full_join(select(data$msg, c(1,2,3,4,5,24,25)), fixinfo)
+  data$sacc <- full_join(select(data$msg, c(1,2,3,4,5,24,25)), saccinfo)
+  data$blinks <- full_join(select(data$msg, c(1,2,3,4,5,24,25)), blinksinfo)
+  data
 }
 
 
