@@ -38,10 +38,11 @@ apply_tidy_msg <- function(x){
   
   # get block name
   block_j <- function(a, b){
-    if (a == 0) {
+    if ((a == 0) | (length(which(b$min <= a & a <= b$max)) == 0)) {
       "b0"
-    } else  
+    } else {
       b$block_id[which(b$min <= a & a <= b$max)]
+    }
   }
   
   raw_msg$block_name <- unlist(map(raw_msg$block, block_j, b=block_info))
