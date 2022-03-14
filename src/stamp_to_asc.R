@@ -1,6 +1,3 @@
-source("src/read_asc.R")
-source("src/msg_tidy_apply.R")
-source("src/stamp.R")
 
 stamp_asc_fu <- function(ascid, ascdic=ac, outputdic=bc){
   ascfile <- paste(ascdic, ascid, ".asc", sep = "")
@@ -23,6 +20,7 @@ stamp_asc_fu <- function(ascid, ascdic=ac, outputdic=bc){
   asc_tidy
 }
 
+
 stamp_asc <- function(ascid, ascdic=ac, outputdic=bc){
   ascfile <- paste(ascdic, ascid, ".asc", sep = "")
   asc <- read(ascfile)
@@ -43,17 +41,3 @@ stamp_asc <- function(ascid, ascdic=ac, outputdic=bc){
   write_csv(asc_tidy$msg, msg_csvfile)
   asc_tidy
 }
-
-
-ac <- "data/raw/eye_asc/"
-bc <- "data/processed/eye_tacking/tidy/"
-
-ren <- c("1037")
-li <- read_excel("para/para_data/asc_list.xlsx")
-rr <- as.character(li$list)
-
-map(ren, stamp_asc, ascdic=ac, outputdic=bc)
-future_map(ren, stamp_asc_fu, ascdic=ac, outputdic=bc)
-
-map(ren, ~ try(stamp_asc_fu(.x)))
-map(ren, ~ try(stamp_asc(.x)))
