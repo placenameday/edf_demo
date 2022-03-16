@@ -1,4 +1,4 @@
-dt <- read_csv("a01.csv", locale=locale(encoding = 'GB18030'))
+dt <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/sclae_cred/a01.csv", locale=locale(encoding = 'GB18030'))
 dtn <- select(dt, 作答ID, 作答时长, 20:119)
 dtnn <- select(dtn, -Q2_1, -Q3_1, -Q4_1, -Q5_1)
 
@@ -20,7 +20,7 @@ aa <- as.data.frame(a)
 relist <- rename(aa, no = 1)
 
 relist$list <- str_c("Anxe", relist$no)
-write_csv(dtv1, "dtv1.csv")
+# write_excel_csv(dtv1, "/Users/placenameday/R study/edf_demo/data/processed/sclae_cred/dtv1.csv")
 select(dtv1, relist$list)
 f <- select(dtv1, relist$list)
 f = 5- f
@@ -60,4 +60,8 @@ dtv1_re$phoneadd <- rowSums(dtv1_re[,phono_n])
 
 my_dt <- select(dtv1_re, 1:9, tzjl, ztjl, Mindfulober, Mindfulmdesc, Mindfulactaw, Mindfulnojug, Mindfulnorea, phoneadd)
 
-write_csv(my_dt, "my_dt.csv")
+my_dt <- mutate(my_dt, maas = round((Mindfulober+ Mindfulmdesc+ Mindfulactaw+ Mindfulnojug+ Mindfulnorea)/195*90))
+
+my_dt <- select(my_dt, 1:9, tzjl, ztjl, maas, phoneadd)
+
+write_excel_csv(my_dt, "/Users/placenameday/R study/edf_demo/data/processed/sclae_cred/a01_1.csv")
