@@ -3,6 +3,7 @@ fix_all <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tac
 sacc_all <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/sacc.csv")
 blinks_all <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/blinks.csv")
 
+# function that filter by block name
 get_b1 <- function(x,y,z){
   x <- group_by(x, participant_phone, participant_group, block_name, stim) %>%
     filter(block_name %in% y, stim %in% z)
@@ -12,6 +13,7 @@ get_b1 <- function(x,y,z){
   x
 }
 
+# function that summarize all eye event
 merge_event <- function(block, stim, x=fix_all,y=sacc_all,z=blinks_all){
   fix_sum <- summarise(get_b1(x, block, stim), fix_count = sum(!is.na(dur)), fix_duration = mean(dur, na.rm = T), pupil = mean(aps, na.rm = T))
   
@@ -29,8 +31,8 @@ b3_eye_event <- merge_event(c("b3"), c(1)) %>% left_join(read_csv("/Users/placen
 b4_eye_event <- merge_event(c("b4a","b4b"), c(1)) %>% left_join(read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/scale_sum.csv"))
 b5_eye_event <- merge_event(c("b5a","b5b"), c(1)) %>% left_join(read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/scale_sum.csv"))
 
-write_excel_csv(b1_eye_event, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/block_analy/b1_eye_event")
-write_excel_csv(b2_eye_event, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/block_analy/b2_eye_event")
-write_excel_csv(b3_eye_event, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/block_analy/b3_eye_event")
-write_excel_csv(b4_eye_event, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/block_analy/b4_eye_event")
-write_excel_csv(b5_eye_event, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/block_analy/b5_eye_event")
+write_excel_csv(b1_eye_event, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/block_analy/b1_eye_event.csv")
+write_excel_csv(b2_eye_event, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/block_analy/b2_eye_event.csv")
+write_excel_csv(b3_eye_event, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/block_analy/b3_eye_event.csv")
+write_excel_csv(b4_eye_event, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/block_analy/b4_eye_event.csv")
+write_excel_csv(b5_eye_event, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/block_analy/b5_eye_event.csv")

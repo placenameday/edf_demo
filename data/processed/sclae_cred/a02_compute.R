@@ -1,4 +1,4 @@
-dt <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/sclae_cred/a03.csv", locale=locale(encoding = 'GB18030'))
+dt <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/sclae_cred/webdownload/2022_03_29_11_59_43.csv", locale=locale(encoding = 'GB18030'))
 dtn <- select(dt, 作答ID, 作答时长, 20:98)
 dtnn <- select(dtn, -Q2_1, -Q3_1, -Q4_1, -Q5_1, -Q3_8, -Q4_7, -Q5_8)
 
@@ -37,4 +37,6 @@ dtv1_re$phoneadd <- rowSums(dtv1_re[,phono_n])
 
 my_dt <- select(dtv1_re, 1:9, tzjl, ztjl, maas, phoneadd)
 
-write_excel_csv(my_dt, "/Users/placenameday/R study/edf_demo/data/processed/sclae_cred/a03_1.csv")
+my_dt <- rename(my_dt, participant_phone=phone)
+
+write_excel_csv(my_dt, "/Users/placenameday/R study/edf_demo/data/processed/sclae_cred/a04.csv")

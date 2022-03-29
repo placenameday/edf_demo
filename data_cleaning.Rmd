@@ -1,0 +1,22 @@
+---
+title: "数据清洗"
+author: "Chen Xing"
+date: '2022-03-29'
+output: html_document
+---
+
+# 摘要
+原始数据进行清洗的全过程。
+
+
+# 数据读取
+*eyelink*原始数据为**edf**文件，需要`dataviewer`进行处理，通过官方提供的工具`EDFConverter`可以转换为`asc`文件，从而实现`R`进行分析。通过`eyelinker`包实现对asc文件的读取，通过结合实验登记表信息`check_list.xlsx`，完成asc数据分组信息与被试标记（手机号）的结合。
+以上过程被打包进`read_asc.R`脚本中
+
+# 眼动数据标记
+通过实验设计中的标记，对asc数据文件msg信息进行整理，`msg_tidy_apply.R`   
+通过整理的msg信息对眼动事件进行标记，`stamp.R` & `stamp_to_asc.R`   
+通过脚本`analysis.R`实现批量处理并输出数据
+
+
+# 
