@@ -11,8 +11,8 @@ bc <- "data/processed/eye_tacking/tidy/"
 # set solo file list
 ren <- c("2013", "2014")
 # set list file
-li <- read_excel("para/para_data/asc_list.xlsx")
-rr <- as.character(li$list)
+li <- read_excel("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/list.xlsx")
+rr <- as.character(li$filename)
 
 # set multisession core
 plan(multisession, workers = 4)

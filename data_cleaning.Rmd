@@ -16,7 +16,7 @@ output: html_document
 # 眼动数据标记
 通过实验设计中的标记，对asc数据文件msg信息进行整理，`msg_tidy_apply.R`   
 通过整理的msg信息对眼动事件进行标记，`stamp.R` & `stamp_to_asc.R`   
-通过脚本`analysis.R`实现批量处理并输出数据
+通过脚本`analysis.R`实现批量处理并输出数据，数据分别保存在`data\processed\eye_tracking\tidy\`相应文件夹中。
 
-
-# 
+# 各个block数据抽取汇总
+汇总eye_event（个人文件）

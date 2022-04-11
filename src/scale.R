@@ -56,7 +56,7 @@ scale_sum_b5 <- filter(scale_sum, type %in% c("tgjl", "maas", "sas"))
 scale_sum_b5 <- pivot_wider(scale_sum_b5, names_from = type, values_from = scale_sum)
 scale_sum_b5 <- rename(scale_sum_b5, tgjl_e = tgjl, maas_e = maas, sas_e = sas)
 
-cred <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/sclae_cred/processed/all_2.csv") %>%
+cred <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/sclae_cred/processed/all_4.csv") %>%
   select(-(1:4), -statu, -ztjl) %>%
   rename(tgjl = tzjl, sas=phoneadd)
 
