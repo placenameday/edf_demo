@@ -1,5 +1,5 @@
 ---
-title: "数据清洗"
+title: "数据整理与清洗"
 author: "Chen Xing"
 date: '2022-03-29'
 output: html_document
@@ -18,5 +18,121 @@ output: html_document
 通过整理的msg信息对眼动事件进行标记，`stamp.R` & `stamp_to_asc.R`   
 通过脚本`analysis.R`实现批量处理并输出数据，数据分别保存在`data\processed\eye_tracking\tidy\`相应文件夹中。
 
-# 各个block数据抽取汇总
-汇总eye_event（个人文件）
+# 数据清洗
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(readxl)
+library(data.table)
+library(furrr)
+plan(multisession, workers = 4)
+```
+## 1. 排出眼动数据缺失被试
+```{r, message=FALSE, warning=FALSE}
+dt <- read_csv("/Users/placenameday/R study/edf_demo/para/para_data/数据核对表.csv")
+check <- read_excel("/Users/placenameday/R study/edf_demo/para/para_data/check_list.xlsx") %>% rename(participant_phone=phone) %>% mutate(participant_phone=as.numeric(participant_phone))
+
+queshi <- anti_join(check,dt) %>% mutate(reason="眼动缺失")
+queshi
+```
+1042,3018,4027无眼动数据
+
+## 2. 列出重复被试
+```{r, message=FALSE, warning=FALSE}
+chongfu <- check[which(duplicated(check$participant_phone)),]
+chongfu <- full_join(chongfu,check[which(check$participant_phone==18220577603),]) %>% mutate(reason="重复数据")
+chongfu
+```
+1007，1028重复，删除1028。 2014，1050标识重复，都剔除。
+
+## 3. 剔除眼动数据有效率过低被试
+```{r, message=FALSE, warning=FALSE}
+# 定义函数 计算有效眼动数据比例
+vali_eye <- function(rawd){
+  dt <- fread(rawd) %>%
+    mutate(wuxiao=if_else((xp==0&yp==0)|(is.na(xp)&is.na(yp)), 1,0), youxiao=if_else((xp==0&yp==0)|(is.na(xp)&is.na(yp)), 0,1)) %>%
+    group_by(participant_group, participant_phone, block_name) %>%
+    summarise(vali=sum(wuxiao)/(sum(youxiao)+sum(wuxiao)))
+}
+
+ve_c <- function(dic){
+  file_list <- paste(dic,"/",list.files(dic), sep = "")
+  ilist <- map(file_list, vali_eye)
+  bind_rows(ilist)
+}
+
+youxiao <- ve_c("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/raw")
+```
+
+```{r, message=FALSE, warning=FALSE}
+wx <- group_by(youxiao, participant_phone) %>% summarise(vali_m=mean(vali)) %>%
+  mutate(participant_phone=as.numeric(participant_phone)) %>%
+  filter(vali_m>0.50) %>% left_join(check) %>%
+  select(name, "participant id", participant_phone, group) %>% filter(!is.na(name)) %>% mutate(reason="眼动不足")
+wx
+```
+4015，3015整体眼动数据丢失率大于50%，剔除。
+
+## 4. 输出排除列表
+将排除列表输出保存。
+```{r, message=FALSE, warning=FALSE}
+pc <- full_join(queshi, chongfu) %>% full_join(wx)
+pc
+write_excel_csv(pc, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/paichu.csv")
+```
+
+## 5. 按个体、每个trial、每个刺激计算眼动数据丢失率
+计算剩余被试的详细眼动丢失率
+```{r, message=FALSE, warning=FALSE}
+# 定义函数 计算有效眼动数据比例 基于每一个trial 每一个刺激
+vali_eye_t <- function(rawd){
+  dt <- fread(rawd) %>%
+    mutate(wuxiao=if_else((xp==0&yp==0)|(is.na(xp)&is.na(yp)), 1,0), youxiao=if_else((xp==0&yp==0)|(is.na(xp)&is.na(yp)), 0,1)) %>%
+    group_by(participant_group, participant_phone, block, stim) %>%
+    filter(!participant_phone %in% pc$participant_phone) %>%
+    summarise(vali=sum(wuxiao)/(sum(youxiao)+sum(wuxiao)))
+}
+
+ve_c_t <- function(dic){
+  file_list <- paste(dic,"/",list.files(dic), sep = "")
+  ilist <- future_map(file_list, vali_eye_t)
+  bind_rows(ilist)
+}
+
+track_loss <- ve_c_t("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/raw") %>%
+  filter(vali > 0.25, !is.na(participant_phone))
+
+write_excel_csv(track_loss, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/track_loss_trial.csv")
+```
+
+## 6. 输出清洗过的数据
+对raw文件全部清洗逐一输出
+```{r, message=FALSE, warning=FALSE}
+loss_clean <- function(file){
+  dt <- fread(file)
+  if (unique(as.numeric(dt$participant_phone)[[1]]) %in% pc$participant_phone) {
+    return(NA)
+  } else
+    dt <- filter(dt, !is.na(participant_phone))
+    loss_info <- filter(track_loss, participant_phone == dt$participant_phone[[1]])
+    dt_c <- anti_join(dt, loss_info)
+    dt_c
+}
+
+
+raw_clean_save <- function(rdic, sdic){
+  if (!dir.exists(sdic)) {
+    dir.create(sdic)
+  }
+  out_list <- paste(sdic,"/",list.files(rdic), sep = "")
+  file_list <- paste(rdic,"/",list.files(rdic), sep = "")
+  map2(file_list, out_list, ~try(write_excel_csv(loss_clean(.x), .y)))
+  "done"
+}
+
+dic <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/"
+rname <- c("raw", "fix", "sacc", "blinks")
+rlist <- paste(dic, rname, sep = "")
+olist <- paste(dic, rname, "_", "clean", sep = "")
+map2(rlist, olist, raw_clean_save)
+```
+数据清洗完毕

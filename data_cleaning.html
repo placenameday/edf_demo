@@ -13,7 +13,7 @@
 
 <meta name="date" content="2022-03-29" />
 
-<title>数据清洗</title>
+<title>数据整理与清洗</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -359,7 +359,7 @@ pre code {
 
 
 
-<h1 class="title toc-ignore">数据清洗</h1>
+<h1 class="title toc-ignore">数据整理与清洗</h1>
 <h4 class="author">Chen Xing</h4>
 <h4 class="date">2022-03-29</h4>
 
@@ -380,10 +380,199 @@ pre code {
 <p>通过实验设计中的标记，对asc数据文件msg信息进行整理，<code>msg_tidy_apply.R</code><br />
 通过整理的msg信息对眼动事件进行标记，<code>stamp.R</code> &amp;
 <code>stamp_to_asc.R</code><br />
-通过脚本<code>analysis.R</code>实现批量处理并输出数据</p>
+通过脚本<code>analysis.R</code>实现批量处理并输出数据，数据分别保存在<code>data\processed\eye_tracking\tidy\</code>相应文件夹中。</p>
 </div>
-<div id="section" class="section level1">
-<h1></h1>
+<div id="数据清洗" class="section level1">
+<h1>数据清洗</h1>
+<div id="排出眼动数据缺失被试" class="section level2">
+<h2>1. 排出眼动数据缺失被试</h2>
+<pre class="r"><code>dt &lt;- read_csv(&quot;/Users/placenameday/R study/edf_demo/para/para_data/数据核对表.csv&quot;)
+check &lt;- read_excel(&quot;/Users/placenameday/R study/edf_demo/para/para_data/check_list.xlsx&quot;) %&gt;% rename(participant_phone=phone) %&gt;% mutate(participant_phone=as.numeric(participant_phone))
+
+queshi &lt;- anti_join(check,dt) %&gt;% mutate(reason=&quot;眼动缺失&quot;)
+queshi</code></pre>
+<pre><code>## # A tibble: 3 × 5
+##   name   `participant id` participant_phone group reason  
+##   &lt;chr&gt;             &lt;dbl&gt;             &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;   
+## 1 李儇儇             1042       18793281662 b     眼动缺失
+## 2 冯佳明             3018       19522515563 b     眼动缺失
+## 3 王彬               4027       13700275653 c     眼动缺失</code></pre>
+<p>1042,3018,4027无眼动数据</p>
+</div>
+<div id="列出重复被试" class="section level2">
+<h2>2. 列出重复被试</h2>
+<pre class="r"><code>chongfu &lt;- check[which(duplicated(check$participant_phone)),]
+chongfu &lt;- full_join(chongfu,check[which(check$participant_phone==18220577603),]) %&gt;% mutate(reason=&quot;重复数据&quot;)
+chongfu</code></pre>
+<pre><code>## # A tibble: 3 × 5
+##   name   `participant id` participant_phone group reason  
+##   &lt;chr&gt;             &lt;dbl&gt;             &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;   
+## 1 张长翔             1028       18219973061 d     重复数据
+## 2 张宇杭             2014       18220577603 b     重复数据
+## 3 刘志斌             1050       18220577603 b     重复数据</code></pre>
+<p>1007，1028重复，删除1028。 2014，1050标识重复，都剔除。</p>
+</div>
+<div id="剔除眼动数据有效率过低被试" class="section level2">
+<h2>3. 剔除眼动数据有效率过低被试</h2>
+<pre class="r"><code># 定义函数 计算有效眼动数据比例
+vali_eye &lt;- function(rawd){
+  dt &lt;- fread(rawd) %&gt;%
+    mutate(wuxiao=if_else((xp==0&amp;yp==0)|(is.na(xp)&amp;is.na(yp)), 1,0), youxiao=if_else((xp==0&amp;yp==0)|(is.na(xp)&amp;is.na(yp)), 0,1)) %&gt;%
+    group_by(participant_group, participant_phone, block_name) %&gt;%
+    summarise(vali=sum(wuxiao)/(sum(youxiao)+sum(wuxiao)))
+}
+
+ve_c &lt;- function(dic){
+  file_list &lt;- paste(dic,&quot;/&quot;,list.files(dic), sep = &quot;&quot;)
+  ilist &lt;- map(file_list, vali_eye)
+  bind_rows(ilist)
+}
+
+youxiao &lt;- ve_c(&quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/raw&quot;)</code></pre>
+<pre class="r"><code>wx &lt;- group_by(youxiao, participant_phone) %&gt;% summarise(vali_m=mean(vali)) %&gt;%
+  mutate(participant_phone=as.numeric(participant_phone)) %&gt;%
+  filter(vali_m&gt;0.50) %&gt;% left_join(check) %&gt;%
+  select(name, &quot;participant id&quot;, participant_phone, group) %&gt;% filter(!is.na(name)) %&gt;% mutate(reason=&quot;眼动不足&quot;)
+wx</code></pre>
+<pre><code>## # A tibble: 2 × 5
+##   name   `participant id` participant_phone group reason  
+##   &lt;chr&gt;             &lt;dbl&gt;             &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;   
+## 1 李林峰             4015       13604676395 c     眼动不足
+## 2 唐子茹             3015       18199259664 c     眼动不足</code></pre>
+<p>4015，3015整体眼动数据丢失率大于50%，剔除。</p>
+</div>
+<div id="输出排除列表" class="section level2">
+<h2>4. 输出排除列表</h2>
+<p>将排除列表输出保存。</p>
+<pre class="r"><code>pc &lt;- full_join(queshi, chongfu) %&gt;% full_join(wx)
+pc</code></pre>
+<pre><code>## # A tibble: 8 × 5
+##   name   `participant id` participant_phone group reason  
+##   &lt;chr&gt;             &lt;dbl&gt;             &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;   
+## 1 李儇儇             1042       18793281662 b     眼动缺失
+## 2 冯佳明             3018       19522515563 b     眼动缺失
+## 3 王彬               4027       13700275653 c     眼动缺失
+## 4 张长翔             1028       18219973061 d     重复数据
+## 5 张宇杭             2014       18220577603 b     重复数据
+## 6 刘志斌             1050       18220577603 b     重复数据
+## 7 李林峰             4015       13604676395 c     眼动不足
+## 8 唐子茹             3015       18199259664 c     眼动不足</code></pre>
+<pre class="r"><code>write_excel_csv(pc, &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/paichu.csv&quot;)</code></pre>
+</div>
+<div id="按个体每个trial每个刺激计算眼动数据丢失率" class="section level2">
+<h2>5. 按个体、每个trial、每个刺激计算眼动数据丢失率</h2>
+<p>计算剩余被试的详细眼动丢失率</p>
+<pre class="r"><code># 定义函数 计算有效眼动数据比例 基于每一个trial 每一个刺激
+vali_eye_t &lt;- function(rawd){
+  dt &lt;- fread(rawd) %&gt;%
+    mutate(wuxiao=if_else((xp==0&amp;yp==0)|(is.na(xp)&amp;is.na(yp)), 1,0), youxiao=if_else((xp==0&amp;yp==0)|(is.na(xp)&amp;is.na(yp)), 0,1)) %&gt;%
+    group_by(participant_group, participant_phone, block, stim) %&gt;%
+    filter(!participant_phone %in% pc$participant_phone) %&gt;%
+    summarise(vali=sum(wuxiao)/(sum(youxiao)+sum(wuxiao)))
+}
+
+ve_c_t &lt;- function(dic){
+  file_list &lt;- paste(dic,&quot;/&quot;,list.files(dic), sep = &quot;&quot;)
+  ilist &lt;- future_map(file_list, vali_eye_t)
+  bind_rows(ilist)
+}
+
+track_loss &lt;- ve_c_t(&quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/raw&quot;) %&gt;%
+  filter(vali &gt; 0.25, !is.na(participant_phone))
+
+write_excel_csv(track_loss, &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/track_loss_trial.csv&quot;)</code></pre>
+</div>
+<div id="输出清洗过的数据" class="section level2">
+<h2>6. 输出清洗过的数据</h2>
+<p>对raw文件全部清洗逐一输出</p>
+<pre class="r"><code>loss_clean &lt;- function(file){
+  dt &lt;- fread(file)
+  if (unique(as.numeric(dt$participant_phone)[[1]]) %in% pc$participant_phone) {
+    return(NA)
+  } else
+    dt &lt;- filter(dt, !is.na(participant_phone))
+    loss_info &lt;- filter(track_loss, participant_phone == dt$participant_phone[[1]])
+    dt_c &lt;- anti_join(dt, loss_info)
+    dt_c
+}
+
+
+raw_clean_save &lt;- function(rdic, sdic){
+  if (!dir.exists(sdic)) {
+    dir.create(sdic)
+  }
+  out_list &lt;- paste(sdic,&quot;/&quot;,list.files(rdic), sep = &quot;&quot;)
+  file_list &lt;- paste(rdic,&quot;/&quot;,list.files(rdic), sep = &quot;&quot;)
+  map2(file_list, out_list, ~try(write_excel_csv(loss_clean(.x), .y)))
+  &quot;done&quot;
+}
+
+dic &lt;- &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/&quot;
+rname &lt;- c(&quot;raw&quot;, &quot;fix&quot;, &quot;sacc&quot;, &quot;blinks&quot;)
+rlist &lt;- paste(dic, rname, sep = &quot;&quot;)
+olist &lt;- paste(dic, rname, &quot;_&quot;, &quot;clean&quot;, sep = &quot;&quot;)
+map2(rlist, olist, raw_clean_save)</code></pre>
+<pre><code>## Error in write_excel_csv(loss_clean(.x), .y) : 
+##   is.data.frame(x) is not TRUE
+## Error in write_excel_csv(loss_clean(.x), .y) : 
+##   is.data.frame(x) is not TRUE
+## Error in write_excel_csv(loss_clean(.x), .y) : 
+##   is.data.frame(x) is not TRUE
+## Error in write_excel_csv(loss_clean(.x), .y) : 
+##   is.data.frame(x) is not TRUE
+## Error in write_excel_csv(loss_clean(.x), .y) : 
+##   is.data.frame(x) is not TRUE
+## Error in write_excel_csv(loss_clean(.x), .y) : 
+##   is.data.frame(x) is not TRUE
+## Error in write_excel_csv(loss_clean(.x), .y) : 
+##   is.data.frame(x) is not TRUE
+## Error in write_excel_csv(loss_clean(.x), .y) : 
+##   is.data.frame(x) is not TRUE
+## Error in write_excel_csv(loss_clean(.x), .y) : 
+##   is.data.frame(x) is not TRUE
+## Error in write_excel_csv(loss_clean(.x), .y) : 
+##   is.data.frame(x) is not TRUE
+## Error in write_excel_csv(loss_clean(.x), .y) : 
+##   is.data.frame(x) is not TRUE
+## Error in write_excel_csv(loss_clean(.x), .y) : 
+##   is.data.frame(x) is not TRUE
+## Error in write_excel_csv(loss_clean(.x), .y) : 
+##   is.data.frame(x) is not TRUE
+## Error in write_excel_csv(loss_clean(.x), .y) : 
+##   is.data.frame(x) is not TRUE
+## Error in write_excel_csv(loss_clean(.x), .y) : 
+##   is.data.frame(x) is not TRUE
+## Error in write_excel_csv(loss_clean(.x), .y) : 
+##   is.data.frame(x) is not TRUE
+## Error in write_excel_csv(loss_clean(.x), .y) : 
+##   is.data.frame(x) is not TRUE
+## Error in write_excel_csv(loss_clean(.x), .y) : 
+##   is.data.frame(x) is not TRUE
+## Error in write_excel_csv(loss_clean(.x), .y) : 
+##   is.data.frame(x) is not TRUE
+## Error in write_excel_csv(loss_clean(.x), .y) : 
+##   is.data.frame(x) is not TRUE
+## Error in write_excel_csv(loss_clean(.x), .y) : 
+##   is.data.frame(x) is not TRUE
+## Error in write_excel_csv(loss_clean(.x), .y) : 
+##   is.data.frame(x) is not TRUE
+## Error in write_excel_csv(loss_clean(.x), .y) : 
+##   is.data.frame(x) is not TRUE
+## Error in write_excel_csv(loss_clean(.x), .y) : 
+##   is.data.frame(x) is not TRUE</code></pre>
+<pre><code>## [[1]]
+## [1] &quot;done&quot;
+## 
+## [[2]]
+## [1] &quot;done&quot;
+## 
+## [[3]]
+## [1] &quot;done&quot;
+## 
+## [[4]]
+## [1] &quot;done&quot;</code></pre>
+<p>数据清洗完毕</p>
+</div>
 </div>
 
 
