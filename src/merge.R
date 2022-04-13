@@ -2,7 +2,7 @@
 mergedt <- function(datatype){
   dic <- "data/processed/eye_tacking/tidy"
   file_list <- paste(dic,"/",datatype,"/",read_excel("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/list.xlsx")$filename, "_", datatype,".csv", sep = "")
-  merge_dt <- file_list %>% future_map(read_csv, col_type = list(k1 = "c", k2 = "c",k3 = "c",k4 = "c")) %>%
+  merge_dt <- file_list %>% map(read_csv, col_type = list(k1 = "c", k2 = "c",k3 = "c",k4 = "c")) %>%
     bind_rows()
 }
 
@@ -11,13 +11,12 @@ mergedt_s <- function(datatype){
   dic <- "data/processed/eye_tacking/tidy"
   dic_a <- paste(dic,"/", datatype, sep = "")
   file_list <- paste(dic_a,"/",list.files(dic_a), sep = "")
-  merge_dt <- file_list %>% future_map(read_csv, col_type = list(k1 = "c", k2 = "c",k3 = "c",k4 = "c")) %>%
+  merge_dt <- file_list %>% map(read_csv, col_type = list(k1 = "c", k2 = "c",k3 = "c",k4 = "c")) %>%
     bind_rows()
   write_csv(merge_dt, paste(dic,"/", datatype, ".csv", sep = ""))
 }
 
-mergedt_s("msg")
-mergedt_s("raw")
-mergedt_s("blinks")
-mergedt_s("sacc")
-mergedt_s("fix")
+merlist <- c("msg", "raw", "blinks", "sacc", "fix")
+merlist2 <- c("raw_clean", "blinks_clean", "sacc_clean", "fix_clean")
+
+map(merlist2, mergedt_s)

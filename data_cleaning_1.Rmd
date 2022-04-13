@@ -1,12 +1,12 @@
 ---
-title: "数据整理与清洗"
+title: "数据整理与清洗1"
 author: "Chen Xing"
 date: '2022-03-29'
 output: html_document
 ---
 
 # 摘要
-原始数据进行清洗的全过程。
+原始数据进行清洗的过程1，包括数据的读取、标记、排除列表、trackloss信息。
 
 
 # 数据读取
@@ -23,8 +23,6 @@ output: html_document
 library(tidyverse)
 library(readxl)
 library(data.table)
-library(furrr)
-plan(multisession, workers = 4)
 ```
 ## 1. 排出眼动数据缺失被试
 ```{r, message=FALSE, warning=FALSE}
@@ -94,7 +92,7 @@ vali_eye_t <- function(rawd){
 
 ve_c_t <- function(dic){
   file_list <- paste(dic,"/",list.files(dic), sep = "")
-  ilist <- future_map(file_list, vali_eye_t)
+  ilist <- map(file_list, vali_eye_t)
   bind_rows(ilist)
 }
 
@@ -104,35 +102,4 @@ track_loss <- ve_c_t("/Users/placenameday/R study/edf_demo/data/processed/eye_ta
 write_excel_csv(track_loss, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/track_loss_trial.csv")
 ```
 
-## 6. 输出清洗过的数据
-对raw文件全部清洗逐一输出
-```{r, message=FALSE, warning=FALSE}
-loss_clean <- function(file){
-  dt <- fread(file)
-  if (unique(as.numeric(dt$participant_phone)[[1]]) %in% pc$participant_phone) {
-    return(NA)
-  } else
-    dt <- filter(dt, !is.na(participant_phone))
-    loss_info <- filter(track_loss, participant_phone == dt$participant_phone[[1]])
-    dt_c <- anti_join(dt, loss_info)
-    dt_c
-}
 
-
-raw_clean_save <- function(rdic, sdic){
-  if (!dir.exists(sdic)) {
-    dir.create(sdic)
-  }
-  out_list <- paste(sdic,"/",list.files(rdic), sep = "")
-  file_list <- paste(rdic,"/",list.files(rdic), sep = "")
-  map2(file_list, out_list, ~try(write_excel_csv(loss_clean(.x), .y)))
-  "done"
-}
-
-dic <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/"
-rname <- c("raw", "fix", "sacc", "blinks")
-rlist <- paste(dic, rname, sep = "")
-olist <- paste(dic, rname, "_", "clean", sep = "")
-map2(rlist, olist, raw_clean_save)
-```
-数据清洗完毕
