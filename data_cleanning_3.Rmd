@@ -1,0 +1,41 @@
+---
+title: "数据整理与清洗3"
+author: "Chen Xing"
+date: '2022-04-17'
+output: html_document
+---
+
+# 上接数据整理与清洗2
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(data.table)
+```
+
+## 修正眼跳度数数据
+根据实验实际情况对眼跳度数进行修正。   
+实验显示器宽**37.5***cm* 高**30***cm*，被试距离显示器距离**65***cm*，显示器分辨率**1024** x **768**     
+因此求得视角每*度*约**32***像素点*，据此参数进行修正。   
+
+### 定义修正方法
+```{r, message=FALSE, warning=FALSE}
+sacc_refine <- function(data){
+  dt <- fread(data) %>%
+    mutate(ampl_re = round(sqrt((sxp-exp)^2 + (syp-eyp)^2)/32,2))
+}
+```
+
+### 进行修正并保存
+```{r, message=FALSE, warning=FALSE}
+# 定义处理及保存方法
+sacc_refine_save <- function(rdic, sdic){
+  if (!dir.exists(sdic)) {
+    dir.create(sdic)
+  }
+  out_list <- paste(sdic,"/",list.files(rdic), sep = "")
+  file_list <- paste(rdic,"/",list.files(rdic), sep = "")
+  map2(file_list, out_list, ~try(write_excel_csv(sacc_refine(.x), .y)))
+  "done"
+}
+
+sacc_refine_save("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/sacc_clean", "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/sacc_clean_re")
+```

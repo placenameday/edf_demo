@@ -18,5 +18,6 @@ mergedt_s <- function(datatype){
 
 merlist <- c("msg", "raw", "blinks", "sacc", "fix")
 merlist2 <- c("raw_clean", "blinks_clean", "sacc_clean", "fix_clean")
+merlist3 <- c("sacc_clean_re")
 
-map(merlist2, mergedt_s)
+map(merlist3, mergedt_s)
