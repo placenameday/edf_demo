@@ -1,0 +1,33 @@
+---
+title: "data_cleanning_aoi_2"
+author: "Chen Xing"
+date: '2022-04-19'
+output: html_document
+---
+
+# 根据具体刺激生成的AOI区域对数据进行aoi打标 2
+
+## 必要的包
+```{r, message=FALSE, warning=FALSE, results='hide'}
+library(tidyverse)
+library(data.table)
+```
+
+## 整合所有aoi信息
+```{r, message=FALSE, warning=FALSE}
+aoi_dir <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info/"
+aoi_list <- list.files(aoi_dir)
+
+std_aoi <- function(file){
+  aoi_name <- str_split_fixed(file, "\\.",2)[1]
+  aoi_info <- read_csv(paste(aoi_dir, file, sep = "")) %>%
+    filter(!is.null(Left)) %>%
+    mutate(aoi_name=aoi_name) %>%
+    select(block_name, stim_name, aoi_name, Left, Top, Right, Bottom) %>%
+    rename(trial_name=stim_name)
+}
+
+aoi_info <- reduce(map(aoi_list, std_aoi),full_join) %>% filter(!is.na(Left))
+write_excel_csv(aoi_info, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info.csv")
+
+```

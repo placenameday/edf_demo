@@ -1,0 +1,94 @@
+---
+title: "data_cleanning_aoi_1"
+author: "Chen Xing"
+date: '2022-04-19'
+output: html_document
+---
+
+# 根据具体刺激生成的AOI区域对数据进行aoi打标
+
+## 必要的包
+```{r, message=FALSE, warning=FALSE, results='hide'}
+library(tidyverse)
+library(data.table)
+```
+
+## 对b2_stim_1信息进行整理计算
+```{r, message=FALSE, warning=FALSE}
+# 读取左右区域aoi信息
+left_aoi <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info/b2_left.csv")
+right_aoi <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info/b2_right.csv")
+# 读取刺激属性的左右信息
+b2_aoi_info <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/b2_aoi_info.csv")
+
+# 输出b2_stim_1的aoi信息文件
+for (i in unique(b2_aoi_info$left)) {
+  i_l <- b2_aoi_info %>% filter(left == i) %>% select(-left, -right) %>%
+    left_join(left_aoi)
+  i_r <- b2_aoi_info %>% filter(right == i) %>% select(-left, -right) %>%
+    left_join(right_aoi)
+  new_aoi_file <- paste("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info/b2_", i, ".csv", sep = "")
+  write_excel_csv(bind_rows(i_l, i_r), new_aoi_file)
+}
+
+```
+
+## 对b2_stim_2信息进行整理计算
+```{r, message=FALSE, warning=FALSE}
+# 因实验msg未正确收集正确率信息，重新进行整理计算
+# 读取msg文件，筛选b2信息
+b2_msg <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/msg.csv") %>%
+  filter(block_name == "b2") %>% select(block, block_name, trial_name, type, k1, acc, participant_phone) %>%
+  group_by(trial_name)
+
+# 统计所有人回答情况，以多数者为正确答案
+ans <- summarise(b2_msg, key_j=sum(k1 == "j"), key_f=sum(k1 == "f")) %>% mutate(ans = if_else(key_j > key_f, "j", "f")) %>%
+  select(trial_name, ans)
+write_excel_csv(ans, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/b2_ans_info.csv")
+
+# 与msg合并比对，生成包含正确信息的msg_r
+nm <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/msg.csv") %>%
+  full_join(ans) %>% mutate(acc = if_else(block_name=="b2"&k1==ans,1,2))
+write_excel_csv(nm, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/msg_r.csv")
+
+# 根据ans，生成星号刺激位置信息
+star_aoi_info <- ans %>% mutate(left = if_else(ans=="f", "star", "no_star"), right = if_else(ans=="j", "star", "no_star")) %>% select(-ans) %>% rename(stim_name=trial_name)
+write_excel_csv(star_aoi_info, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/b2_star_aoi.csv")
+
+# 输出b2_stim_2的aoi信息文件
+for (i in unique(star_aoi_info$left)) {
+  i_l <- star_aoi_info %>% filter(left == i) %>% select(-left, -right) %>%
+    left_join(left_aoi)
+  i_r <- star_aoi_info %>% filter(right == i) %>% select(-left, -right) %>%
+    left_join(right_aoi)
+  new_aoi_file2 <- paste("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info/b2_", i, ".csv", sep = "")
+  write_excel_csv(bind_rows(i_l, i_r), new_aoi_file2)
+}
+```
+
+## 对b3信息进行整理计算
+```{r, message=FALSE, warning=FALSE}
+# 读取四个区域aoi信息
+lt_aoi <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info/b3_lt.csv")
+rt_aoi <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info/b3_rt.csv")
+lb_aoi <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info/b3_lb.csv")
+rb_aoi <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info/b3_rb.csv")
+
+# 读取刺激属性的左右信息
+b3_aoi_info <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/b3_aoi_info.csv")
+
+# 输出b3的aoi信息文件
+for (i in unique(b3_aoi_info$one)) {
+  i_tl <- b3_aoi_info %>% filter(one == i) %>% select(-one, -two, -three, -four) %>%
+    left_join(lt_aoi)
+  i_tr <- b3_aoi_info %>% filter(two == i) %>% select(-one, -two, -three, -four) %>%
+    left_join(rt_aoi)
+  i_bl <- b3_aoi_info %>% filter(three == i) %>% select(-one, -two, -three, -four) %>%
+    left_join(lb_aoi)
+  i_br <- b3_aoi_info %>% filter(four == i) %>% select(-one, -two, -three, -four) %>%
+    left_join(rb_aoi)
+  new_aoi_file3 <- paste("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info/b3_", i, ".csv", sep = "")
+  write_excel_csv(bind_rows(i_tl, i_tr, i_bl, i_br), new_aoi_file3)
+}
+
+```
