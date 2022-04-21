@@ -399,14 +399,35 @@ write_excel_csv(aoi_info, &quot;/Users/placenameday/R study/edf_demo/data/proces
 <div id="定义打标方法" class="section level2">
 <h2>定义打标方法</h2>
 <pre class="r"><code># 定义判断是否落入AOI方法
-aj &lt;- function(n, l, t, r, b, dt, xp=xp, yp=yp) {
-    dt[[n]] &lt;- with(dt, if_else((l&lt;xp&amp;xp&lt;r)&amp;(t&lt;yp&amp;yp&lt;b),TRUE,FALSE))
+# raw 文件判断
+aj &lt;- function(n, l, t, r, b, dt) {
+    dt[[n]] &lt;- with(dt, if_else((l&lt;=xp&amp;xp&lt;=r)&amp;(t&lt;=yp&amp;yp&lt;=b),TRUE,FALSE))
     dt
 }
 
+# fix 文件判断
+# aj &lt;- function(n, l, t, r, b, dt) {
+#     dt[[n]] &lt;- with(dt, if_else((l&lt;=axp&amp;axp&lt;=r)&amp;(t&lt;=ayp&amp;ayp&lt;=b),TRUE,FALSE))
+#     dt
+# }
+
+# saac_内部 文件判断
+# aj &lt;- function(n, l, t, r, b, dt) {
+#     dt[[n]] &lt;- with(dt, if_else(((l&lt;sxp&amp;sxp&lt;r)&amp;(t&lt;syp&amp;syp&lt;b))&amp;((l&lt;exp&amp;exp&lt;r)&amp;(t&lt;eyp&amp;eyp&lt;b)),TRUE,FALSE))
+#     dt
+# }
+
+
+# saac_多种情况 文件判断
+# aj &lt;- function(n, l, t, r, b, dt) {
+#     dt[[n]] &lt;- with(dt, if_else(((l&lt;=sxp&amp;sxp&lt;=r)&amp;(t&lt;=syp&amp;syp&lt;=b))&amp;((l&lt;=exp&amp;exp&lt;=r)&amp;(t&lt;=eyp&amp;eyp&lt;=b)),&quot;Inner&quot;,
+#                         if_else((l&lt;=sxp&amp;sxp&lt;=r)&amp;(t&lt;=syp&amp;syp&lt;=b), &quot;S&quot;,
+#                         if_else((l&lt;=exp&amp;exp&lt;=r)&amp;(t&lt;=eyp&amp;eyp&lt;=b),&quot;E&quot;,&quot;None&quot;))))
+#     dt
+# }
+
 # 定义单个trialAOI判断与汇总方法
-trial_name_aoi &lt;- function(trial_n, ai = aoi_info, f = file, pb){
-  pb$tick()$print()
+trial_name_aoi &lt;- function(trial_n, ai = aoi_info, f = file){
   aoi_trial_info &lt;- filter(ai, trial_name==trial_n)
   trial_file &lt;- filter(f, trial_name==trial_n)
   suppressMessages(reduce(future_pmap(list(aoi_trial_info$aoi_name, aoi_trial_info$Left, aoi_trial_info$Top, aoi_trial_info$Right, aoi_trial_info$Bottom), aj, dt=trial_file),suppressMessages(full_join)))
@@ -418,9 +439,9 @@ sub_aoi &lt;- function(f_path, out_path, a_path, pb2){
   file &lt;- fread(f_path)
   aoi &lt;- fread(a_path)
   trial_list &lt;- unique(file$trial_name)
-  pb &lt;- progress_estimated(length(trial_list))
-  new &lt;- suppressMessages(reduce(map(trial_list, trial_name_aoi, ai=aoi, f=file,pb=pb), suppressMessages(full_join)))
+  new &lt;- suppressMessages(reduce(future_map(trial_list, trial_name_aoi, ai=aoi, f=file), suppressMessages(full_join)))
   write_csv(new, file=gzfile(out_path))
+  gc()
 }
 
 # 定义单个目录的AOI批量判断
@@ -437,10 +458,15 @@ mul_aoi &lt;- function(in_dir, out_dir){
 </div>
 <div id="运行函数进行打标并保存" class="section level2">
 <h2>运行函数进行打标并保存</h2>
-<p>设定输入文件夹<code>raw_d &lt;- &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/raw_clean&quot;</code><br />
-设定输出文件夹<code>raw_o &lt;- &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/raw_aoi&quot;</code><br />
-运行函数<code>mul_aoi(raw_d,raw_o)</code><br />
-用同样方法对eye_event数据进行打标，注意修改xp与yp名称</p>
+<pre class="r"><code>raw_d &lt;- &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/raw_clean&quot;   
+raw_o &lt;- &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/raw_clean_aoi&quot;   
+
+saac_d &lt;- &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/sacc_clean_re&quot;
+saac_o &lt;- &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/sacc_clean_re_aoi_multi&quot;
+
+fix_d &lt;- &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/fix_clean&quot;
+fix_o &lt;- &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/fix_clean_aoi&quot;</code></pre>
+<p>运行函数<code>mul_aoi(d,o)</code>对相应数据文件进行批量打标，注意修改<code>aj()</code>函数进行匹配。</p>
 </div>
 </div>
 
