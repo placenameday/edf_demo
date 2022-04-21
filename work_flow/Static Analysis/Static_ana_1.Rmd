@@ -1,0 +1,180 @@
+---
+title: "static_ana_1"
+author: "Chen Xing"
+date: '2022-04-21'
+output: html_document
+---
+
+# 统计汇总各个静态指标
+
+## 静态指标列表
+
+### 通用指标
+
+1.  **注视点类**
+    1.  注视点个数（fixation count:fc）
+
+    2.  平均注视点时长（average fixation duration:afd）
+
+    3.  潜伏期（duration to first fixation:dff）
+
+    4.  首视时长（first fixation duration:ffd）
+
+    5.  瞳孔直径（pupil diameter:pd）
+
+    6.  注视时长（fixation dwell time:dw）
+2.  **眼跳类**
+    1.  平均眼跳幅度（average saccade amplitude:asa）
+
+    2.  眼跳个数（saccade count:sc）
+
+    3.  扫视距离（saccade distance:sad）
+
+    4.  平均眼跳时长（average saccade duration:asd）
+
+    5.  眼跳峰值速度（saccade peak velocity:spv）
+
+    6.  区间眼跳计数（saccade between count:sbc）
+
+    7.  区间眼跳模式（saccade pattern:sacp）
+3.  **眨眼类**
+    1.  眨眼次数（blink count:bc）
+
+    2.  眨眼时长（blink duration:bd）
+
+以上指标分别对刺激**整体**及各个**AOI**进行统计。
+
+```{r, message=FALSE, warning=FALSE, results='hide', echo=FALSE}
+library(tidyverse)
+library(data.table)
+library(furrr)
+plan(multisession, workers = 4)
+```
+
+## 注视点类指标计算
+
+### 方法定义
+
+```{r, message=FALSE, warning=FALSE}
+# 获取全部aoi名称
+aoi_name_list <- unique(read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info.csv")$aoi_name)
+
+# 对dt进行aoi信息整理
+aoi_dt <- function(dt, aji=TRUE){
+  # 取实际存在aoi信息
+  aol_cols <- intersect(aoi_name_list, colnames(dt))
+  
+  # AOI数据整理
+  ndt <- pivot_longer(dt, cols = aol_cols, names_to = "AOI", values_to = "aj") %>%
+    filter(!is.na(aj), aj %in% aji) %>%
+    filter(!((block_name %in% c("b1a","b1b"))&stim==1&(str_starts(AOI, "^b1_2_")))) %>%
+    filter(!((block_name %in% c("b1a","b1b"))&stim %in% c(2,3,4,5)&(str_starts(AOI, "^b1_1")))) %>%
+    filter(!((block_name == "b2")&stim==1&(AOI %in% c("b2_star", "b2_no_star")))) %>%
+    filter(!((block_name == "b2")&stim==2&(AOI %in% c("b2_xj", "b2_jj", "b2_sp", "b2_n"))))
+}
+
+
+fix_s <- function(file_path, out_path){
+  # 数据读取
+  dt <- fread(file_path)
+  
+  # 统计整体数据
+  a <- dt %>% filter(stim!=0, !is.na(axp)) %>% group_by(participant_group, participant_phone,block_name, type, block, trial_name, stim) %>%
+    summarise(fc=n(), afd=mean(dur), dff=min(stime_p), ffd=dur[1], pd=mean(aps), dw=sum(dur)) %>%
+    mutate(AOI = "Overall")
+  
+  # 统计AOI数据
+  b <- aoi_dt(dt) %>% filter(stim!=0, !is.na(axp)) %>% group_by(participant_group, participant_phone,block_name, type, block, trial_name, stim, AOI) %>%
+    select(-aj) %>%
+    summarise(fc=n(), afd=mean(dur), dff=min(stime_p), ffd=dur[1], pd=mean(aps), dw=sum(dur))
+  
+  # 数据整合
+  c <- suppressMessages(full_join(a,b) %>% arrange(block, stim, AOI))
+  write_csv(c, file=gzfile(out_path))
+  gc()
+}
+
+# 批量处理方法
+multi_p <- function(in_dir, out_dir, method){
+  if (!dir.exists(out_dir)) {
+    dir.create(out_dir)
+  }
+  out_list <- paste(out_dir,"/",list.files(in_dir), ".gz", sep = "")
+  in_list <- paste(in_dir,"/",list.files(in_dir), sep = "")
+  future_map2(in_list, out_list, method)
+  gc()
+}
+
+fix_in <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/fix_clean_aoi"
+fix_out <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/fix_static_ana"
+```
+
+### 批量处理
+
+运行函数进行批量处理`multi_p(fix_in, fix_out, fix_s)`
+
+## 眼跳类指标计算
+### 整体及Inner眼跳
+#### 方法定义
+```{r, message=FALSE, warning=FALSE}
+sacc_inner <- function(file_path, out_path){
+  # 数据读取
+  dt <- fread(file_path)
+  
+  # 统计整体数据
+  a <- dt %>% filter(stim!=0, !is.na(sxp)) %>% group_by(participant_group, participant_phone,block_name, type, block, trial_name, stim) %>%
+    summarise(asa=mean(ampl), sc=n(), sad=sum(ampl), asd=mean(dur), spv=mean(pv)) %>%
+    mutate(AOI = "Overall")
+  
+  # 统计AOI数据
+  b <- aoi_dt(dt, aji = "Inner") %>% filter(stim!=0, !is.na(sxp)) %>% group_by(participant_group, participant_phone,block_name, type, block, trial_name, stim, AOI) %>%
+    select(-aj) %>%
+    summarise(asa=mean(ampl), sc=n(), sad=sum(ampl), asd=mean(dur), spv=mean(pv))
+  
+  # 数据整合
+  c <- suppressMessages(full_join(a,b) %>% arrange(block, stim, AOI))
+  write_csv(c, file=gzfile(out_path))
+  gc()
+}
+
+sacc_inner_in <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/sacc_clean_re_aoi_multi"
+sacc_inner_out <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/sacc_inner_static_ana"
+```
+
+#### 批量处理
+
+运行函数进行批量处理`multi_p(sacc_inner_in, sacc_inner_out, sacc_inner)`
+
+### 区间眼跳
+#### 方法定义
+```{r, message=FALSE, warning=FALSE}
+bdd <- fread("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/sacc_clean_re_aoi_multi/4037_sacc.csv.gz")
+b_dt <-aoi_dt(bdd, c("S", "E"))
+b_dt_w <- pivot_wider(b_dt, names_from = aj, values_from = AOI)
+
+```
+
+
+## 眨眼类指标计算
+### 方法定义
+```{r, message=FALSE, warning=FALSE}
+blink_s <- function(file_path, out_path){
+  # 数据读取
+  dt <- fread(file_path)
+  
+  # 统计整体数据
+  a <- dt %>% filter(stim!=0, !is.na(dur)) %>% group_by(participant_group, participant_phone,block_name, type, block, trial_name, stim) %>%
+    summarise(bc=n(), bd=mean(dur)) %>%
+    mutate(AOI = "Overall") %>% arrange(block, stim)
+
+  write_csv(a, file=gzfile(out_path))
+  gc()
+}
+
+blink_in <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/blinks_clean"
+blink_out <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/blinks_static_ana"
+```
+
+### 批量处理
+
+运行函数进行批量处理`multi_p(blink_in, blink_out, blink_s)`

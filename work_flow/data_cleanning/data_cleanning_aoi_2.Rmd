@@ -6,9 +6,11 @@ output: html_document
 ---
 
 # 根据具体刺激生成的AOI区域对数据进行aoi打标 2
+
 用R进行大量运算速度较慢，建议改用python进行
 
 ## 必要的包
+
 ```{r, message=FALSE, warning=FALSE, results='hide'}
 library(tidyverse)
 library(data.table)
@@ -18,6 +20,7 @@ plan(multisession, workers = 4)
 ```
 
 ## 整合所有aoi信息
+
 ```{r, message=FALSE, warning=FALSE}
 aoi_dir <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info/"
 aoi_list <- list.files(aoi_dir)
@@ -39,6 +42,7 @@ write_excel_csv(aoi_info, "/Users/placenameday/R study/edf_demo/data/processed/e
 ```
 
 ## 定义打标方法
+
 ```{r, message=FALSE, warning=FALSE}
 
 
@@ -103,6 +107,7 @@ mul_aoi <- function(in_dir, out_dir){
 ```
 
 ## 运行函数进行打标并保存
+
 ```{r, message=FALSE, warning=FALSE}
 raw_d <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/raw_clean"   
 raw_o <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/raw_clean_aoi"   
@@ -114,4 +119,5 @@ fix_d <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/f
 fix_o <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/fix_clean_aoi"
 
 ```
+
 运行函数`mul_aoi(d,o)`对相应数据文件进行批量打标，注意修改`aj()`函数进行匹配。
