@@ -16,18 +16,18 @@ library(data.table)
 ## 对b2_stim_1信息进行整理计算
 ```{r, message=FALSE, warning=FALSE}
 # 读取左右区域aoi信息
-left_aoi <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info/b2_left.csv")
-right_aoi <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info/b2_right.csv")
+left_aoi <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info_3/b2_left.csv")
+right_aoi <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info_3/b2_right.csv")
 # 读取刺激属性的左右信息
 b2_aoi_info <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/b2_aoi_info.csv")
 
 # 输出b2_stim_1的aoi信息文件
 for (i in unique(b2_aoi_info$left)) {
   i_l <- b2_aoi_info %>% filter(left == i) %>% select(-left, -right) %>%
-    left_join(left_aoi)
+    left_join(left_aoi) %>% filter(stim==1)
   i_r <- b2_aoi_info %>% filter(right == i) %>% select(-left, -right) %>%
-    left_join(right_aoi)
-  new_aoi_file <- paste("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info/b2_", i, ".csv", sep = "")
+    left_join(right_aoi) %>% filter(stim==1)
+  new_aoi_file <- paste("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info_3/b2_", i, ".csv", sep = "")
   write_excel_csv(bind_rows(i_l, i_r), new_aoi_file)
 }
 
@@ -58,10 +58,10 @@ write_excel_csv(star_aoi_info, "/Users/placenameday/R study/edf_demo/data/proces
 # 输出b2_stim_2的aoi信息文件
 for (i in unique(star_aoi_info$left)) {
   i_l <- star_aoi_info %>% filter(left == i) %>% select(-left, -right) %>%
-    left_join(left_aoi)
+    left_join(left_aoi) %>% filter(stim==2)
   i_r <- star_aoi_info %>% filter(right == i) %>% select(-left, -right) %>%
-    left_join(right_aoi)
-  new_aoi_file2 <- paste("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info/b2_", i, ".csv", sep = "")
+    left_join(right_aoi) %>% filter(stim==2)
+  new_aoi_file2 <- paste("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info_3/b2_", i, ".csv", sep = "")
   write_excel_csv(bind_rows(i_l, i_r), new_aoi_file2)
 }
 ```
@@ -69,10 +69,10 @@ for (i in unique(star_aoi_info$left)) {
 ## 对b3信息进行整理计算
 ```{r, message=FALSE, warning=FALSE}
 # 读取四个区域aoi信息
-lt_aoi <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info/b3_lt.csv")
-rt_aoi <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info/b3_rt.csv")
-lb_aoi <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info/b3_lb.csv")
-rb_aoi <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info/b3_rb.csv")
+lt_aoi <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info_3/b3_lt.csv")
+rt_aoi <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info_3/b3_rt.csv")
+lb_aoi <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info_3/b3_lb.csv")
+rb_aoi <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info_3/b3_rb.csv")
 
 # 读取刺激属性的左右信息
 b3_aoi_info <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/b3_aoi_info.csv")
@@ -87,7 +87,7 @@ for (i in unique(b3_aoi_info$one)) {
     left_join(lb_aoi)
   i_br <- b3_aoi_info %>% filter(four == i) %>% select(-one, -two, -three, -four) %>%
     left_join(rb_aoi)
-  new_aoi_file3 <- paste("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info/b3_", i, ".csv", sep = "")
+  new_aoi_file3 <- paste("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info_3/b3_", i, ".csv", sep = "")
   write_excel_csv(bind_rows(i_tl, i_tr, i_bl, i_br), new_aoi_file3)
 }
 
