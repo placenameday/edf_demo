@@ -63,7 +63,8 @@ aoi_name_list <- unique(read_csv("/Users/placenameday/R study/edf_demo/data/proc
 aoi_dt <- function(dt, aji=TRUE){
   # 取实际存在aoi信息
   aol_cols <- intersect(aoi_name_list, colnames(dt))
-  
+  aol_cols <- append(aol_cols,"bg")
+    
   # AOI数据整理
   ndt <- pivot_longer(dt, cols = aol_cols, names_to = "AOI", values_to = "aj") %>%
     filter(!is.na(aj), aj %in% aji) %>%
