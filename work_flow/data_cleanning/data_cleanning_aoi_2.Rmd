@@ -134,7 +134,7 @@ sub_bg_aoi <- function(dt){
     }
     
     ndt5 <- dt %>% filter(block_name %in% c("b5b"))
-    if (nrow(ndt4)==0) {
+    if (nrow(ndt5)==0) {
       ndt5
     } else {
       ndt5 <- ndt5 %>% rowwise() %>%
@@ -176,8 +176,8 @@ sub_bg_aoi <- function(dt){
           mutate(bg=bg_de2(c(b5_q,b5_a_1,b5_a_2,b5_a_3,b5_a_4)))
       }
       
-       ndt5 <- dt2 %>% filter(block_name %in% c("b5b"))
-      if (nrow(ndt4)==0) {
+      ndt5 <- dt2 %>% filter(block_name %in% c("b5b"))
+      if (nrow(ndt5)==0) {
         ndt5
       } else {
         ndt5 <- ndt5 %>% rowwise() %>%
@@ -231,7 +231,4 @@ fix_o <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/f
 
 ```
 
-运行函数`mul_aoi(d,o)`对相应数据文件进行批量打标，注意修改`aj()`函数进行匹配。
-
-ceshi
-mul_aoi("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/test","/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/test_oo")
+运行函数`mul_aoi(d,o)`对相应数据文件进行批量打标

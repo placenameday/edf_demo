@@ -379,7 +379,7 @@ plan(multisession, workers = 4)</code></pre>
 </div>
 <div id="整合所有aoi信息" class="section level2">
 <h2>整合所有aoi信息</h2>
-<pre class="r"><code>aoi_dir &lt;- &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info/&quot;
+<pre class="r"><code>aoi_dir &lt;- &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info_3/&quot;
 aoi_list &lt;- list.files(aoi_dir)
 
 # 定义aoi文件信息整理方法
@@ -388,58 +388,169 @@ std_aoi &lt;- function(file){
   aoi_info &lt;- read_csv(paste(aoi_dir, file, sep = &quot;&quot;)) %&gt;%
     filter(!is.null(Left)) %&gt;%
     mutate(aoi_name=aoi_name) %&gt;%
-    select(block_name, stim_name, aoi_name, Left, Top, Right, Bottom) %&gt;%
-    rename(trial_name=stim_name)
+    select(block_name, stim_name, stim, aoi_name, Left, Top, Right, Bottom) %&gt;%
+    rename(trial_name=stim_name) %&gt;%
+    arrange(block_name, trial_name, aoi_name)
 }
 
 # 整合aoi文件
 aoi_info &lt;- reduce(map(aoi_list, std_aoi),full_join) %&gt;% filter(!is.na(Left))
-write_excel_csv(aoi_info, &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info.csv&quot;)</code></pre>
+write_excel_csv(aoi_info, &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info_3.csv&quot;)</code></pre>
 </div>
 <div id="定义打标方法" class="section level2">
 <h2>定义打标方法</h2>
 <pre class="r"><code># 定义判断是否落入AOI方法
 # raw 文件判断
-aj &lt;- function(n, l, t, r, b, dt) {
+aj_r &lt;- function(n, l, t, r, b, dt) {
     dt[[n]] &lt;- with(dt, if_else((l&lt;=xp&amp;xp&lt;=r)&amp;(t&lt;=yp&amp;yp&lt;=b),TRUE,FALSE))
     dt
 }
 
 # fix 文件判断
-# aj &lt;- function(n, l, t, r, b, dt) {
-#     dt[[n]] &lt;- with(dt, if_else((l&lt;=axp&amp;axp&lt;=r)&amp;(t&lt;=ayp&amp;ayp&lt;=b),TRUE,FALSE))
-#     dt
-# }
-
-# saac_内部 文件判断
-# aj &lt;- function(n, l, t, r, b, dt) {
-#     dt[[n]] &lt;- with(dt, if_else(((l&lt;sxp&amp;sxp&lt;r)&amp;(t&lt;syp&amp;syp&lt;b))&amp;((l&lt;exp&amp;exp&lt;r)&amp;(t&lt;eyp&amp;eyp&lt;b)),TRUE,FALSE))
-#     dt
-# }
-
+aj_f &lt;- function(n, l, t, r, b, dt) {
+    dt[[n]] &lt;- with(dt, if_else((l&lt;=axp&amp;axp&lt;=r)&amp;(t&lt;=ayp&amp;ayp&lt;=b),TRUE,FALSE))
+    dt
+}
 
 # saac_多种情况 文件判断
-# aj &lt;- function(n, l, t, r, b, dt) {
-#     dt[[n]] &lt;- with(dt, if_else(((l&lt;=sxp&amp;sxp&lt;=r)&amp;(t&lt;=syp&amp;syp&lt;=b))&amp;((l&lt;=exp&amp;exp&lt;=r)&amp;(t&lt;=eyp&amp;eyp&lt;=b)),&quot;Inner&quot;,
-#                         if_else((l&lt;=sxp&amp;sxp&lt;=r)&amp;(t&lt;=syp&amp;syp&lt;=b), &quot;S&quot;,
-#                         if_else((l&lt;=exp&amp;exp&lt;=r)&amp;(t&lt;=eyp&amp;eyp&lt;=b),&quot;E&quot;,&quot;None&quot;))))
-#     dt
-# }
+aj_s &lt;- function(n, l, t, r, b, dt) {
+    dt[[n]] &lt;- with(dt, if_else(((l&lt;=sxp&amp;sxp&lt;=r)&amp;(t&lt;=syp&amp;syp&lt;=b))&amp;((l&lt;=exp&amp;exp&lt;=r)&amp;(t&lt;=eyp&amp;eyp&lt;=b)),&quot;Inner&quot;,
+                        if_else((l&lt;=sxp&amp;sxp&lt;=r)&amp;(t&lt;=syp&amp;syp&lt;=b), &quot;S&quot;,
+                        if_else((l&lt;=exp&amp;exp&lt;=r)&amp;(t&lt;=eyp&amp;eyp&lt;=b),&quot;E&quot;,&quot;None&quot;))))
+    dt
+}
+
+# 定义单个stimAOI判断与汇总方法
+trial_stim_aoi &lt;- function(stim_n, ai2 = aoi_info, f2 = file, m2){
+  aoi_stim_info &lt;- filter(ai2, stim==stim_n)
+  stim_file &lt;- filter(f2, stim==stim_n)
+  suppressMessages(reduce(future_pmap(list(aoi_stim_info$aoi_name, aoi_stim_info$Left, aoi_stim_info$Top, aoi_stim_info$Right, aoi_stim_info$Bottom), m2, dt=stim_file),suppressMessages(full_join)))
+}
+
 
 # 定义单个trialAOI判断与汇总方法
-trial_name_aoi &lt;- function(trial_n, ai = aoi_info, f = file){
+trial_name_aoi &lt;- function(trial_n, ai = aoi_info, f = file, m){
   aoi_trial_info &lt;- filter(ai, trial_name==trial_n)
   trial_file &lt;- filter(f, trial_name==trial_n)
-  suppressMessages(reduce(future_pmap(list(aoi_trial_info$aoi_name, aoi_trial_info$Left, aoi_trial_info$Top, aoi_trial_info$Right, aoi_trial_info$Bottom), aj, dt=trial_file),suppressMessages(full_join)))
+  stim_list &lt;- unique(trial_file$stim)
+  suppressMessages(reduce(future_map(stim_list, trial_stim_aoi, ai2=aoi_trial_info, f2=trial_file, m2=m),suppressMessages(full_join)))
+}
+
+bg_de &lt;- function(l){
+  v &lt;- ifelse(sum(l %in% c(&quot;None&quot;))==length(l), &quot;Inner&quot;,
+        ifelse(sum(l %in% c(&quot;None&quot;, &quot;S&quot;))==length(l), &quot;E&quot;,
+          ifelse(sum(l %in% c(&quot;None&quot;, &quot;E&quot;))==length(l), &quot;S&quot;, &quot;None&quot;)))
+  v
+}
+
+
+bg_de2 &lt;- function(l){
+  v &lt;- ifelse(sum(l %in% c(FALSE))==length(l), TRUE, FALSE)
+  v
+}
+
+# 定义背景AOI判断方法
+sub_bg_aoi &lt;- function(dt){
+  if (&quot;sxp&quot; %in% colnames(dt)) {
+    
+    ndt1 &lt;- dt %&gt;% filter(block_name %in% c(&quot;b1a&quot;, &quot;b1b&quot;) &amp; stim %in% c(2,3,4,5))
+    if (nrow(ndt1)==0) {
+      ndt1
+    } else {
+      ndt1 &lt;- ndt1 %&gt;% rowwise() %&gt;%
+        mutate(bg=bg_de(c(b1_2_q,b1_2_a)))
+    }
+    
+    ndt2 &lt;- dt %&gt;% filter(block_name %in% c(&quot;b2&quot;))
+    if (nrow(ndt2)==0) {
+      ndt2
+    } else {
+      ndt2 &lt;- ndt2 %&gt;% rowwise() %&gt;%
+        mutate(bg=bg_de(c(b2_left,b2_center,b2_right)))
+    }
+   
+    ndt3 &lt;- dt %&gt;% filter(block_name %in% c(&quot;b4a&quot;, &quot;b4b&quot;))
+    if (nrow(ndt3)==0) {
+      ndt3
+    } else {
+      ndt3 &lt;- ndt3 %&gt;% rowwise() %&gt;%
+        mutate(bg=bg_de(c(b4_text)))
+    }
+    
+    ndt4 &lt;- dt %&gt;% filter(block_name %in% c(&quot;b5a&quot;))
+    if (nrow(ndt4)==0) {
+      ndt4
+    } else {
+      ndt4 &lt;- ndt4 %&gt;% rowwise() %&gt;%
+        mutate(bg=bg_de(c(b5_q,b5_a_1,b5_a_2,b5_a_3,b5_a_4)))
+    }
+    
+    ndt5 &lt;- dt %&gt;% filter(block_name %in% c(&quot;b5b&quot;))
+    if (nrow(ndt5)==0) {
+      ndt5
+    } else {
+      ndt5 &lt;- ndt5 %&gt;% rowwise() %&gt;%
+        mutate(bg=bg_de(c(b5_q,b5_a_1,b5_a_2,b5_a_3,b5_a_4,b5_a_5,b5_a_6)))
+    }
+  } else  {
+      if (&quot;xp&quot; %in% colnames(dt)) {
+        dt2 &lt;- filter(dt, !is.na(xp))
+      } else dt2 &lt;- dt
+      ndt1 &lt;- dt2 %&gt;% filter(block_name %in% c(&quot;b1a&quot;, &quot;b1b&quot;) &amp; stim %in% c(2,3,4,5))
+      if (nrow(ndt1)==0) {
+        ndt1
+      } else {
+        ndt1 &lt;- ndt1 %&gt;% rowwise() %&gt;%
+          mutate(bg=bg_de2(c(b1_2_q,b1_2_a)))
+      }
+      
+      ndt2 &lt;- dt2 %&gt;% filter(block_name %in% c(&quot;b2&quot;))
+      if (nrow(ndt2)==0) {
+        ndt2
+      } else {
+        ndt2 &lt;- ndt2 %&gt;% rowwise() %&gt;%
+          mutate(bg=bg_de2(c(b2_left,b2_center,b2_right)))
+      }
+     
+      ndt3 &lt;- dt2 %&gt;% filter(block_name %in% c(&quot;b4a&quot;, &quot;b4b&quot;))
+      if (nrow(ndt3)==0) {
+        ndt3
+      } else {
+        ndt3 &lt;- ndt3 %&gt;% rowwise() %&gt;%
+          mutate(bg=bg_de2(c(b4_text)))
+      }
+      
+      ndt4 &lt;- dt2 %&gt;% filter(block_name %in% c(&quot;b5a&quot;))
+      if (nrow(ndt4)==0) {
+        ndt4
+      } else {
+        ndt4 &lt;- ndt4 %&gt;% rowwise() %&gt;%
+          mutate(bg=bg_de2(c(b5_q,b5_a_1,b5_a_2,b5_a_3,b5_a_4)))
+      }
+      
+      ndt5 &lt;- dt2 %&gt;% filter(block_name %in% c(&quot;b5b&quot;))
+      if (nrow(ndt5)==0) {
+        ndt5
+      } else {
+        ndt5 &lt;- ndt5 %&gt;% rowwise() %&gt;%
+          mutate(bg=bg_de2(c(b5_q,b5_a_1,b5_a_2,b5_a_3,b5_a_4,b5_a_5,b5_a_6)))
+      }
+  }
+
+  bb &lt;- full_join(dt, bind_rows(ndt1, ndt2, ndt3, ndt4, ndt5))
+  bb
 }
 
 # 定义单个个体AOI判断与汇总方法
 sub_aoi &lt;- function(f_path, out_path, a_path, pb2){
   pb2$tick()$print()
   file &lt;- fread(f_path)
+  method &lt;- ifelse(&quot;sxp&quot; %in% colnames(file), aj_s,
+            ifelse(&quot;axp&quot; %in% colnames(file), aj_f, aj_r))
   aoi &lt;- fread(a_path)
   trial_list &lt;- unique(file$trial_name)
-  new &lt;- suppressMessages(reduce(future_map(trial_list, trial_name_aoi, ai=aoi, f=file), suppressMessages(full_join)))
+  new &lt;- suppressMessages(reduce(future_map(trial_list, trial_name_aoi, ai=aoi, f=file, m=method), suppressMessages(full_join)))
+  new &lt;- sub_bg_aoi(new)
   write_csv(new, file=gzfile(out_path))
   gc()
 }
@@ -451,7 +562,7 @@ mul_aoi &lt;- function(in_dir, out_dir){
   }
   out_list &lt;- paste(out_dir,&quot;/&quot;,list.files(in_dir), &quot;.gz&quot;, sep = &quot;&quot;)
   in_list &lt;- paste(in_dir,&quot;/&quot;,list.files(in_dir), sep = &quot;&quot;)
-  a_path &lt;- &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info.csv&quot;
+  a_path &lt;- &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info_3.csv&quot;
   pb2 &lt;- progress_estimated(length(in_list))
   map2(in_list, out_list, sub_aoi, a_path=a_path, pb2=pb2)
 }</code></pre>
@@ -466,7 +577,7 @@ saac_o &lt;- &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacki
 
 fix_d &lt;- &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/fix_clean&quot;
 fix_o &lt;- &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/fix_clean_aoi&quot;</code></pre>
-<p>运行函数<code>mul_aoi(d,o)</code>对相应数据文件进行批量打标，注意修改<code>aj()</code>函数进行匹配。</p>
+<p>运行函数<code>mul_aoi(d,o)</code>对相应数据文件进行批量打标</p>
 </div>
 </div>
 
