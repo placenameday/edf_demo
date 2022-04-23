@@ -48,7 +48,7 @@ output: html_document
 library(tidyverse)
 library(data.table)
 library(furrr)
-plan(multisession, workers = 4)
+plan(multisession, workers = 6)
 ```
 
 ## 注视点类指标计算
@@ -57,7 +57,7 @@ plan(multisession, workers = 4)
 
 ```{r, message=FALSE, warning=FALSE}
 # 获取全部aoi名称
-aoi_name_list <- unique(read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info.csv")$aoi_name)
+aoi_name_list <- unique(read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info_3.csv")$aoi_name)
 
 # 对dt进行aoi信息整理
 aoi_dt <- function(dt, aji=TRUE){
@@ -150,8 +150,51 @@ sacc_inner_out <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacki
 #### 方法定义
 ```{r, message=FALSE, warning=FALSE}
 bdd <- fread("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/sacc_clean_re_aoi_multi/4037_sacc.csv.gz")
-b_dt <-aoi_dt(bdd, c("S", "E"))
+
+aoi_p_d <- function(aoi_name){
+  big <- c("out","all","b1_1","b1_2","b4","b5","b2_1_f","b2_1_e","b2_2","b2_cen","b3_1","b3_2","bg")
+  small <- c("out","b1_2","b4","b5","b2_1_f","b2_1_e","b2_2","b2_cen","bg")
+  k <- if_else(str_detect(aoi_name, "ouuter_"),list(agn="out", hand=big),
+        if_else(str_detect(aoi_name,"all_"),list(agn="all",hand=c("out","all")),
+        if_else(str_detect(aoi_name,"b1_1"),list(agn="b1_1",hand=c("out","b1_1")),
+        if_else(str_detect(aoi_name,"b1_2"),list(agn="b1_2",hand=c("out","b1_2","bg")),
+        if_else(str_detect(aoi_name,"b4"),list(agn="b4",hand=c("out","b4","bg")),
+        if_else(str_detect(aoi_name,"b5_"),list(agn="b5",hand=c("out","b5","bg")),
+        if_else(aoi_name %in% c("b2_left", "b2_right"),list(agn="b2_1_f",hand=c("out","b2_1_f", "cen","bg")),
+        if_else(aoi_name %in% c("b2_jj", "b2_n", "b2_sp", "b2_xj"),list(agn="b2_1_e",hand=c("out","b2_1_e", "cen","bg")),
+        if_else(aoi_name %in% c("b2_star", "b2_no_star"),list(agn="b2_2",hand=c("out","b2_2", "cen","bg")),
+        if_else(aoi_name %in% c("b2_center"),list(agn="b2_cen",hand=c("out", "b2_cen","bg","b2_2","b2_1_e","b2_1_f")),
+        if_else(aoi_name %in% c("b3_lt", "b3_rt", "b3_lb", "b3_rb"),list(agn="b3_1",hand=c("out","b3_1")),
+        if_else(aoi_name %in% c("b3_ne", "b3_neg", "b3_pos", "b3_thr"),list(agn="b3_2",hand=c("out","b3_2")),
+        if_else(aoi_name %in% c("bg"),list(agn="bg",hand=small),list(agn="other",hand=c("")))))))))))))))
+}
+
+
+b_dt <-aoi_dt(bdd, c("S", "E")) %>% rowwise() %>%
+  mutate(AOI_P = list(aoi_p_d(AOI)))
 b_dt_w <- pivot_wider(b_dt, names_from = aj, values_from = AOI)
+map(b_dt_w$E, unlist)
+
+tdte <- b_dt_w$E[2][[1]]
+tdts <- b_dt_w$S[2][[1]]
+
+pipei <- function(stri){
+  partern <- str_sub(stri, 1,3)
+}
+
+make_par <- function(par,s,e){
+  ss <- str_subset(s,par)
+  ee <- str_subset(e,par)
+  paste(ss,"--",ee,sep = "")
+}
+
+row_p <- function(tdts, tdte){
+  par_list <- unlist(map(tdts, pipei))
+  pa <- map(par_list, make_par, s=tdts, e=tdte)
+}
+
+kk <- b_dt_w %>% rowwise() %>%
+  mutate(patern=list(row_p(S,E)))
 
 ```
 

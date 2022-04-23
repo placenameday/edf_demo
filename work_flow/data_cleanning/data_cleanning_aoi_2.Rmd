@@ -16,7 +16,7 @@ library(tidyverse)
 library(data.table)
 library(furrr)
 library(progress)
-plan(multisession, workers = 4)
+plan(multisession, workers = 6)
 ```
 
 ## 整合所有aoi信息
@@ -106,7 +106,7 @@ sub_bg_aoi <- function(dt){
       ndt1
     } else {
       ndt1 <- ndt1 %>% rowwise() %>%
-        mutate(bg=bg_de(c(b1_2_q,b1_2_a)))
+        mutate(bg=bg_de(c(b1_2_q,b1_2_a, outter_lt, outter_rt, outter_lb, outter_rb, outter_l, outter_r, outter_t, outter_b)))
     }
     
     ndt2 <- dt %>% filter(block_name %in% c("b2"))
@@ -114,7 +114,7 @@ sub_bg_aoi <- function(dt){
       ndt2
     } else {
       ndt2 <- ndt2 %>% rowwise() %>%
-        mutate(bg=bg_de(c(b2_left,b2_center,b2_right)))
+        mutate(bg=bg_de(c(b2_left,b2_center,b2_right, outter_lt, outter_rt, outter_lb, outter_rb, outter_l, outter_r, outter_t, outter_b)))
     }
    
     ndt3 <- dt %>% filter(block_name %in% c("b4a", "b4b"))
@@ -122,7 +122,7 @@ sub_bg_aoi <- function(dt){
       ndt3
     } else {
       ndt3 <- ndt3 %>% rowwise() %>%
-        mutate(bg=bg_de(c(b4_text)))
+        mutate(bg=bg_de(c(b4_text, outter_lt, outter_rt, outter_lb, outter_rb, outter_l, outter_r, outter_t, outter_b)))
     }
     
     ndt4 <- dt %>% filter(block_name %in% c("b5a"))
@@ -130,7 +130,7 @@ sub_bg_aoi <- function(dt){
       ndt4
     } else {
       ndt4 <- ndt4 %>% rowwise() %>%
-        mutate(bg=bg_de(c(b5_q,b5_a_1,b5_a_2,b5_a_3,b5_a_4)))
+        mutate(bg=bg_de(c(b5_q,b5_a_1,b5_a_2,b5_a_3,b5_a_4, outter_lt, outter_rt, outter_lb, outter_rb, outter_l, outter_r, outter_t, outter_b)))
     }
     
     ndt5 <- dt %>% filter(block_name %in% c("b5b"))
@@ -138,7 +138,7 @@ sub_bg_aoi <- function(dt){
       ndt5
     } else {
       ndt5 <- ndt5 %>% rowwise() %>%
-        mutate(bg=bg_de(c(b5_q,b5_a_1,b5_a_2,b5_a_3,b5_a_4,b5_a_5,b5_a_6)))
+        mutate(bg=bg_de(c(b5_q,b5_a_1,b5_a_2,b5_a_3,b5_a_4,b5_a_5,b5_a_6, outter_lt, outter_rt, outter_lb, outter_rb, outter_l, outter_r, outter_t, outter_b)))
     }
   } else  {
       if ("xp" %in% colnames(dt)) {
@@ -149,7 +149,7 @@ sub_bg_aoi <- function(dt){
         ndt1
       } else {
         ndt1 <- ndt1 %>% rowwise() %>%
-          mutate(bg=bg_de2(c(b1_2_q,b1_2_a)))
+          mutate(bg=bg_de2(c(b1_2_q,b1_2_a, outter_lt, outter_rt, outter_lb, outter_rb, outter_l, outter_r, outter_t, outter_b)))
       }
       
       ndt2 <- dt2 %>% filter(block_name %in% c("b2"))
@@ -157,7 +157,7 @@ sub_bg_aoi <- function(dt){
         ndt2
       } else {
         ndt2 <- ndt2 %>% rowwise() %>%
-          mutate(bg=bg_de2(c(b2_left,b2_center,b2_right)))
+          mutate(bg=bg_de2(c(b2_left,b2_center,b2_right, outter_lt, outter_rt, outter_lb, outter_rb, outter_l, outter_r, outter_t, outter_b)))
       }
      
       ndt3 <- dt2 %>% filter(block_name %in% c("b4a", "b4b"))
@@ -165,7 +165,7 @@ sub_bg_aoi <- function(dt){
         ndt3
       } else {
         ndt3 <- ndt3 %>% rowwise() %>%
-          mutate(bg=bg_de2(c(b4_text)))
+          mutate(bg=bg_de2(c(b4_text, outter_lt, outter_rt, outter_lb, outter_rb, outter_l, outter_r, outter_t, outter_b)))
       }
       
       ndt4 <- dt2 %>% filter(block_name %in% c("b5a"))
@@ -173,7 +173,7 @@ sub_bg_aoi <- function(dt){
         ndt4
       } else {
         ndt4 <- ndt4 %>% rowwise() %>%
-          mutate(bg=bg_de2(c(b5_q,b5_a_1,b5_a_2,b5_a_3,b5_a_4)))
+          mutate(bg=bg_de2(c(b5_q,b5_a_1,b5_a_2,b5_a_3,b5_a_4, outter_lt, outter_rt, outter_lb, outter_rb, outter_l, outter_r, outter_t, outter_b)))
       }
       
       ndt5 <- dt2 %>% filter(block_name %in% c("b5b"))
@@ -181,7 +181,7 @@ sub_bg_aoi <- function(dt){
         ndt5
       } else {
         ndt5 <- ndt5 %>% rowwise() %>%
-          mutate(bg=bg_de2(c(b5_q,b5_a_1,b5_a_2,b5_a_3,b5_a_4,b5_a_5,b5_a_6)))
+          mutate(bg=bg_de2(c(b5_q,b5_a_1,b5_a_2,b5_a_3,b5_a_4,b5_a_5,b5_a_6, outter_lt, outter_rt, outter_lb, outter_rb, outter_l, outter_r, outter_t, outter_b)))
       }
   }
 

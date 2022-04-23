@@ -458,7 +458,7 @@ sub_bg_aoi &lt;- function(dt){
       ndt1
     } else {
       ndt1 &lt;- ndt1 %&gt;% rowwise() %&gt;%
-        mutate(bg=bg_de(c(b1_2_q,b1_2_a)))
+        mutate(bg=bg_de(c(b1_2_q,b1_2_a, outter_lt, outter_rt, outter_lb, outter_rb, outter_l, outter_r, outter_t, outter_b)))
     }
     
     ndt2 &lt;- dt %&gt;% filter(block_name %in% c(&quot;b2&quot;))
@@ -466,7 +466,7 @@ sub_bg_aoi &lt;- function(dt){
       ndt2
     } else {
       ndt2 &lt;- ndt2 %&gt;% rowwise() %&gt;%
-        mutate(bg=bg_de(c(b2_left,b2_center,b2_right)))
+        mutate(bg=bg_de(c(b2_left,b2_center,b2_right, outter_lt, outter_rt, outter_lb, outter_rb, outter_l, outter_r, outter_t, outter_b)))
     }
    
     ndt3 &lt;- dt %&gt;% filter(block_name %in% c(&quot;b4a&quot;, &quot;b4b&quot;))
@@ -474,7 +474,7 @@ sub_bg_aoi &lt;- function(dt){
       ndt3
     } else {
       ndt3 &lt;- ndt3 %&gt;% rowwise() %&gt;%
-        mutate(bg=bg_de(c(b4_text)))
+        mutate(bg=bg_de(c(b4_text, outter_lt, outter_rt, outter_lb, outter_rb, outter_l, outter_r, outter_t, outter_b)))
     }
     
     ndt4 &lt;- dt %&gt;% filter(block_name %in% c(&quot;b5a&quot;))
@@ -482,7 +482,7 @@ sub_bg_aoi &lt;- function(dt){
       ndt4
     } else {
       ndt4 &lt;- ndt4 %&gt;% rowwise() %&gt;%
-        mutate(bg=bg_de(c(b5_q,b5_a_1,b5_a_2,b5_a_3,b5_a_4)))
+        mutate(bg=bg_de(c(b5_q,b5_a_1,b5_a_2,b5_a_3,b5_a_4, outter_lt, outter_rt, outter_lb, outter_rb, outter_l, outter_r, outter_t, outter_b)))
     }
     
     ndt5 &lt;- dt %&gt;% filter(block_name %in% c(&quot;b5b&quot;))
@@ -490,7 +490,7 @@ sub_bg_aoi &lt;- function(dt){
       ndt5
     } else {
       ndt5 &lt;- ndt5 %&gt;% rowwise() %&gt;%
-        mutate(bg=bg_de(c(b5_q,b5_a_1,b5_a_2,b5_a_3,b5_a_4,b5_a_5,b5_a_6)))
+        mutate(bg=bg_de(c(b5_q,b5_a_1,b5_a_2,b5_a_3,b5_a_4,b5_a_5,b5_a_6, outter_lt, outter_rt, outter_lb, outter_rb, outter_l, outter_r, outter_t, outter_b)))
     }
   } else  {
       if (&quot;xp&quot; %in% colnames(dt)) {
@@ -501,7 +501,7 @@ sub_bg_aoi &lt;- function(dt){
         ndt1
       } else {
         ndt1 &lt;- ndt1 %&gt;% rowwise() %&gt;%
-          mutate(bg=bg_de2(c(b1_2_q,b1_2_a)))
+          mutate(bg=bg_de2(c(b1_2_q,b1_2_a, outter_lt, outter_rt, outter_lb, outter_rb, outter_l, outter_r, outter_t, outter_b)))
       }
       
       ndt2 &lt;- dt2 %&gt;% filter(block_name %in% c(&quot;b2&quot;))
@@ -509,7 +509,7 @@ sub_bg_aoi &lt;- function(dt){
         ndt2
       } else {
         ndt2 &lt;- ndt2 %&gt;% rowwise() %&gt;%
-          mutate(bg=bg_de2(c(b2_left,b2_center,b2_right)))
+          mutate(bg=bg_de2(c(b2_left,b2_center,b2_right, outter_lt, outter_rt, outter_lb, outter_rb, outter_l, outter_r, outter_t, outter_b)))
       }
      
       ndt3 &lt;- dt2 %&gt;% filter(block_name %in% c(&quot;b4a&quot;, &quot;b4b&quot;))
@@ -517,7 +517,7 @@ sub_bg_aoi &lt;- function(dt){
         ndt3
       } else {
         ndt3 &lt;- ndt3 %&gt;% rowwise() %&gt;%
-          mutate(bg=bg_de2(c(b4_text)))
+          mutate(bg=bg_de2(c(b4_text, outter_lt, outter_rt, outter_lb, outter_rb, outter_l, outter_r, outter_t, outter_b)))
       }
       
       ndt4 &lt;- dt2 %&gt;% filter(block_name %in% c(&quot;b5a&quot;))
@@ -525,7 +525,7 @@ sub_bg_aoi &lt;- function(dt){
         ndt4
       } else {
         ndt4 &lt;- ndt4 %&gt;% rowwise() %&gt;%
-          mutate(bg=bg_de2(c(b5_q,b5_a_1,b5_a_2,b5_a_3,b5_a_4)))
+          mutate(bg=bg_de2(c(b5_q,b5_a_1,b5_a_2,b5_a_3,b5_a_4, outter_lt, outter_rt, outter_lb, outter_rb, outter_l, outter_r, outter_t, outter_b)))
       }
       
       ndt5 &lt;- dt2 %&gt;% filter(block_name %in% c(&quot;b5b&quot;))
@@ -533,7 +533,7 @@ sub_bg_aoi &lt;- function(dt){
         ndt5
       } else {
         ndt5 &lt;- ndt5 %&gt;% rowwise() %&gt;%
-          mutate(bg=bg_de2(c(b5_q,b5_a_1,b5_a_2,b5_a_3,b5_a_4,b5_a_5,b5_a_6)))
+          mutate(bg=bg_de2(c(b5_q,b5_a_1,b5_a_2,b5_a_3,b5_a_4,b5_a_5,b5_a_6, outter_lt, outter_rt, outter_lb, outter_rb, outter_l, outter_r, outter_t, outter_b)))
       }
   }
 
@@ -564,7 +564,7 @@ mul_aoi &lt;- function(in_dir, out_dir){
   in_list &lt;- paste(in_dir,&quot;/&quot;,list.files(in_dir), sep = &quot;&quot;)
   a_path &lt;- &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info_3.csv&quot;
   pb2 &lt;- progress_estimated(length(in_list))
-  map2(in_list, out_list, sub_aoi, a_path=a_path, pb2=pb2)
+  future_map2(in_list, out_list, sub_aoi, a_path=a_path, pb2=pb2)
 }</code></pre>
 </div>
 <div id="运行函数进行打标并保存" class="section level2">
