@@ -1,0 +1,127 @@
+---
+title: "Static_ana_2"
+author: "Chen Xing"
+date: '2022-04-24'
+output: html_document
+---
+
+---
+title: "static_ana_1"
+author: "Chen Xing"
+date: '2022-04-21'
+output: html_document
+---
+
+# Block_3 静态统计
+
+## 静态指标列表
+
+### 通用指标
+
+1.  **注视点类**
+    1.  注视点个数（fixation count:fc）
+
+    2.  平均注视点时长（average fixation duration:afd）
+
+    3.  潜伏期（duration to first fixation:dff）
+
+    4.  首视时长（first fixation duration:ffd）
+
+    5.  瞳孔直径（pupil diameter:pd）
+
+    6.  注视时长（fixation dwell time:dw）
+2.  **眼跳类**
+    1.  平均眼跳幅度（average saccade amplitude:asa）
+
+    2.  眼跳个数（saccade count:sc）
+
+    3.  扫视距离（saccade distance:sad）
+
+    4.  平均眼跳时长（average saccade duration:asd）
+
+    5.  眼跳峰值速度（saccade peak velocity:spv）
+
+    6.  区间眼跳计数（saccade between count:sbc）
+
+    7.  区间眼跳模式（saccade pattern:sacp）
+3.  **眨眼类**
+    1.  眨眼次数（blink count:bc）
+
+    2.  眨眼时长（blink duration:bd）
+
+以上指标分别对刺激**整体**及各个**AOI**进行统计。
+
+```{r, message=FALSE, warning=FALSE, results='hide', echo=FALSE}
+library(tidyverse)
+library(data.table)
+library(furrr)
+plan(multisession, workers = 6)
+```
+
+## eye静态信息汇总
+```{r, message=FALSE, warning=FALSE}
+merge_eye <- function(in_dir, out_path){
+  in_list <- paste(in_dir,"/",list.files(in_dir), sep = "")
+  dt <- map(in_list, fread) %>% bind_rows()
+  write_csv(dt, file=gzfile(out_path))
+}
+
+sacc_in <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/sacc_inner_static_ana"
+sacc_pa <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/sacc_patern_static_ana"
+fix <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/fix_static_ana"
+blinks <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/blinks_static_ana"
+
+out_dir <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/eye_event_overall"
+sacc_in_out <- paste(out_dir, "/sacc_inner.csv.gz", sep = "")
+sacc_pa_out <- paste(out_dir, "/sacc_pa.csv.gz", sep = "")
+fix_out <- paste(out_dir, "/fix.csv.gz", sep = "")
+blinks_out <- paste(out_dir, "/blinks.csv.gz", sep = "")
+```
+
+### 运行批量处理汇总数据
+`merge_eye(sacc_in, sacc_in_out)`   
+`merge_eye(sacc_pa, sacc_pa_out)`   
+`merge_eye(fix, fix_out)`   
+`merge_eye(blinks, blinks_out)`   
+
+## 定义数据统计方法
+```{r, message=FALSE, warning=FALSE}
+huizong <- function(){
+  fix <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/eye_event_overall/fix.csv.gz")
+  sacc_inner <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/eye_event_overall/sacc_inner.csv.gz")
+  blinks <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/eye_event_overall/blinks.csv.gz")
+  
+  inner_list <- list(fix, sacc_inner, blinks)
+  outp <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/eye_event_overall/inner_dt_csv.gz"
+  # 汇总输出全部inner数据
+  inner_dt <- reduce(inner_list, full_join)
+  write_csv(inner_dt, file=gzfile(outp))
+}
+
+huizong()
+
+
+dt <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/eye_event_overall/inner_dt_csv.gz")
+msg <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/msg_r.csv")
+scale <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/scale_sum.csv")
+
+dt2 <- dt %>% select(-block) %>% left_join(scale) %>%
+  group_by(participant_group, participant_phone, block_name, type, trial_name, stim, AOI)
+
+myfit <- lm(tgjl ~ fc, dt2)
+summary(myfit)
+
+a <- qplot(dt2$fc,dt2$tgjl)
+
+
+sxtj <- function(dt)
+  dt <- dt
+  block_list <- unique(dt$block_name)
+  map(block_list, blockana)
+  dt %>% filter(block_name %in% block, stim %in% stim)
+
+
+
+```
+
+
