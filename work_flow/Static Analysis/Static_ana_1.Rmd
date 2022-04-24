@@ -147,57 +147,114 @@ sacc_inner_out <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacki
 运行函数进行批量处理`multi_p(sacc_inner_in, sacc_inner_out, sacc_inner)`
 
 ### 区间眼跳
-#### 方法定义
+#### 数据生成方法定义
 ```{r, message=FALSE, warning=FALSE}
-bdd <- fread("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/sacc_clean_re_aoi_multi/4037_sacc.csv.gz")
-
+# 定义AOI属性及握手方法信息的定义方法
 aoi_p_d <- function(aoi_name){
   big <- c("out","all","b1_1","b1_2","b4","b5","b2_1_f","b2_1_e","b2_2","b2_cen","b3_1","b3_2","bg")
   small <- c("out","b1_2","b4","b5","b2_1_f","b2_1_e","b2_2","b2_cen","bg")
-  k <- if_else(str_detect(aoi_name, "ouuter_"),list(agn="out", hand=big),
-        if_else(str_detect(aoi_name,"all_"),list(agn="all",hand=c("out","all")),
-        if_else(str_detect(aoi_name,"b1_1"),list(agn="b1_1",hand=c("out","b1_1")),
-        if_else(str_detect(aoi_name,"b1_2"),list(agn="b1_2",hand=c("out","b1_2","bg")),
-        if_else(str_detect(aoi_name,"b4"),list(agn="b4",hand=c("out","b4","bg")),
-        if_else(str_detect(aoi_name,"b5_"),list(agn="b5",hand=c("out","b5","bg")),
-        if_else(aoi_name %in% c("b2_left", "b2_right"),list(agn="b2_1_f",hand=c("out","b2_1_f", "cen","bg")),
-        if_else(aoi_name %in% c("b2_jj", "b2_n", "b2_sp", "b2_xj"),list(agn="b2_1_e",hand=c("out","b2_1_e", "cen","bg")),
-        if_else(aoi_name %in% c("b2_star", "b2_no_star"),list(agn="b2_2",hand=c("out","b2_2", "cen","bg")),
-        if_else(aoi_name %in% c("b2_center"),list(agn="b2_cen",hand=c("out", "b2_cen","bg","b2_2","b2_1_e","b2_1_f")),
-        if_else(aoi_name %in% c("b3_lt", "b3_rt", "b3_lb", "b3_rb"),list(agn="b3_1",hand=c("out","b3_1")),
-        if_else(aoi_name %in% c("b3_ne", "b3_neg", "b3_pos", "b3_thr"),list(agn="b3_2",hand=c("out","b3_2")),
-        if_else(aoi_name %in% c("bg"),list(agn="bg",hand=small),list(agn="other",hand=c("")))))))))))))))
+  k <- if(str_detect(aoi_name, "outter_")){list(as=aoi_name, agn="out", hand=big)}
+        else if(str_detect(aoi_name,"all_")){list(as=aoi_name, agn="all",hand=c("out","all"))}
+        else if(str_detect(aoi_name,"b1_1")){list(as=aoi_name, agn="b1_1",hand=c("out","b1_1"))}
+        else if(str_detect(aoi_name,"b1_2")){list(as=aoi_name, agn="b1_2",hand=c("out","b1_2","bg"))}
+        else if(str_detect(aoi_name,"b4")){list(as=aoi_name, agn="b4",hand=c("out","b4","bg"))}
+        else if(str_detect(aoi_name,"b5_")){list(as=aoi_name, agn="b5",hand=c("out","b5","bg"))}
+        else if(aoi_name %in% c("b2_left", "b2_right")){list(as=aoi_name, agn="b2_1_f",hand=c("out","b2_1_f", "cen","bg"))}
+        else if(aoi_name %in% c("b2_jj", "b2_n", "b2_sp", "b2_xj")){list(as=aoi_name, agn="b2_1_e",hand=c("out","b2_1_e", "cen","bg"))}
+        else if(aoi_name %in% c("b2_star", "b2_no_star")){list(as=aoi_name, agn="b2_2",hand=c("out","b2_2", "cen","bg"))}
+        else if(aoi_name %in% c("b2_center")){list(as=aoi_name, agn="b2_cen",hand=c("out", "b2_cen","bg","b2_2","b2_1_e","b2_1_f"))}
+        else if(aoi_name %in% c("b3_lt", "b3_rt", "b3_lb", "b3_rb")){list(as=aoi_name, agn="b3_1",hand=c("out","b3_1"))}
+        else if(aoi_name %in% c("b3_ne", "b3_neg", "b3_pos", "b3_thr")){list(as=aoi_name, agn="b3_2",hand=c("out","b3_2"))}
+        else if(aoi_name %in% c("bg")){list(as=aoi_name, agn="bg",hand=small)}
+        else list(as="other", agn="other",hand=c(""))
 }
 
 
-b_dt <-aoi_dt(bdd, c("S", "E")) %>% rowwise() %>%
-  mutate(AOI_P = list(aoi_p_d(AOI)))
-b_dt_w <- pivot_wider(b_dt, names_from = aj, values_from = AOI)
-map(b_dt_w$E, unlist)
-
-tdte <- b_dt_w$E[2][[1]]
-tdts <- b_dt_w$S[2][[1]]
-
-pipei <- function(stri){
-  partern <- str_sub(stri, 1,3)
+# 定义数据逐行判断方法
+pipei3 <- function(s,e){
+  aois_list <- s
+  aoie_list <- e
+  
+  dt <- unlist(map(aois_list,pipei2,elist=aoie_list))
 }
 
-make_par <- function(par,s,e){
-  ss <- str_subset(s,par)
-  ee <- str_subset(e,par)
-  paste(ss,"--",ee,sep = "")
+# 定义数据逐AOI判断方法
+pipei2 <- function(a, elist){
+  a <- a
+  e <- elist
+  dt <- unlist(map(e, pipei, aois=a))
 }
 
-row_p <- function(tdts, tdte){
-  par_list <- unlist(map(tdts, pipei))
-  pa <- map(par_list, make_par, s=tdts, e=tdte)
+# 定义数据逐AOI握手判断方法
+pipei <- function(aoie, aois){
+  names <- aois[["as"]]
+  namee <- aoie[["as"]]
+  group <- aoie[["agn"]]
+  handinfo <- aois[["hand"]]
+  if (group %in% handinfo) {
+    junc <- paste(names, "==>", namee, sep = "")
+  }
 }
 
-kk <- b_dt_w %>% rowwise() %>%
-  mutate(patern=list(row_p(S,E)))
+
+# 单个个体数据处理方法
+get_sacc_patern <- function(inpath,outpath){
+  # 读取个体眼跳AOI文件
+  dt <- fread(inpath)
+  
+  # 对AOI进行属性及握手信息打标
+  dt <-aoi_dt(dt, c("S", "E")) %>% rowwise() %>%
+    mutate(AOI_P = list(aoi_p_d(AOI))) %>%
+    pivot_wider(names_from = aj, values_from = c(AOI, AOI_P)) %>%
+    mutate(sacc_patern=map2(AOI_P_S, AOI_P_E, pipei3)) %>%
+    select(-AOI_P_S, -AOI_P_E, -AOI_S, -AOI_E) %>% unnest_longer(sacc_patern) %>%
+    mutate(AOI_S=str_split_fixed(sacc_patern, "==>",2)[,1], AOI_E=str_split_fixed(sacc_patern, "==>",2)[,2])
+  
+  write_csv(dt, file=gzfile(outpath))
+  gc()
+}
+
+# 批量数据处理方法
+multi_get_patern <- function(in_dir, out_dir){
+  if (!dir.exists(out_dir)) {
+    dir.create(out_dir)
+  }
+  
+  out_list <- paste(out_dir,"/",list.files(in_dir), ".gz", sep = "")
+  in_list <- paste(in_dir,"/",list.files(in_dir), sep = "")
+
+  future_map2(in_list, out_list, get_sacc_patern)
+}
+
+sacc_aoi_in <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/sacc_clean_re_aoi_multi"
+sacc_aoi_out <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/sacc_clean_re_aoi_patern"
 
 ```
 
+#### 批量处理生成区间眼跳模式原始数据`multi_get_patern(sacc_aoi_in, sacc_aoi_out)`   
+
+#### 统计方法定义
+```{r, message=FALSE, warning=FALSE}
+sacc_patern <- function(file_path, out_path){
+  # 数据读取
+  dt <- fread(file_path)
+  
+  # 统计整体数据
+  a <- dt %>% filter(!is.na(sxp)) %>% group_by(participant_group, participant_phone, block_name, type, block, trial_name, stim, sacc_patern, AOI_S, AOI_E) %>%
+    summarise(asa=mean(ampl), sc=n(), sad=sum(ampl), asd=mean(dur), spv=mean(pv)) %>%
+    arrange(block, stim, sacc_patern)
+
+  write_csv(a, file=gzfile(out_path))
+  gc()
+}
+
+sacc_patern_in <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/sacc_clean_re_aoi_patern"
+sacc_patern_out <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/sacc_patern_static_ana"
+```
+
+#### 批量处理
+
+运行函数进行批量处理`multi_p(sacc_patern_in, sacc_patern_out, sacc_patern)`
 
 ## 眨眼类指标计算
 ### 方法定义

@@ -406,13 +406,14 @@ pre code {
 <div id="方法定义" class="section level3">
 <h3>方法定义</h3>
 <pre class="r"><code># 获取全部aoi名称
-aoi_name_list &lt;- unique(read_csv(&quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info.csv&quot;)$aoi_name)
+aoi_name_list &lt;- unique(read_csv(&quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/AOI_info_3.csv&quot;)$aoi_name)
 
 # 对dt进行aoi信息整理
 aoi_dt &lt;- function(dt, aji=TRUE){
   # 取实际存在aoi信息
   aol_cols &lt;- intersect(aoi_name_list, colnames(dt))
-  
+  aol_cols &lt;- append(aol_cols,&quot;bg&quot;)
+    
   # AOI数据整理
   ndt &lt;- pivot_longer(dt, cols = aol_cols, names_to = &quot;AOI&quot;, values_to = &quot;aj&quot;) %&gt;%
     filter(!is.na(aj), aj %in% aji) %&gt;%
@@ -464,10 +465,10 @@ fix_out &lt;- &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tack
 </div>
 <div id="眼跳类指标计算" class="section level2">
 <h2>眼跳类指标计算</h2>
-<div id="方法定义-1" class="section level3">
-<h3>方法定义</h3>
-<div id="整体及inner眼跳" class="section level4">
-<h4>整体及Inner眼跳</h4>
+<div id="整体及inner眼跳" class="section level3">
+<h3>整体及Inner眼跳</h3>
+<div id="方法定义-1" class="section level4">
+<h4>方法定义</h4>
 <pre class="r"><code>sacc_inner &lt;- function(file_path, out_path){
   # 数据读取
   dt &lt;- fread(file_path)
@@ -496,6 +497,116 @@ sacc_inner_out &lt;- &quot;/Users/placenameday/R study/edf_demo/data/processed/e
 <p>运行函数进行批量处理<code>multi_p(sacc_inner_in, sacc_inner_out, sacc_inner)</code></p>
 </div>
 </div>
+<div id="区间眼跳" class="section level3">
+<h3>区间眼跳</h3>
+<div id="数据生成方法定义" class="section level4">
+<h4>数据生成方法定义</h4>
+<pre class="r"><code># 定义AOI属性及握手方法信息的定义方法
+aoi_p_d &lt;- function(aoi_name){
+  big &lt;- c(&quot;out&quot;,&quot;all&quot;,&quot;b1_1&quot;,&quot;b1_2&quot;,&quot;b4&quot;,&quot;b5&quot;,&quot;b2_1_f&quot;,&quot;b2_1_e&quot;,&quot;b2_2&quot;,&quot;b2_cen&quot;,&quot;b3_1&quot;,&quot;b3_2&quot;,&quot;bg&quot;)
+  small &lt;- c(&quot;out&quot;,&quot;b1_2&quot;,&quot;b4&quot;,&quot;b5&quot;,&quot;b2_1_f&quot;,&quot;b2_1_e&quot;,&quot;b2_2&quot;,&quot;b2_cen&quot;,&quot;bg&quot;)
+  k &lt;- if(str_detect(aoi_name, &quot;outter_&quot;)){list(as=aoi_name, agn=&quot;out&quot;, hand=big)}
+        else if(str_detect(aoi_name,&quot;all_&quot;)){list(as=aoi_name, agn=&quot;all&quot;,hand=c(&quot;out&quot;,&quot;all&quot;))}
+        else if(str_detect(aoi_name,&quot;b1_1&quot;)){list(as=aoi_name, agn=&quot;b1_1&quot;,hand=c(&quot;out&quot;,&quot;b1_1&quot;))}
+        else if(str_detect(aoi_name,&quot;b1_2&quot;)){list(as=aoi_name, agn=&quot;b1_2&quot;,hand=c(&quot;out&quot;,&quot;b1_2&quot;,&quot;bg&quot;))}
+        else if(str_detect(aoi_name,&quot;b4&quot;)){list(as=aoi_name, agn=&quot;b4&quot;,hand=c(&quot;out&quot;,&quot;b4&quot;,&quot;bg&quot;))}
+        else if(str_detect(aoi_name,&quot;b5_&quot;)){list(as=aoi_name, agn=&quot;b5&quot;,hand=c(&quot;out&quot;,&quot;b5&quot;,&quot;bg&quot;))}
+        else if(aoi_name %in% c(&quot;b2_left&quot;, &quot;b2_right&quot;)){list(as=aoi_name, agn=&quot;b2_1_f&quot;,hand=c(&quot;out&quot;,&quot;b2_1_f&quot;, &quot;cen&quot;,&quot;bg&quot;))}
+        else if(aoi_name %in% c(&quot;b2_jj&quot;, &quot;b2_n&quot;, &quot;b2_sp&quot;, &quot;b2_xj&quot;)){list(as=aoi_name, agn=&quot;b2_1_e&quot;,hand=c(&quot;out&quot;,&quot;b2_1_e&quot;, &quot;cen&quot;,&quot;bg&quot;))}
+        else if(aoi_name %in% c(&quot;b2_star&quot;, &quot;b2_no_star&quot;)){list(as=aoi_name, agn=&quot;b2_2&quot;,hand=c(&quot;out&quot;,&quot;b2_2&quot;, &quot;cen&quot;,&quot;bg&quot;))}
+        else if(aoi_name %in% c(&quot;b2_center&quot;)){list(as=aoi_name, agn=&quot;b2_cen&quot;,hand=c(&quot;out&quot;, &quot;b2_cen&quot;,&quot;bg&quot;,&quot;b2_2&quot;,&quot;b2_1_e&quot;,&quot;b2_1_f&quot;))}
+        else if(aoi_name %in% c(&quot;b3_lt&quot;, &quot;b3_rt&quot;, &quot;b3_lb&quot;, &quot;b3_rb&quot;)){list(as=aoi_name, agn=&quot;b3_1&quot;,hand=c(&quot;out&quot;,&quot;b3_1&quot;))}
+        else if(aoi_name %in% c(&quot;b3_ne&quot;, &quot;b3_neg&quot;, &quot;b3_pos&quot;, &quot;b3_thr&quot;)){list(as=aoi_name, agn=&quot;b3_2&quot;,hand=c(&quot;out&quot;,&quot;b3_2&quot;))}
+        else if(aoi_name %in% c(&quot;bg&quot;)){list(as=aoi_name, agn=&quot;bg&quot;,hand=small)}
+        else list(as=&quot;other&quot;, agn=&quot;other&quot;,hand=c(&quot;&quot;))
+}
+
+
+# 定义数据逐行判断方法
+pipei3 &lt;- function(s,e){
+  aois_list &lt;- s
+  aoie_list &lt;- e
+  
+  dt &lt;- unlist(map(aois_list,pipei2,elist=aoie_list))
+}
+
+# 定义数据逐AOI判断方法
+pipei2 &lt;- function(a, elist){
+  a &lt;- a
+  e &lt;- elist
+  dt &lt;- unlist(map(e, pipei, aois=a))
+}
+
+# 定义数据逐AOI握手判断方法
+pipei &lt;- function(aoie, aois){
+  names &lt;- aois[[&quot;as&quot;]]
+  namee &lt;- aoie[[&quot;as&quot;]]
+  group &lt;- aoie[[&quot;agn&quot;]]
+  handinfo &lt;- aois[[&quot;hand&quot;]]
+  if (group %in% handinfo) {
+    junc &lt;- paste(names, &quot;==&gt;&quot;, namee, sep = &quot;&quot;)
+  }
+}
+
+
+# 单个个体数据处理方法
+get_sacc_patern &lt;- function(inpath,outpath){
+  # 读取个体眼跳AOI文件
+  dt &lt;- fread(inpath)
+  
+  # 对AOI进行属性及握手信息打标
+  dt &lt;-aoi_dt(dt, c(&quot;S&quot;, &quot;E&quot;)) %&gt;% rowwise() %&gt;%
+    mutate(AOI_P = list(aoi_p_d(AOI))) %&gt;%
+    pivot_wider(names_from = aj, values_from = c(AOI, AOI_P)) %&gt;%
+    mutate(sacc_patern=map2(AOI_P_S, AOI_P_E, pipei3)) %&gt;%
+    select(-AOI_P_S, -AOI_P_E, -AOI_S, -AOI_E) %&gt;% unnest_longer(sacc_patern) %&gt;%
+    mutate(AOI_S=str_split_fixed(sacc_patern, &quot;==&gt;&quot;,2)[,1], AOI_E=str_split_fixed(sacc_patern, &quot;==&gt;&quot;,2)[,2])
+  
+  write_csv(dt, file=gzfile(outpath))
+  gc()
+}
+
+# 批量数据处理方法
+multi_get_patern &lt;- function(in_dir, out_dir){
+  if (!dir.exists(out_dir)) {
+    dir.create(out_dir)
+  }
+  
+  out_list &lt;- paste(out_dir,&quot;/&quot;,list.files(in_dir), &quot;.gz&quot;, sep = &quot;&quot;)
+  in_list &lt;- paste(in_dir,&quot;/&quot;,list.files(in_dir), sep = &quot;&quot;)
+
+  future_map2(in_list, out_list, get_sacc_patern)
+}
+
+sacc_aoi_in &lt;- &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/sacc_clean_re_aoi_multi&quot;
+sacc_aoi_out &lt;- &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/sacc_clean_re_aoi_patern&quot;</code></pre>
+</div>
+<div id="批量处理生成区间眼跳模式原始数据multi_get_paternsacc_aoi_in-sacc_aoi_out" class="section level4">
+<h4>批量处理生成区间眼跳模式原始数据<code>multi_get_patern(sacc_aoi_in, sacc_aoi_out)</code></h4>
+</div>
+<div id="统计方法定义" class="section level4">
+<h4>统计方法定义</h4>
+<pre class="r"><code>sacc_patern &lt;- function(file_path, out_path){
+  # 数据读取
+  dt &lt;- fread(file_path)
+  
+  # 统计整体数据
+  a &lt;- dt %&gt;% filter(!is.na(sxp)) %&gt;% group_by(participant_group, participant_phone, block_name, type, block, trial_name, stim, sacc_patern, AOI_S, AOI_E) %&gt;%
+    summarise(asa=mean(ampl), sc=n(), sad=sum(ampl), asd=mean(dur), spv=mean(pv)) %&gt;%
+    arrange(block, stim, sacc_patern)
+
+  write_csv(a, file=gzfile(out_path))
+  gc()
+}
+
+sacc_patern_in &lt;- &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/sacc_clean_re_aoi_patern&quot;
+sacc_patern_out &lt;- &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/sacc_patern_static_ana&quot;</code></pre>
+</div>
+<div id="批量处理-2" class="section level4">
+<h4>批量处理</h4>
+<p>运行函数进行批量处理<code>multi_p(sacc_patern_in, sacc_patern_out, sacc_patern)</code></p>
+</div>
+</div>
 </div>
 <div id="眨眼类指标计算" class="section level2">
 <h2>眨眼类指标计算</h2>
@@ -517,7 +628,7 @@ sacc_inner_out &lt;- &quot;/Users/placenameday/R study/edf_demo/data/processed/e
 blink_in &lt;- &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/blinks_clean&quot;
 blink_out &lt;- &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/blinks_static_ana&quot;</code></pre>
 </div>
-<div id="批量处理-2" class="section level3">
+<div id="批量处理-3" class="section level3">
 <h3>批量处理</h3>
 <p>运行函数进行批量处理<code>multi_p(blink_in, blink_out, blink_s)</code></p>
 </div>
