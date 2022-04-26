@@ -39,3 +39,24 @@ sacc_refine_save <- function(rdic, sdic){
 
 sacc_refine_save("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/sacc_clean", "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/sacc_clean_re")
 ```
+
+### 量表信息修正
+增加量表得分高低分组信息   
+#### 高低分组
+```{r, message=FALSE, warning=FALSE}
+dt <- read.csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/scale_sum.csv")
+quantile(dt$tgjl,c(0.3,0.7))
+quantile(dt$maas,c(0.3,0.7))
+quantile(dt$sas,c(0.3,0.7))
+dt <- dt %>% mutate(tgjl_g = case_when(tgjl<=34~"low",
+                                       tgjl>=42~"high",
+                                       tgjl<42&tgjl>34~"mid"),
+                  maas_g = case_when(maas<= 41~"low",
+                                      maas>=52~"high",
+                                      maas<52&maas>41~ "mid"),
+                  sas_g =case_when(sas<= 25~"low",
+                                   sas>=38~"high",
+                                   sas<38&sas>25~"mid"))
+write_excel_csv(dt, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/scale_sum_r.csv")
+```
+

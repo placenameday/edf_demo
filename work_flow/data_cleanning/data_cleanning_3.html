@@ -398,6 +398,31 @@ sacc_refine_save &lt;- function(rdic, sdic){
 sacc_refine_save(&quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/sacc_clean&quot;, &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/sacc_clean_re&quot;)</code></pre>
 <pre><code>## [1] &quot;done&quot;</code></pre>
 </div>
+<div id="量表信息修正" class="section level3">
+<h3>量表信息修正</h3>
+<p>增加量表得分高低分组信息<br />
+#### 高低分组</p>
+<pre class="r"><code>dt &lt;- read.csv(&quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/scale_sum.csv&quot;)
+quantile(dt$tgjl,c(0.3,0.7))</code></pre>
+<pre><code>## 30% 70% 
+##  34  42</code></pre>
+<pre class="r"><code>quantile(dt$maas,c(0.3,0.7))</code></pre>
+<pre><code>## 30% 70% 
+##  41  54</code></pre>
+<pre class="r"><code>quantile(dt$sas,c(0.3,0.7))</code></pre>
+<pre><code>## 30% 70% 
+##  25  38</code></pre>
+<pre class="r"><code>dt &lt;- dt %&gt;% mutate(tgjl_g = case_when(tgjl&lt;=34~&quot;low&quot;,
+                                       tgjl&gt;=42~&quot;high&quot;,
+                                       tgjl&lt;42&amp;tgjl&gt;34~&quot;mid&quot;),
+                  maas_g = case_when(maas&lt;= 41~&quot;low&quot;,
+                                      maas&gt;=52~&quot;high&quot;,
+                                      maas&lt;52&amp;maas&gt;41~ &quot;mid&quot;),
+                  sas_g =case_when(sas&lt;= 25~&quot;low&quot;,
+                                   sas&gt;=38~&quot;high&quot;,
+                                   sas&lt;38&amp;sas&gt;25~&quot;mid&quot;))
+write_excel_csv(dt, &quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/scale_sum_r.csv&quot;)</code></pre>
+</div>
 </div>
 </div>
 

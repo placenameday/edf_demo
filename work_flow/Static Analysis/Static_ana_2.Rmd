@@ -90,34 +90,63 @@ huizong <- function(){
   fix <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/eye_event_overall/fix.csv.gz")
   sacc_inner <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/eye_event_overall/sacc_inner.csv.gz")
   blinks <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/eye_event_overall/blinks.csv.gz")
+  msg <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/msg_r.csv")
+  scale <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/scale_sum_r.csv")
   
   inner_list <- list(fix, sacc_inner, blinks)
-  outp <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/eye_event_overall/inner_dt_csv.gz"
+  outp <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/eye_event_overall/inner_dt_2_csv.gz"
   # 汇总输出全部inner数据
   inner_dt <- reduce(inner_list, full_join)
-  write_csv(inner_dt, file=gzfile(outp))
+  
+  dt_2 <- inner_dt %>% select(-block) %>% left_join(scale) %>%
+    group_by(participant_group, participant_phone, block_name, type, trial_name, stim, AOI)
+  
+  write_excel_csv(dt2, file=gzfile(outp))
+  
+  dt_stim <- filter(dt_2, AOI == "Overall")
+  dt_aoi <- filter(dt_2, AOI != "Overall")
+  write_excel_csv(dt_stim, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/eye_event_overall/inner_dt_stim.csv")
+  write_excel_csv(dt_aoi, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/eye_event_overall/inner_dt_aoi.sv")
 }
+
 
 huizong()
 
 
-dt <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/eye_event_overall/inner_dt_csv.gz")
-msg <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/msg_r.csv")
-scale <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/scale_sum.csv")
+aoiana <- function(aoiname,dt){
+  dt <- filter(AOI==aoiname)
+  AOI_list <- unique(dt$AOI)
+  
+}
 
-dt2 <- dt %>% select(-block) %>% left_join(scale) %>%
-  group_by(participant_group, participant_phone, block_name, type, trial_name, stim, AOI)
 
-myfit <- lm(tgjl ~ fc, dt2)
-summary(myfit)
 
-a <- qplot(dt2$fc,dt2$tgjl)
+stimana <- function(stimname,dt){
+  dt <- filter(stim==stimname)
+  AOI_list <- unique(dt$AOI)
+  map(AOI_list, aoiana, dt=dt)
+  
+}
 
+
+typeana <- function(typename,dt){
+  dt <- filter(type==blockname)
+  stim_list <- unique(dt$stim)
+  map(stim_list, stimana, dt=dt)
+}
+
+
+blockana <- function(blockname,dt){
+  dt <- filter(block_name==blockname)
+  type_list <- unique(dt$type)
+  map(type_list, typeana, dt=dt)
+}
 
 sxtj <- function(dt)
   dt <- dt
   block_list <- unique(dt$block_name)
-  map(block_list, blockana)
+  map(block_list, blockana, dt=dt)
+  
   dt %>% filter(block_name %in% block, stim %in% stim)
 
 
