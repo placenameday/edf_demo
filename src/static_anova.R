@@ -14,45 +14,71 @@ anv <- function(metri, stname, bname, dt3){
   mm <- metri
   b1a <- dt3 %>% filter(block_name==bname, stim==stname) %>%
     group_by(maas_g, tgjl_g, sas_g, participant_phone) %>%
-    summarise(fc=mean(!!sym(metri), na.rm=T)) %>%
-    mutate(maas = factor(maas_g, levels=c("high", "mid", "low")),
-           tgjl = factor(tgjl_g, levels=c("high", "mid", "low")),
-           sas = factor(sas_g, levels=c("high", "mid", "low")))
+    summarise(fc=mean(!!sym(metri), na.rm=T), maas=mean(maas), tgjl=mean(tgjl), sas=mean(sas)) %>%
+    mutate(maasg = factor(maas_g, levels=c("high", "mid", "low")),
+           tgjlg = factor(tgjl_g, levels=c("high", "mid", "low")),
+           sasg = factor(sas_g, levels=c("high", "mid", "low")))
   
   ztjy <- round(shapiro.test(b1a$fc)$p.value,4)
   
-  bbc <- b1a %>% pivot_longer(c(maas,tgjl,sas), names_to = "sclae", values_to = "group") %>% mutate(zg=paste(sclae,group,sep = "_"))
+  bbc <- b1a %>% pivot_longer(c(maasg,tgjlg,sasg), names_to = "sclae", values_to = "group") %>% mutate(zg=paste(sclae,group,sep = "_"))
   
   qxjy <- round(ifelse(ztjy<0.05, leveneTest(bbc$fc,as.factor(bbc$zg))$`Pr(>F)`[1], bartlett.test(bbc$fc,bbc$zg)$p.value),4)
 
-  aov.manu <- try(aov(fc ~ maas + tgjl + sas + maas:tgjl:sas + maas:tgjl + tgjl:sas + maas:sas, data=b1a))
+  aov.manu <- try(aov(fc ~ maasg + tgjlg + sasg + maasg:tgjlg:sasg + maasg:tgjlg + tgjlg:sasg + maasg:sasg, data=b1a))
   summary(aov.manu)[[1]] %>% mutate(block_name=bname, stim=stname, metric=mm, effect=rownames(.), ztx=ztjy, qx=qxjy) %>%
-    rename(p = "Pr(>F)") %>% mutate(p=round(p,4))
+    rename(p = "Pr(>F)") %>% mutate(p=round(p,4), Resdf=summary(aov.manu)[[1]]["Residuals",1])
 }
 
 # anv("fc","1", "b1a", dtb)
 
-dnv3 <- function(sti, bname, dtt){
+alm <- function(metri, stname, bname, dt3){
+  mm <- metri
+  dtc <- dt3 %>% filter(block_name==bname, stim==stname) %>%
+    group_by(maas_g, tgjl_g, sas_g, participant_phone) %>%
+    summarise(fc=mean(!!sym(metri), na.rm=T), maas=mean(maas), tgjl=mean(tgjl), sas=mean(sas))
+  
+  ztjy <- round(shapiro.test(dtc$fc)$p.value,4)
+  
+  
+  ldtc <- lm(fc~ maas + tgjl + sas, data = dtc)
+  
+  cc<-summary(ldtc$residuals)
+  Q1<-cc[[2]]
+  Q2<-cc[[3]]
+  Q3<-cc[[5]]
+  skewness<-((Q1-Q2)+(Q3-Q2))/(Q3-Q1)
+
+  
+  sl <- as.data.frame(summary(ldtc)["coefficients"][[1]]) %>% mutate(block_name=bname, stim=stname, metric=mm, effect=rownames(.), ztx=ztjy, df=summary(ldtc)[["df"]][2], ccfb=skewness) %>%
+    rename(p = "Pr(>|t|)") %>% mutate(p=round(p,4)) %>% filter(effect!="(Intercept)")
+}
+
+
+dnv3 <- function(sti, bname, dtt, m){
   s <- sti
   ndt <- dtt %>% filter(stim==sti)
   mlist <- metrilist
-  bind_rows(future_map(metrilist, anv, stname=s, bname=bname, dt3=ndt))
+  method <- ifelse(m=="lm",alm,anv)
+  bind_rows(future_map(metrilist, method, stname=s, bname=bname, dt3=ndt))
 }
 
-anv2 <- function(blockname, dt2){
+anv2 <- function(blockname, dt2, m){
   bn <- blockname
   dt2 <- dt2 %>% filter(block_name==bn)
   stimlist <- unique(dt2$stim)
-  bind_rows(future_map(stimlist, dnv3, bname=bn, dtt=dt2))
+  
+  bind_rows(future_map(stimlist, dnv3, bname=bn, dtt=dt2, m=m))
 }
 
 
-mu <- function(dt1){
+mu <- function(dt1,m){
   blist <- unique(dt1$block_name)
-  bind_rows(future_map(blist, anv2, dt2=dt1))
+  bind_rows(future_map(blist, anv2, dt2=dt1, m=m))
 }
 
-kankan <- mu(dtb) %>% filter(p <= 0.05)
+lmall <- mu(dtb, "lm") %>% filter(p <= 0.05)
+anovamall <- mu(dtb, "a") %>% filter(p <= 0.05)
 
 write_excel_csv(kankan, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/anova/over_all.csv")
 

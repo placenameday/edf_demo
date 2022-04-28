@@ -5,12 +5,7 @@ date: '2022-04-24'
 output: html_document
 ---
 
----
-title: "static_ana_1"
-author: "Chen Xing"
-date: '2022-04-21'
-output: html_document
----
+
 
 # Block_3 静态统计
 
@@ -55,10 +50,12 @@ output: html_document
 library(tidyverse)
 library(data.table)
 library(furrr)
+library(car)
 plan(multisession, workers = 6)
 ```
 
 ## eye静态信息汇总
+
 ```{r, message=FALSE, warning=FALSE}
 merge_eye <- function(in_dir, out_path){
   in_list <- paste(in_dir,"/",list.files(in_dir), sep = "")
@@ -79,12 +76,14 @@ blinks_out <- paste(out_dir, "/blinks.csv.gz", sep = "")
 ```
 
 ### 运行批量处理汇总数据
-`merge_eye(sacc_in, sacc_in_out)`   
-`merge_eye(sacc_pa, sacc_pa_out)`   
-`merge_eye(fix, fix_out)`   
-`merge_eye(blinks, blinks_out)`   
+
+`merge_eye(sacc_in, sacc_in_out)`\
+`merge_eye(sacc_pa, sacc_pa_out)`\
+`merge_eye(fix, fix_out)`\
+`merge_eye(blinks, blinks_out)`
 
 ## 定义数据统计方法
+
 ```{r, message=FALSE, warning=FALSE}
 huizong <- function(){
   fix <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/eye_event_overall/fix.csv.gz")
@@ -109,48 +108,233 @@ huizong <- function(){
   write_excel_csv(dt_aoi, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/eye_event_overall/inner_dt_aoi.sv")
 }
 
-
-huizong()
-
-
-aoiana <- function(aoiname,dt){
-  dt <- filter(AOI==aoiname)
-  AOI_list <- unique(dt$AOI)
-  
-}
-
-
-
-stimana <- function(stimname,dt){
-  dt <- filter(stim==stimname)
-  AOI_list <- unique(dt$AOI)
-  map(AOI_list, aoiana, dt=dt)
-  
-}
-
-
-typeana <- function(typename,dt){
-  dt <- filter(type==blockname)
-  stim_list <- unique(dt$stim)
-  map(stim_list, stimana, dt=dt)
-}
-
-
-blockana <- function(blockname,dt){
-  dt <- filter(block_name==blockname)
-  type_list <- unique(dt$type)
-  map(type_list, typeana, dt=dt)
-}
-
-sxtj <- function(dt)
-  dt <- dt
-  block_list <- unique(dt$block_name)
-  map(block_list, blockana, dt=dt)
-  
-  dt %>% filter(block_name %in% block, stim %in% stim)
-
-
-
 ```
+
+输出汇总数据`huizong()`
+
+## 批量探索分析
+
+### 整体差异检验与线性回归
+
+#### 数据修正
+
+```{r, message=FALSE, warning=FALSE}
+# 读取整体数据
+dta <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/eye_event_overall/inner_dt_stim.csv")
+
+# 读取实验信息
+cl <- readxl::read_xlsx("/Users/placenameday/R study/edf_demo/para/para_data/check_list.xlsx") %>%
+  filter(eb==4)
+
+b4phone <- cl$phone
+
+# 修正b1b stim1.5 为1，修正b4信息
+dtb <- dta %>% mutate(stim=if_else(block_name=="b1b"&stim==1.5,1,stim), block_name=if_else(block_name=="b4a"&participant_phone %in% b4phone,"nb4b",if_else(block_name=="b4b"&participant_phone %in% b4phone,"nb4a",block_name))) %>% mutate(block_name=if_else(block_name=="nb4b", "b4b", if_else(block_name=="nb4a", "b4a", block_name))) %>%
+  select(-AOI)
+
+metrilist <- colnames(dtb)[7:19]
+
+# 输出修正后整体数据
+write_excel_csv(dtb, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/inner_dt_stim_re.csv")
+```
+
+#### 定义分析方法
+##### 基于stim的分析
+```{r, message=FALSE, warning=FALSE}
+# 方差分析方法
+anv <- function(metri, stname, bname, dt3){
+  mm <- metri
+  b1a <- dt3 %>% filter(block_name==bname, stim==stname) %>%
+    group_by(maas_g, tgjl_g, sas_g, participant_phone) %>%
+    summarise(fc=mean(!!sym(metri), na.rm=T), maas=mean(maas), tgjl=mean(tgjl), sas=mean(sas)) %>%
+    mutate(maasg = factor(maas_g, levels=c("high", "mid", "low")),
+           tgjlg = factor(tgjl_g, levels=c("high", "mid", "low")),
+           sasg = factor(sas_g, levels=c("high", "mid", "low")))
+  
+  # 正态性检验
+  ztjy <- round(shapiro.test(b1a$fc)$p.value,4)
+  
+  bbc <- b1a %>% pivot_longer(c(maasg,tgjlg,sasg), names_to = "sclae", values_to = "group") %>% mutate(zg=paste(sclae,group,sep = "_"))
+  
+  # 方差齐性检验
+  qxjy <- round(ifelse(ztjy<0.05, leveneTest(bbc$fc,as.factor(bbc$zg))$`Pr(>F)`[1], bartlett.test(bbc$fc,bbc$zg)$p.value),4)
+  
+  # 方差分析结果
+  aov.manu <- try(aov(fc ~ maasg + tgjlg + sasg + maasg:tgjlg:sasg + maasg:tgjlg + tgjlg:sasg + maasg:sasg, data=b1a))
+  summary(aov.manu)[[1]] %>% mutate(block_name=bname, stim=stname, metric=mm, effect=rownames(.), ztx=ztjy, qx=qxjy) %>%
+    rename(p = "Pr(>F)") %>% mutate(p=round(p,4), Resdf=summary(aov.manu)[[1]]["Residuals",1])
+}
+
+# 线性回归方法
+alm <- function(metri, stname, bname, dt3){
+  mm <- metri
+  dtc <- dt3 %>% filter(block_name==bname, stim==stname) %>%
+    group_by(maas_g, tgjl_g, sas_g, participant_phone) %>%
+    summarise(fc=mean(!!sym(metri), na.rm=T), maas=mean(maas), tgjl=mean(tgjl), sas=mean(sas))
+  
+  # 正态性检验
+  ztjy <- round(shapiro.test(dtc$fc)$p.value,4)
+  
+  # 线性回归结果
+  ldtc <- lm(fc~ maas + tgjl + sas, data = dtc)
+  
+  cc<-summary(ldtc$residuals)
+  Q1<-cc[[2]]
+  Q2<-cc[[3]]
+  Q3<-cc[[5]]
+  skewness<-((Q1-Q2)+(Q3-Q2))/(Q3-Q1)
+
+  sl <- as.data.frame(summary(ldtc)["coefficients"][[1]]) %>% mutate(block_name=bname, stim=stname, metric=mm, effect=rownames(.), ztx=ztjy, df=summary(ldtc)[["df"]][2], ccfb=skewness) %>%
+    rename(p = "Pr(>|t|)") %>% mutate(p=round(p,4)) %>% filter(effect!="(Intercept)")
+}
+
+
+# 对每个因变量进行分析
+dnv3 <- function(sti, bname, dtt, m){
+  s <- sti
+  ndt <- dtt %>% filter(stim==sti)
+  mlist <- metrilist
+  method <- ifelse(m=="lm",alm,anv)
+  bind_rows(future_map(metrilist, method, stname=s, bname=bname, dt3=ndt))
+}
+
+# 对每个stim进行分析
+anv2 <- function(blockname, dt2, m){
+  bn <- blockname
+  dt2 <- dt2 %>% filter(block_name==bn)
+  stimlist <- unique(dt2$stim)
+  
+  bind_rows(future_map(stimlist, dnv3, bname=bn, dtt=dt2, m=m))
+}
+
+
+# 对每个block进行分析
+mu <- function(dt1,m){
+  blist <- unique(dt1$block_name)
+  bind_rows(future_map(blist, anv2, dt2=dt1, m=m))
+}
+```
+
+计算总体线性回归结果并保存`write_excel_csv(mu(dtb, "lm"),"/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/anova/over_all_lm.csv")`\
+计算总体方差分析结果并保`write_excel_csv(mu(dtb, "an"),"/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/anova/over_all_anova.csv")`
+
+
+##### 基于AOI的分析
+```{r, message=FALSE, warning=FALSE}
+# 方差分析方法
+anv_a <- function(metri, stname, bname, dt3, aoi){
+  mm <- metri
+  b1a <- dt3 %>% filter(block_name==bname, stim==stname, AOI==aoi) %>%
+    group_by(maas_g, tgjl_g, sas_g, participant_phone) %>%
+    summarise(fc=mean(!!sym(metri), na.rm=T), maas=mean(maas), tgjl=mean(tgjl), sas=mean(sas)) %>%
+    mutate(maasg = factor(maas_g, levels=c("high", "mid", "low")),
+           tgjlg = factor(tgjl_g, levels=c("high", "mid", "low")),
+           sasg = factor(sas_g, levels=c("high", "mid", "low"))) %>%
+    filter(!is.na(fc))
+  
+  if (length(b1a$fc)>30) {
+    # 正态性检验
+    ztjy <- round(shapiro.test(b1a$fc)$p.value,4)
+
+    bbc <- b1a %>% pivot_longer(c(maasg,tgjlg,sasg), names_to = "sclae", values_to = "group") %>% mutate(zg=paste(sclae,group,sep = "_"))
+  
+    # 方差齐性检验
+    qxjy <- round(ifelse(ztjy<0.05, leveneTest(bbc$fc,as.factor(bbc$zg))$`Pr(>F)`[1], bartlett.test(bbc$fc,bbc$zg)$p.value),4)
+    
+    # 方差分析结果
+    aov.manu <- try(aov(fc ~ maasg + tgjlg + sasg + maasg:tgjlg:sasg + maasg:tgjlg + tgjlg:sasg + maasg:sasg, data=b1a))
+    summary(aov.manu)[[1]] %>% mutate(block_name=bname, stim=stname, AOI=aoi, metric=mm, effect=rownames(.), ztx=ztjy, qx=qxjy) %>%
+      rename(p = "Pr(>F)") %>% mutate(p=round(p,4), Resdf=summary(aov.manu)[[1]]["Residuals",1])
+  } else NULL
+}
+
+
+# 线性回归方法
+alm_a <- function(metri, stname, bname, dt3, aoi){
+  mm <- metri
+  dtc <- dt3 %>% filter(block_name==bname, stim==stname) %>%
+    group_by(maas_g, tgjl_g, sas_g, participant_phone) %>%
+    summarise(fc=mean(!!sym(metri), na.rm=T), maas=mean(maas), tgjl=mean(tgjl), sas=mean(sas)) %>%
+    filter(!is.na(fc))
+  
+  if (length(dtc$fc)>30) {
+    # 正态性检验
+    ztjy <- round(shapiro.test(dtc$fc)$p.value,4)
+    
+    # 线性回归结果
+    ldtc <- lm(fc~ maas + tgjl + sas, data = dtc)
+    
+    cc<-summary(ldtc$residuals)
+    Q1<-cc[[2]]
+    Q2<-cc[[3]]
+    Q3<-cc[[5]]
+    skewness<-((Q1-Q2)+(Q3-Q2))/(Q3-Q1)
+  
+    sl <- as.data.frame(summary(ldtc)["coefficients"][[1]]) %>% mutate(block_name=bname, stim=stname, AOI=aoi, metric=mm, effect=rownames(.), ztx=ztjy, df=summary(ldtc)[["df"]][2], ccfb=skewness) %>%
+      rename(p = "Pr(>|t|)") %>% mutate(p=round(p,4)) %>% filter(effect!="(Intercept)")
+  } else NULL
+}
+
+
+# 对每个因变量进行分析
+dnv3_a <- function(aoi, bname, dtt, m, stn){
+  a <- aoi
+  ndt <- dtt %>% filter(AOI==a)
+  mlist <- metrilist_aoi
+  method <- ifelse(m=="lm",alm_a,anv_a)
+  bind_rows(future_map(mlist, method, stname=stn, bname=bname, dt3=ndt, aoi=a))
+}
+
+
+# 对每个aoi进行分析
+anv2_2_a <- function(sti, bname, dtt, m){
+  sn <- sti
+  dt2 <- dtt %>% filter(stim==sn)
+  aoilist <- unique(dt2$AOI)
+  
+  bind_rows(future_map(aoilist, dnv3_a, bname=bname, dtt=dt2, m=m, stn=sn))
+}
+
+
+# 对每个stim进行分析
+anv2_a <- function(blockname, dt2, m){
+  bn <- blockname
+  dt2 <- dt2 %>% filter(block_name==bn)
+  stimlist <- unique(dt2$stim)
+  
+  bind_rows(future_map(stimlist, anv2_2_a, bname=bn, dtt=dt2, m=m))
+}
+
+
+# 对每个block进行分析
+mu_a <- function(dt1,m){
+  blist <- unique(dt1$block_name)
+  bind_rows(future_map(blist, anv2_a, dt2=dt1, m=m))
+}
+
+
+# 数据导入与处理
+# 读取整体数据
+dta_aoi <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/eye_event_overall/inner_dt_aoi.csv")
+
+# 读取实验信息
+cl <- readxl::read_xlsx("/Users/placenameday/R study/edf_demo/para/para_data/check_list.xlsx") %>%
+  filter(eb==4)
+
+b4phone <- cl$phone
+
+# 修正b1b stim1.5 为1，修正b4信息
+dtb_aoi <- dta_aoi %>%
+  mutate(stim=if_else(block_name=="b1b"&stim==1.5,1,stim), block_name=if_else(block_name=="b4a"&participant_phone %in% b4phone,"nb4b",if_else(block_name=="b4b"&participant_phone %in% b4phone,"nb4a",block_name))) %>%
+  mutate(block_name=if_else(block_name=="nb4b", "b4b", if_else(block_name=="nb4a", "b4a", block_name))) %>% 
+  filter(AOI!="Overall")
+
+metrilist_aoi <- colnames(dtb_aoi)[7:19]
+
+# 输出修正后整体数据
+write_excel_csv(dtb_aoi, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/inner_dt_aoi_re.csv")
+```
+计算aoi线性回归结果并保存`write_excel_csv(mu_a(dtb_aoi, "lm"),"/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/anova/aoi_lm.csv")`
+计算aoi方差分析结果并保`write_excel_csv(mu_a(dtb_aoi, "an"),"/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/anova/aoi_anova.csv")`
 
 
