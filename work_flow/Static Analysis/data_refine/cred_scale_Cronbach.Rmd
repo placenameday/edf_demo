@@ -1,0 +1,126 @@
+---
+title: "见数量表数据的信度计算"
+author: "Chen Xing"
+date: '2022-04-21'
+output: html_document
+---
+## 摘要
+读取见数量表数据对各个量表进行信度计算
+
+### 必要的包
+```{r, message=FALSE, warning=FALSE, results='hide', echo=FALSE}
+library(ltm)
+library(tidyverse)
+library(rstatix)
+library(GGally)
+library(mediation)
+```
+
+### 数据读取
+```{r, message=FALSE, warning=FALSE}
+# 数据所在目录
+sdir <- "/Users/placenameday/R study/edf_demo/data/processed/sclae_cred/webdownload"
+
+# 数据文件
+scale_file_list <- c("cred_a04_raw_2.csv", "cred_a03_raw.csv", "cred_a02_raw.csv")
+scale_file_path <- paste(sdir, "/", scale_file_list, sep = "")
+
+# 读取数据文件并合并整理
+rdt <- bind_rows(map(scale_file_path, read_csv, locale=locale(encoding = 'GB18030')))
+
+```
+
+### 数据简单处理
+```{r, message=FALSE, warning=FALSE}
+# 定义处理方法
+lb_re <- function(dt){
+  dtn <- select(dt, 作答ID, 作答时长, 20:98)
+  dtnn <- select(dtn, -Q2_1, -Q3_1, -Q4_1, -Q5_1, -Q3_8, -Q4_7, -Q5_8)
+  
+  # 项目重命名
+  cnma <- c("ID", "time", "reward", "next", "phone", "sex", "age", "edu", "statu")
+  anxno <- (1:40)
+  maasno <- (1:15)
+  phono <- (1:10)
+  anxno_n <- paste("Anxe", anxno, sep = "")
+  maas_n <- paste("Maas", maasno, sep = "")
+  phono_n <- paste("Phoneadd", phono, sep="")
+  mycoln <- c(cnma, anxno_n, maas_n, phono_n)
+  mycoln <- as.data.frame(mycoln)
+  dtv1 <- `colnames<-`(dtnn, mycoln$mycoln)
+  
+  # 反向记分项目处理
+  a <- "1、2、5、8、10、11、15、16、19、20、21、23、24、26、27、30、33、34、36、39"
+  a <- strsplit(a, "、")
+  aa <- as.data.frame(a)
+  relist <- rename(aa, no = 1)
+  
+  relist$list <- str_c("Anxe", relist$no)
+
+  mutate_at(dtv1, relist$list, ~5-.)
+}
+
+# 对数据进行处理
+ndt <- lb_re(rdt)
+```
+
+### 量表抽取
+```{r, message=FALSE, warning=FALSE}
+itemno <- as.data.frame(colnames(ndt))
+
+ztjl <- ndt[,10:29]
+tzjl <- ndt[,30:49]
+maas <- ndt[,50:64]
+sas <- ndt[,65:74]
+```
+
+### 报告四个量表的cronbach系数
+```{r, message=FALSE, warning=FALSE}
+cronbach.alpha(ztjl)
+cronbach.alpha(tzjl)
+cronbach.alpha(maas)
+cronbach.alpha(sas)
+```
+
+### 报告三个量表彼此的相关
+```{r, message=FALSE, warning=FALSE}
+# 读取前期计算完成的数据
+dt2 <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/sclae_cred/processed/all_4.csv")
+
+# 数据形态转换
+dt3 <- dt2 %>% select(participant_phone, ztjl, tzjl, maas, phoneadd) %>%
+  pivot_longer(2:5, names_to = "scale", values_to = "score") %>%
+  filter(scale!="ztjl") %>%
+  mutate(scale=as.factor(scale))
+
+dt4 <- dt2 %>% select(tzjl, maas, phoneadd)
+
+# Density plots with semi-transparent fill
+ggplot(dt3, aes(x=score, fill=scale)) + geom_density(alpha=.3)
+
+ggpairs(dt4)
+```
+
+### 报告中介效应
+```{r, message=FALSE, warning=FALSE}
+dt4 <- na.omit(dt4)
+# maas 对 tzjl的直接效应
+fit.totaleffect=lm(tzjl~maas,dt4)
+summary(fit.totaleffect)
+
+# maas 对 sas的效应
+fit.mediator=lm(phoneadd~maas,dt4)
+summary(fit.mediator)
+
+# maas 作为 mediator 对tzjl的效应
+fit.dv=lm(tzjl~maas+phoneadd,dt4)
+summary(fit.dv)
+
+results = mediate(fit.mediator, fit.dv, treat='maas', mediator='phoneadd', boot=T)
+summary(results)
+```
+由分析可知，maas直接对tzjl产生0.41效应   
+对sas产生0.49效应   
+maas与sas一起对tgjl产生0.35效应   
+间接效应为0.49*0.35=0.17   
+通过1000次booststrapped进行计算验证，间接效应为0.17，95%的置信区间为0.10至0.26，间接效应显著（p<0.001)
