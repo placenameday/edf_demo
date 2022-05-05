@@ -202,7 +202,7 @@ alm <- function(metri, stname, bname, dt3){
   ztjy <- round(shapiro.test(dtc$fc)$p.value,4)
   
   # 线性回归结果
-  ldtc <- lm(fc~ maas + tgjl + sas, data = dtc)
+  ldtc <- lm(fc~ maas * tgjl * sas, data = dtc)
   
   cc<-summary(ldtc$residuals)
   Q1<-cc[[2]]
@@ -242,7 +242,7 @@ mu <- function(dt1,m){
 }
 ```
 
-计算总体线性回归结果并保存`write_excel_csv(mu(dtb, "lm"),"/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/anova/over_all_lm.csv")`
+计算总体线性回归结果并保存`write_excel_csv(mu(dtb, "lm"),"/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/anova/over_all_lm_jh.csv")`
 计算总体方差分析结果并保`write_excel_csv(mu(dtb, "an"),"/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/anova/over_all_anova.csv")`
 
 
@@ -297,7 +297,7 @@ alm_a <- function(metri, stname, bname, dt3, aoi){
     ztjy <- round(shapiro.test(dtc$fc)$p.value,4)
     
     # 线性回归结果
-    ldtc <- lm(fc~ maas + tgjl + sas, data = dtc)
+    ldtc <- lm(fc~ maas * tgjl * sas, data = dtc)
     
     cc<-summary(ldtc$residuals)
     Q1<-cc[[2]]
@@ -369,7 +369,7 @@ metrilist_aoi <- colnames(dtb_aoi)[7:19]
 # 输出修正后整体数据
 write_excel_csv(dtb_aoi, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/inner_dt_aoi_re.csv")
 ```
-计算aoi线性回归结果并保存`write_excel_csv(mu_a(dtb_aoi, "lm"),"/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/anova/aoi_lm.csv")`
+计算aoi线性回归结果并保存`write_excel_csv(mu_a(dtb_aoi, "lm"),"/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/anova/aoi_lm_jh.csv")`
 计算aoi方差分析结果并保`write_excel_csv(mu_a(dtb_aoi, "an"),"/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/anova/aoi_anova.csv")`
 
 

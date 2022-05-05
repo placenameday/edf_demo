@@ -1,0 +1,106 @@
+---
+title: "b1_ana_3"
+author: "Chen Xing"
+date: '2022-05-05'
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+
+## 对b1进行 针对性分析
+
+
+### 必要的包
+```{r, message=FALSE, warning=FALSE, results='hide', echo=FALSE}
+library(tidyverse)
+library(rstatix)
+library(ggpubr)
+library(lmerTest)
+library(sjPlot)
+library(parameters)
+```
+
+
+### 开始分析
+#### 数据准备
+```{r, message=FALSE, warning=FALSE}
+# 数据导入
+dt <- read.csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/inner_dt_aoi_re.csv")
+```
+
+#### fangfa
+```{r, message=FALSE, warning=FALSE}
+mix_e_f <- function(dt, bname, sname, a, metri){
+    # 数据准备
+  dtc2 <- dt %>% filter(block_name %in% bname, stim==sname, AOI %in% a) %>%
+    group_by(participant_phone, block_name, AOI) %>%
+    summarise(fc=mean(!!sym(metri), na.rm=T), maas=mean(maas), tgjl=mean(tgjl), sas=mean(sas)) %>%
+    filter(!is.na(fc)) %>%
+    ungroup() %>%
+    convert_as_factor(participant_phone, block_name, AOI) %>%
+    select(participant_phone, block_name, AOI, tgjl, maas, sas, fc)
+  
+  
+  # 极端值处理
+  outdata <- dtc2 %>%
+    group_by(block_name,AOI) %>%
+    identify_outliers(fc)
+  dtb3_r <- anti_join(dtc2, outdata)
+  outdata2 <- dtb3_r %>%
+    group_by(block_name,AOI) %>%
+    identify_outliers(fc)
+  dtb3_r2 <- anti_join(dtb3_r, outdata2)
+  outdata3 <- dtb3_r2 %>%
+    group_by(block_name,AOI) %>%
+    identify_outliers(fc)
+  dtb3_r3 <- anti_join(dtb3_r2, outdata3)
+  outdata4 <- dtb3_r3 %>%
+    group_by(block_name,AOI) %>%
+    identify_outliers(fc)
+  dtb3_r4 <- anti_join(dtb3_r3, outdata4)
+  outdata5 <- dtb3_r4 %>%
+    group_by(block_name,AOI) %>%
+    identify_outliers(fc)
+  
+  # 结果输出
+  mixed_maas = lmer(fc ~ maas*AOI*block_name + (1 | participant_phone), data = dtb3_r4)
+  mixed_sas = lmer(fc ~ sas*AOI*block_name + (1 | participant_phone), data = dtb3_r4)
+  mixed_two = lmer(fc ~ maas+sas+AOI+maas*sas+maas*AOI+sas*AOI+AOI*block_name+maas*block_name+sas*block_name + (1 | participant_phone), data = dtb3_r4)
+  
+  # maas 结果
+  maas_t <- model_parameters(mixed_maas)
+  maas_p1 <- plot_model(mixed_maas, show.values = TRUE, value.offset = .3, title = metri)
+  maas_p2 <- plot_model(mixed_maas, type = "pred", terms = c("maas", "AOI", "block_name"), title = metri, axis.title = metri)
+  maas_results <- list(table=maas_t, p1=maas_p1, p2=maas_p2)
+  
+  # sas 结果
+  sas_t <- model_parameters(mixed_sas)
+  sas_p1 <- plot_model(mixed_sas, show.values = TRUE, value.offset = .3, title = metri)
+  sas_p2 <- plot_model(mixed_sas, type = "pred", terms = c("sas", "AOI", "block_name"), title = metri, axis.title = metri)
+  sas_results <- list(table=sas_t, p1=sas_p1, p2=sas_p2)
+  
+  # two 结果
+  two_t <- model_parameters(mixed_two)
+  two_p1 <- plot_model(mixed_two, show.values = TRUE, value.offset = .3, title = metri)
+  two_p2 <- plot_model(mixed_two, type = "pred", terms = c("maas", "sas", "AOI", "block_name"), title = metri, axis.title = metri)
+  two_p3 <- plot_model(mixed_two, type = "pred", terms = c("sas", "maas", "AOI", "block_name"), title = metri, axis.title = metri)
+  two_results <- list(table=two_t, p1=two_p1, p2=two_p2, p3=two_p3)
+  
+  f <- list(maas_results, sas_results, two_results)
+}
+
+```
+
+#### 参数定义
+```{r, message=FALSE, warning=FALSE}
+bname <- c("b1a", "b1b")
+sname <- 1
+a <- c("b1_1zhong","b1_1jin", "b1_1yuan")
+mlist <- c("fc", "afd", "dff", "ffd", "pd", "dw", "asa", "sc", "sad", "asd", "spv")
+```
+
+## 分析
+```{r, message=FALSE, warning=FALSE}
+map(mlist, mix_e_f, dt=dt, bname=bname, sname=sname, a=a)
+```
