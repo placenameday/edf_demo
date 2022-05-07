@@ -1,0 +1,138 @@
+---
+title: "b3_ana_3"
+author: "Chen Xing"
+date: '2022-05-04'
+output: html_document
+---
+
+## 对b3进行 针对性分析
+
+
+### 必要的包
+```{r, message=FALSE, warning=FALSE, results='hide', echo=FALSE}
+library(tidyverse)
+library(rstatix)
+library(ggpubr)
+```
+
+
+### 开始分析
+#### 数据准备
+```{r, message=FALSE, warning=FALSE}
+# 数据导入
+dt <- read.csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/inner_dt_aoi_re.csv")
+```
+
+#### fangfa
+```{r, message=FALSE, warning=FALSE}
+mixfc <- function(dt, bname, sname, a, metri){
+  dtb3 <- dt %>% filter(block_name %in% bname, stim==sname, AOI %in% a) %>%
+    mutate(maas=maas_g, sas=sas_g) %>%
+    filter(maas != "mid", sas != "mid") %>%
+    group_by(participant_phone, maas, sas, AOI) %>%
+    summarise(fc=mean(!!sym(metri), rm.na=T)) %>%
+    select(participant_phone, maas, sas, fc, AOI) %>%
+    convert_as_factor(participant_phone, maas, sas, AOI) %>% ungroup()
+    
+    
+  dtb3 %>%
+    group_by(maas, sas, AOI) %>%
+    get_summary_stats(fc, type = "mean_sd")
+  
+  
+  outdata <- dtb3 %>%
+    group_by(maas, sas, AOI) %>%
+    identify_outliers(fc)
+  dtb3_r <- anti_join(dtb3, outdata)
+  outdata2 <- dtb3_r %>%
+    group_by(maas, sas, AOI) %>%
+    identify_outliers(fc)
+  dtb3_r2 <- anti_join(dtb3_r, outdata2)
+  outdata3 <- dtb3_r2 %>%
+    group_by(maas, sas, AOI) %>%
+    identify_outliers(fc)
+  dtb3_r3 <- anti_join(dtb3_r2, outdata3)
+  outdata4 <- dtb3_r3 %>%
+    group_by(maas, sas, AOI) %>%
+    identify_outliers(fc)
+  dtb3_r4 <- anti_join(dtb3_r3, outdata4)
+  outdata5 <- dtb3_r4 %>%
+    group_by(maas, sas, AOI) %>%
+    identify_outliers(fc)
+  
+  bxp <- ggboxplot(
+    dtb3_r4, x = "maas", y = "fc",
+    color = "sas", palette = "jco",
+    facet.by =  "AOI"
+  )
+  bxp
+  
+  ztx <- dtb3_r4 %>%
+    group_by(maas, sas, AOI) %>%
+    shapiro_test(fc)
+  
+  ztxp <- ggqqplot(dtb3_r4, "fc", ggtheme = theme_bw()) +
+    facet_grid(maas ~ AOI, labeller = "label_both")
+  
+  fcqx <- dtb3_r4 %>%
+    group_by(AOI) %>%
+    levene_test(fc ~ maas*sas)
+  
+  res.aov <- anova_test(
+    data = dtb3_r4, dv = fc, wid = participant_phone,
+    between = c(maas,sas), within = c(AOI)
+  )
+  fc <- get_anova_table(res.aov)
+  
+  
+  
+  # Two-way ANOVA at each exercises group level
+  two.way <- dtb3_r4 %>%
+    group_by(AOI) %>%
+    anova_test(dv = fc, wid = participant_phone, between = c(maas,sas))
+  two.way
+  # Extract anova table
+  jd1 <- get_anova_table(two.way)
+  
+  maas.effect <- dtb3_r4 %>%
+    group_by(AOI, sas) %>%
+    anova_test(dv = fc, wid = participant_phone, between = maas)
+  jd2 <- maas.effect
+  
+  
+  # Fit pairwise comparisons
+  pwc <- dtb3_r4 %>%
+    group_by(AOI, sas) %>%
+    pairwise_t_test(fc ~ maas, p.adjust.method = "bonferroni") %>%
+    select(-p, -p.signif) # Remove details
+  # Focus on the results of "female" at t2
+  db <- pwc
+  
+  # Visualization: box plots with p-values
+  pwc <- pwc %>% add_xy_position(x = "sas") 
+  pwc.filtered <- pwc
+  f <- bxp + 
+    stat_pvalue_manual(pwc.filtered, tip.length = 0, hide.ns = TRUE) +
+    labs(
+      subtitle = get_test_label(res.aov, detailed = TRUE),
+      caption = get_pwc_label(pwc),
+      y = metri
+    )
+  
+  list(ztx=ztx, ztxp=ztxp, fcqx=fcqx, fc=fc, jd1=jd1, jd2=jd2, db=db, f=f)
+}
+
+```
+
+#### 参数定义
+```{r, message=FALSE, warning=FALSE}
+bname <- c("b3")
+sname <- 1
+a <- c("b3_ne","b3_pos", "b3_neg", "b3_thr")
+mlist <- c("fc", "afd", "dff", "ffd", "pd", "dw", "asa", "sc", "sad", "asd", "spv")
+```
+
+## 分析
+```{r, message=FALSE, warning=FALSE}
+map(mlist, mixfc, dt=dt, bname=bname, sname=sname, a=a)
+```

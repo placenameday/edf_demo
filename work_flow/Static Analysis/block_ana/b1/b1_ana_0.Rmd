@@ -1,0 +1,70 @@
+---
+title: "b1_ana_0"
+author: "Chen Xing"
+date: '2022-05-03'
+output: html_document
+---
+
+## 对b1数据进行按键反应整合
+### 必要的包
+```{r, message=FALSE, warning=FALSE, results='hide', echo=FALSE}
+library(tidyverse)
+library(readxl)
+```
+
+### 数据读取与整合
+### 必要的包
+```{r, message=FALSE, warning=FALSE, results='hide'}
+eye <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/inner_dt_aoi_re.csv")
+
+group_info <- eye %>% select(participant_group, participant_phone, tgjl, maas, sas) %>%
+  rename(gg=participant_group) %>%
+  distinct()
+
+msg <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/msg_r.csv")
+msg <- msg %>% select(participant_phone, block_name, trial_name,rt,k1,k2,k3,k4) %>%
+  mutate(k1=case_when(k1=="f"~1,
+                      k1=="1"~1,
+                      k1=="2"~2,
+                      k1=="3"~3,
+                      k1=="4"~4,
+                      k1=="5"~5,
+                      k1=="6"~6,
+                      k1=="j"~2)) %>%
+  mutate(k1=as.numeric(k1))
+
+msg1 <- msg %>% filter(block_name %in% c("b1a", "b1b")) %>%
+  pivot_longer(5:8, names_to = "stim", values_to = "key") %>%
+  mutate(stim=case_when(stim=="k1"~2,
+                        stim=="k2"~3,
+                        stim=="k3"~4,
+                        stim=="k4"~5))
+
+msg2 <- msg %>% filter(block_name %in% c("b2")) %>%
+  pivot_longer(5:8, names_to = "stim", values_to = "key") %>%
+  mutate(stim=case_when(stim=="k1"~2))
+
+msg3 <- msg %>% filter(block_name %in% c("b5a", "b5b")) %>%
+  pivot_longer(5:8, names_to = "stim", values_to = "key") %>%
+  mutate(stim=case_when(stim=="k1"~1))
+nmsg <- bind_rows(msg1, msg2, msg3) %>% drop_na(key)
+
+nmsg2 <- left_join(nmsg, select(eye, participant_group, participant_phone, trial_name,type)) %>%
+  distinct()
+
+typelist <- read_excel("/Users/placenameday/Research/PhD/eyetracking_phd/Stim/exp/图片素材/task1/story/storylist.xlsx") %>% rename(trial_name=filename, type2=type) %>% select(trial_name, type2)
+
+nmsg2 <- full_join(nmsg2, typelist)
+
+neye <- full_join(eye, nmsg2) %>% arrange(participant_phone, block_name, trial_name, stim) %>%
+  mutate(type=case_when(is.na(type)~type2,
+                        !is.na(type)~type)) %>%
+  select(-tgjl, -maas, -sas) %>%
+  full_join(group_info) %>%
+  mutate(participant_group=case_when(is.na(participant_group)~gg,
+                        !is.na(participant_group)~participant_group)) %>%
+  select(-type2,-gg)
+
+write_csv(neye, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/inner_dt_aoi_re_2.csv")
+
+```

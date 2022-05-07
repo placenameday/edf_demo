@@ -1,0 +1,209 @@
+---
+title: "b2_ana_4"
+author: "Chen Xing"
+date: '2022-05-06'
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+
+## 开始分析 acc 与量表的关系
+
+### 必要的包
+```{r, message=FALSE, warning=FALSE, results='hide', echo=FALSE}
+library(tidyverse)
+library(rstatix)
+library(ggpubr)
+```
+
+
+#### 参数定义
+```{r, message=FALSE, warning=FALSE}
+bname <- c("b2")
+
+metri <- c("acc")
+dt <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b2_info.csv")
+```
+
+#### fangfa
+```{r, message=FALSE, warning=FALSE}
+# 数据准备
+dtc2 <- dt %>% filter(block_name==bname) %>%
+  group_by(participant_phone, ansP) %>%
+  summarise(fc=mean(!!sym(metri), na.rm=T), maas=mean(maas), tgjl=mean(tgjl), sas=mean(sas)) %>%
+  filter(!is.na(fc)) %>%
+  ungroup() %>%
+  convert_as_factor(participant_phone, ansP) %>%
+  select(participant_phone, ansP, tgjl, maas, sas, fc)
+
+
+# 极端值处理
+dtb3_r4 <- dtc2
+
+dtb3_r4 <- dtb3_r4 %>% select(participant_phone, ansP, fc) %>%
+  arrange(participant_phone, ansP) %>%
+  ungroup()
+
+dtb3_r4$ansP<-factor(dtb3_r4$ansP)
+dtb3_r4$participant_phone<-factor(dtb3_r4$participant_phone)
+
+ggboxplot(dtb3_r4, x = "ansP", y = "fc")
+
+res.kruskal <- dtb3_r4 %>% kruskal_test(fc ~ ansP)
+res.kruskal
+
+dtb3_r4 %>% kruskal_effsize(fc ~ ansP)
+
+pwc <- dtb3_r4 %>% 
+  dunn_test(fc ~ ansP, p.adjust.method = "bonferroni") 
+pwc
+
+dtb3_r4 %>% 
+  group_by(ansP) %>%
+  get_summary_stats(fc, type = "common")
+  
+```
+
+
+#### 参数定义
+```{r, message=FALSE, warning=FALSE}
+bname <- c("b2")
+
+metri <- c("rt")
+dt <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b2_info.csv")
+```
+
+#### fangfa
+```{r, message=FALSE, warning=FALSE}
+# 数据准备
+dtc2 <- dt %>% filter(block_name==bname) %>%
+  group_by(participant_phone, ansP) %>%
+  summarise(fc=mean(!!sym(metri), na.rm=T), maas=mean(maas), tgjl=mean(tgjl), sas=mean(sas)) %>%
+  filter(!is.na(fc)) %>%
+  ungroup() %>%
+  convert_as_factor(participant_phone, ansP) %>%
+  select(participant_phone, ansP, tgjl, maas, sas, fc)
+
+
+# 极端值处理
+dtb3_r4 <- dtc2
+
+dtb3_r4 <- dtb3_r4 %>% select(participant_phone, ansP, fc) %>%
+  arrange(participant_phone, ansP) %>%
+  ungroup()
+
+dtb3_r4$ansP<-factor(dtb3_r4$ansP)
+dtb3_r4$participant_phone<-factor(dtb3_r4$participant_phone)
+
+ggboxplot(dtb3_r4, x = "ansP", y = "fc")
+
+res.kruskal <- dtb3_r4 %>% kruskal_test(fc ~ ansP)
+res.kruskal
+
+dtb3_r4 %>% kruskal_effsize(fc ~ ansP)
+
+pwc <- dtb3_r4 %>% 
+  dunn_test(fc ~ ansP, p.adjust.method = "bonferroni") 
+pwc
+
+dtb3_r4 %>% 
+  group_by(ansP) %>%
+  get_summary_stats(fc, type = "common")
+  
+```
+
+
+
+
+
+
+### 必要的包
+```{r, message=FALSE, warning=FALSE, results='hide', echo=FALSE}
+library(tidyverse)
+library(rstatix)
+library(ggpubr)
+library(lmerTest)
+library(sjPlot)
+library(parameters)
+library(effectsize)
+library(emmeans)
+library(performance)
+```
+
+
+#### 参数定义
+```{r, message=FALSE, warning=FALSE}
+bname <- c("b2")
+metri <- c("rt")
+dt <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b2_info.csv")
+```
+
+#### fangfa
+```{r, message=FALSE, warning=FALSE}
+# 数据准备
+dtc2 <- dt %>% filter(block_name==bname) %>%
+  group_by(participant_phone, ansP) %>%
+  summarise(fc=mean(!!sym(metri), na.rm=T), maas=mean(maas), tgjl=mean(tgjl), sas=mean(sas)) %>%
+  filter(!is.na(fc)) %>%
+  ungroup() %>%
+  convert_as_factor(participant_phone, ansP) %>%
+  select(participant_phone, ansP, tgjl, maas, sas, fc)
+
+
+# 极端值处理
+
+dtb3_r4 <- dtc2
+
+
+
+# 模型拟合
+mixed_maas = lmer(fc ~ maas+ansP+maas*ansP + (1 | participant_phone), data = dtb3_r4)
+mixed_sas = lmer(fc ~ sas*ansP + (1 | participant_phone), data = dtb3_r4)
+mixed_two = lmer(fc ~ maas+sas+ansP+maas*sas+maas*ansP+sas*ansP + (1 | participant_phone), data = dtb3_r4)
+
+# maas 结果
+# 基本参数
+model_parameters(mixed_maas)
+model_performance(mixed_maas)
+anova(mixed_maas)
+eta_squared(mixed_maas)
+# 简单效应与配对检验
+maas_emm <- emmeans(mixed_maas, pairwise ~ ansP | maas, cov.reduce = function(x) quantile(x, c(0.1, 0.3, 0.5, 0.7,0.9)))
+maas_emm
+joint_tests(mixed_maas , by=c("ansP"))
+joint_tests(mixed_maas , by=c("maas"), cov.reduce = function(x) quantile(x, c(0.1, 0.3, 0.5, 0.7,0.9)))
+contrast(maas_emm, "consec", simple = "each", combine = TRUE, adjust = "mvt")
+# 交互作用可视化
+emmip(mixed_maas, maas ~ ansP, mult.name = "variety", cov.reduce = FALSE)
+# 模型固定因子效应量
+plot_model(mixed_maas, show.values = TRUE, value.offset = .3, title = metri)
+# 模型交互1
+plot_model(mixed_maas, type = "pred", terms = c("maas", "ansP"), title = metri, axis.title = metri)
+# 模型交互2
+ plot_model(mixed_maas, type = "pred", terms = c("ansP", "maas"), title = metri, axis.title = metri)
+
+
+# sas 结果
+model_parameters(mixed_sas)
+model_performance(mixed_sas)
+anova(mixed_sas)
+eta_squared(mixed_sas)
+# 简单效应与配对检验
+sas_emm <- emmeans(mixed_sas, pairwise ~ ansP | sas, cov.reduce = function(x) quantile(x, c(0.1, 0.3, 0.5, 0.7,0.9)))
+sas_emm
+joint_tests(mixed_sas , by=c("ansP"))
+joint_tests(mixed_sas , by=c("sas"), cov.reduce = function(x) quantile(x, c(0.1, 0.3, 0.5, 0.7,0.9)))
+contrast(sas_emm, "consec", simple = "each", combine = TRUE, adjust = "mvt")
+# 交互作用可视化
+emmip(mixed_sas, sas ~ ansP, mult.name = "variety", cov.reduce = FALSE)
+# 模型固定因子效应量
+plot_model(mixed_sas, show.values = TRUE, value.offset = .3, title = metri)
+# 模型交互1
+plot_model(mixed_sas, type = "pred", terms = c("sas", "ansP"), title = metri, axis.title = metri)
+# 模型交互2
+plot_model(mixed_sas, type = "pred", terms = c("ansP", "sas"), title = metri, axis.title = metri)
+
+  
+```
+
