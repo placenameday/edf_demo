@@ -1,0 +1,117 @@
+---
+title: "microsacc_detect"
+author: "Chen Xing"
+date: '2022-05-07'
+output: html_document
+---
+
+# 探测并汇总微眼跳
+
+
+## 必要的包
+
+```{r, message=FALSE, warning=FALSE, results='hide'}
+library(tidyverse)
+library(data.table)
+library(furrr)
+plan(multisession, workers = 6)
+source("/Users/placenameday/R study/edf_demo/src/vecvel.R")
+source("/Users/placenameday/R study/edf_demo/src/microsacc.R")
+```
+
+
+### 方法定义
+```{r, message=FALSE, warning=FALSE}
+# 基本参数
+SAMPLING = 500
+MINDUR = 3
+VFAC = 5
+
+
+# 最小计算单元
+compute_ms <- function(data){
+  # data import
+  dt <- as.matrix(data)
+  # compute microsacc
+  ms <- microsacc(dt,VFAC,MINDUR,SAMPLING)
+}
+
+# 基于stim的计算单元
+compute_stim <- function(dt, stim){
+  dt <- dt %>% filter(stim==stim, !is.na(xp), !is.na(yp)) %>% mutate(xp=xp/32, yp=yp/32) %>%
+    select(xp, yp)
+  k <- compute_ms(dt)
+  f <- as.data.frame(k[[1]]) 
+  if (nrow(f)==0) {
+    mutate(f, stim=NA, mxp=NA, myp=NA, mpv=NA)
+  } else f <- f %>% select(1:3) %>%
+    mutate(stim=stim) %>%
+    rename(mxp=V1, myp=V2, mpv=V3)
+}
+
+# 基于trial的计算单元
+compute_trial <- function(dt, trial){
+  dt <- dt %>% filter(trial_name==trial)
+  slist <- unique(dt$stim)
+  f <- bind_rows(future_map(slist, compute_stim,dt=dt)) %>% mutate(trial_name=trial)
+}
+
+# 基于block的计算单元
+compute_block <- function(dt, blocka){
+  dt <- dt %>% filter(block_name==blocka)
+  trlist <- unique(dt$trial_name)
+  f <- bind_rows(future_map(trlist, compute_trial,dt=dt)) %>% mutate(block_name=blocka)
+}
+
+# 基于sub的计算单元
+compute_sub <- function(dtpath, outpath){
+  dt <- fread(dtpath)
+  sub <- dt$participant_phone[1]
+  gro <- dt$participant_group[1]
+  blist <- unique(dt$block_name)
+  fdt <- bind_rows(future_map(blist, compute_block,dt=dt)) %>% mutate(participant_phone=sub, participant_group=gro)
+  write_csv(fdt, outpath)
+  gc()
+}
+
+
+ms_mul <- function(in_dir, out_dir){
+  # 数据读取
+  if (!dir.exists(out_dir)) {
+    dir.create(out_dir)
+  }
+  
+  out_list <- paste(out_dir,"/",list.files(in_dir), ".csv", sep = "")
+  in_list <- paste(in_dir,"/",list.files(in_dir), sep = "")
+
+  future_map2(in_list, out_list, compute_sub)
+}
+
+in_dir <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/raw_clean"
+out_dir <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/raw_ms"
+```
+
+运行 `ms_mul(in_dir, out_dir)`
+
+### 数据统计汇总输出
+```{r, message=FALSE, warning=FALSE}
+
+#汇总
+ms_mer <- function(dtpath){
+  dt <- fread(dtpath)
+  dt <- dt %>% group_by(participant_group, participant_phone, block_name, trial_name, stim) %>%
+    summarise(msc = n(), mspv = mean(mpv, rm.na=T))
+}
+
+ms_mul2 <- function(in_dir){
+  in_list <- paste(in_dir,"/",list.files(in_dir), sep = "")
+
+  f <- bind_rows(future_map(in_list, ms_mer))
+  
+  write_csv(f, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/ms_inf.csv")
+}
+
+
+```
+
+运行统计汇总`ms_mul2("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/raw_ms")`
