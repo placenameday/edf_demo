@@ -36,44 +36,47 @@ dt <- read.csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/
 ```{r, message=FALSE, warning=FALSE}
 mix_e_f <- function(dt, bname, sname, a, metri){
   # 数据准备
-  dtc2 <- dt %>% filter(block_name %in% bname, stim==sname, AOI %in% a) %>%
-    group_by(participant_phone, block_name, AOI) %>%
-    summarise(fc=mean(!!sym(metri), na.rm=T), maas=mean(maas), tgjl=mean(tgjl), sas=mean(sas)) %>%
+  dtc2 <- dt %>% filter(block_name %in% bname, stim %in% sname, AOI %in% a) %>%
     filter(!is.na(fc)) %>%
     mutate(AOI=case_when(AOI == "b1_1zhong"~"Dm",
                          AOI == "b1_1jin"~"Dl",
                          AOI == "b1_1yuan"~"Dh")) %>%
+    mutate(block_name=case_when(block_name=="b1a"~"Ex",
+                                block_name=="b1b"~"In")) %>%
+    group_by(block_name, participant_phone, trial_name, AOI) %>%
+    summarise(fc=mean(!!sym(metri), na.rm=T), maas=mean(maas), tgjl=mean(tgjl), sas=mean(sas)) %>%
+    filter(!is.na(fc)) %>%
     ungroup() %>%
-    convert_as_factor(participant_phone, block_name, AOI) %>%
-    select(participant_phone, block_name, AOI, tgjl, maas, sas, fc)
+    convert_as_factor(block_name, participant_phone, trial_name, AOI) %>%
+    select(block_name, participant_phone, trial_name, AOI, tgjl, maas, sas, fc)
   
   
   # 极端值处理
   outdata <- dtc2 %>%
-    group_by(AOI) %>%
+    group_by(block_name) %>%
     identify_outliers(fc)
   dtb3_r <- anti_join(dtc2, outdata)
   outdata2 <- dtb3_r %>%
-    group_by(AOI) %>%
+    group_by(block_name) %>%
     identify_outliers(fc)
   dtb3_r2 <- anti_join(dtb3_r, outdata2)
   outdata3 <- dtb3_r2 %>%
-    group_by(AOI) %>%
+    group_by(block_name) %>%
     identify_outliers(fc)
   dtb3_r3 <- anti_join(dtb3_r2, outdata3)
   outdata4 <- dtb3_r3 %>%
-    group_by(AOI) %>%
+    group_by(block_name) %>%
     identify_outliers(fc)
   dtb3_r4 <- anti_join(dtb3_r3, outdata4)
   outdata5 <- dtb3_r4 %>%
-    group_by(AOI) %>%
+    group_by(block_name) %>%
     identify_outliers(fc)
   
   
   # 模型拟合
-  mixed_maas = lmer(fc ~ maas+AOI+maas*AOI+maas*block_name+AOI*block_name+AOI*block_name*maas + (1 | participant_phone), data = dtb3_r4)
-  mixed_sas = lmer(fc ~ sas*AOI+sas*block_name+AOI*block_name+AOI*block_name*sas + (1 | participant_phone), data = dtb3_r4)
-  mixed_two = lmer(fc ~ maas+sas+AOI+maas*sas+maas*AOI+sas*AOI+maas*block_name+AOI*block_name+sas*block_name+AOI*block_name*maas+AOI*block_name*sas+AOI*block_name*sas*maas + (1 | participant_phone), data = dtb3_r4)
+  mixed_maas = lmer(fc ~ maas+AOI+maas*AOI+maas*block_name+AOI*block_name+AOI*block_name*maas + (1| participant_phone)+(1|trial_name), data = dtb3_r4)
+  mixed_sas = lmer(fc ~ sas+AOI+sas*AOI+sas*block_name+AOI*block_name+AOI*block_name*sas + (1| participant_phone)+(1|trial_name), data = dtb3_r4)
+  mixed_two = lmer(fc ~ maas+sas+AOI+maas*sas+maas*AOI+sas*AOI+maas*block_name+AOI*block_name+sas*block_name+AOI*block_name*maas+AOI*block_name*sas+AOI*block_name*sas*maas + (1| participant_phone)+(1|trial_name), data = dtb3_r4)
   
   # maas 结果
   # 基本参数
@@ -132,8 +135,8 @@ mix_e_f <- function(dt, bname, sname, a, metri){
   two_se2 <- joint_tests(mixed_two , by=c("maas"), cov.reduce = function(x) quantile(x, c(0.1, 0.3, 0.5, 0.7,0.9)))
   two_se3 <- joint_tests(mixed_two , by=c("sas"), cov.reduce = function(x) quantile(x, c(0.1, 0.3, 0.5, 0.7,0.9)))
   # 交互作用可视化
-  two_inter_v_m <- emmip(mixed_two, maas ~ AOI|block_name, mult.name = "variety", cov.reduce = function(x) quantile(x, c(0.1,0.2, 0.3,0.4, 0.5,0.6, 0.7,0.8,0.9)))
-  two_inter_v_s <- emmip(mixed_two, sas ~ AOI|block_name, mult.name = "variety", cov.reduce = function(x) quantile(x, c(0.1,0.2, 0.3,0.4, 0.5,0.6, 0.7,0.8,0.9)))
+  two_inter_v_m <- emmip(mixed_two, maas ~ sas|AOI*block_name, mult.name = "variety", cov.reduce = function(x) quantile(x, c(0.1,0.2, 0.3,0.4, 0.5,0.6, 0.7,0.8,0.9)))
+  two_inter_v_s <- emmip(mixed_two, sas ~ maas|AOI*block_name, mult.name = "variety", cov.reduce = function(x) quantile(x, c(0.1,0.2, 0.3,0.4, 0.5,0.6, 0.7,0.8,0.9)))
   two_inter_v <- emmip(mixed_two, maas ~ AOI|block_name|sas, mult.name = "variety", cov.reduce = function(x) quantile(x, c(0.1, 0.3, 0.5, 0.7,0.9)))
   # 模型固定因子
   two_p1 <- plot_model(mixed_two, show.values = TRUE, value.offset = .3, title = metri)

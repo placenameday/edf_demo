@@ -1,0 +1,95 @@
+---
+title: "GCA手动_1"
+author: "Chen Xing"
+date: '2022-05-18'
+output: html_document
+---
+
+## 摘要
+手动gca
+
+### 必要的包
+```{r, message=FALSE, warning=FALSE, results='hide', echo=FALSE}
+library(tidyverse)
+library(lmerTest)
+library(parameters)
+library(effectsize)
+library(emmeans)
+library(performance)
+library(sjPlot)
+library(ggpubr)
+library(rstatix)
+library(furrr)
+plan(multisession, workers = 6)
+```
+
+### 读取数据
+```{r, message=FALSE, warning=FALSE}
+dt <- read.csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/raw_time_b3.gz")
+
+dt2 <- dt %>% group_by(Target, participant_phone, Time, AOI) %>%
+  summarise(sample=sum(SamplesInAOI, rm.na=T),  N=sum(SamplesTotal), Elog=mean(Elog, rm.na=T), Prop=mean(Prop,rm.na=T)) %>% mutate(nelog=log((sample + .5) / (N - sample + .5)))
+
+tlist <- unique(dt2$Time)
+alist <- unique(dt2$AOI)
+
+cl <- function(dt, time, metri){
+  dts <- filter(dt, Time==time) %>% drop_na(!!sym(metri)) %>% ungroup() %>%
+    select(!!sym(metri))
+  
+  
+  l <- shapiro.test(dts[,1][[1]])[2][[1]]
+}
+
+cl2 <- function(dt, aoi, metri){
+  dts <- filter(dt, AOI==aoi) %>% drop_na()
+  future_map(tlist, cl, dt=dts, metri=metri)
+}
+
+
+cl3 <- function(dt, metri){
+  dts <- dt
+  future_map(alist, cl2, dt=dts, metri=metri)
+}
+
+
+
+metri <- "sample"
+
+dttt <- dt2 %>% filter(AOI=="b3_ne")
+
+dts <- filter(dttt, Time==100) %>% drop_na(!!sym(metri)) %>% ungroup() %>%
+  select(!!sym(metri))
+
+
+l <- shapiro.test(dts[,1][[1]])[2][[1]]
+
+
+cl(dttt, 100, "sample")
+
+shapiro.test(dttt$sample)
+
+a <- cl3(dt2, "sample")
+b <- cl3(dt2, "Prop")
+c <- cl3(dt2, "Elog")
+d <- cl3(dt2, "nelog")
+```
+
+
+### 开始gca
+```{r, message=FALSE, warning=FALSE}
+dt3 <- dt
+
+dt3$TargetC <- ifelse(dt3$AOI == 'b3_pos', .5, -.5)
+dt3$TargetC <- scale(dt3$TargetC, center=T, scale=F)
+
+model <- lmer(Elog ~ TargetC*Time + (1 + TargetC + Time | participant_phone), data = dt3)
+summary(model)
+
+ggplot(dt3, aes(x=Time, y=Elog, color=AOI)) +
+                     stat_summary(fun.y=mean, geom="point") +
+                     stat_summary(aes(y=predict(model,dt3,re.form=NA)), fun.y=mean, geom="line")
+
+
+
+```

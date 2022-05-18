@@ -1,0 +1,116 @@
+bname <- c("b3")
+sname <- 1
+
+mlist <- c("fc", "afd", "dff", "ffd", "pd", "dw", "asa", "sc", "sad", "asd", "spv")
+
+metri <- "bc"
+
+dt <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/inner_dt_stim_re_2.csv")
+
+
+
+# 数据准备
+dtc2 <- dt %>% filter(block_name==bname, stim==sname) %>%
+  group_by(participant_phone, trial_name) %>%
+  summarise(fc=mean(!!sym(metri), na.rm=T), maas=mean(maas), tgjl=mean(tgjl), sas=mean(sas)) %>%
+  filter(!is.na(fc)) %>%
+  ungroup() %>%
+  convert_as_factor(participant_phone, trial_name) %>%
+  select(participant_phone, trial_name, tgjl, maas, sas, fc)
+
+
+# 极端值处理
+outdata <- dtc2 %>%
+  group_by(trial_name) %>%
+  identify_outliers(fc)
+dtb3_r <- anti_join(dtc2, outdata)
+outdata2 <- dtb3_r %>%
+  group_by(trial_name) %>%
+  identify_outliers(fc)
+dtb3_r2 <- anti_join(dtb3_r, outdata2)
+outdata3 <- dtb3_r2 %>%
+  group_by(trial_name) %>%
+  identify_outliers(fc)
+dtb3_r3 <- anti_join(dtb3_r2, outdata3)
+outdata4 <- dtb3_r3 %>%
+  group_by(trial_name) %>%
+  identify_outliers(fc)
+dtb3_r4 <- anti_join(dtb3_r3, outdata4)
+outdata5 <- dtb3_r4 %>%
+  group_by(trial_name) %>%
+  identify_outliers(fc)
+
+
+# 模型拟合
+mixed_maas = lmer(fc ~ maas + (1 | participant_phone)+ (1 | trial_name), data = dtb3_r4)
+mixed_sas = lmer(fc ~ sas + (1 | participant_phone)+ (1 | trial_name), data = dtb3_r4)
+mixed_two = lmer(fc ~ maas+sas+maas*sas + (1 | participant_phone)+ (1 | trial_name), data = dtb3_r4)
+
+# maas 结果
+# 基本参数
+maas_t <- model_parameters(mixed_maas)
+maas_perfor <- model_performance(mixed_maas)
+maas_jh <- anova(mixed_maas)
+maas_eta <- eta_squared(mixed_maas)
+# 简单效应与配对检验
+maas_emm <- emmeans(mixed_maas, pairwise ~  maas, cov.reduce = function(x) quantile(x, c(0.1, 0.3, 0.5, 0.7,0.9)))
+
+maas_se2 <- joint_tests(mixed_maas , cov.reduce = function(x) quantile(x, c(0.1, 0.3, 0.5, 0.7,0.9)))
+maas_pair <- contrast(maas_emm, "consec", simple = "each", combine = TRUE, adjust = "mvt")
+
+
+# 模型固定因子效应量
+maas_p1 <- plot_model(mixed_maas, show.values = TRUE, value.offset = .3, title = metri)
+# 模型交互1
+maas_p2 <- plot_model(mixed_maas, type = "pred", terms = c("maas"), title = metri, axis.title = metri)
+# 模型交互2
+
+# 结果汇总
+maas_results <- list(maas_t=maas_t, maas_perfor=maas_perfor, maas_jh=maas_jh, maas_eta=maas_eta,  maas_emm=maas_emm,  maas_se2=maas_se2,  maas_pair=maas_pair,  p1=maas_p1, p2=maas_p2)
+
+# sas 结果
+# 基本参数
+sas_t <- model_parameters(mixed_sas)
+sas_perfor <- model_performance(mixed_sas)
+sas_jh <- anova(mixed_sas)
+sas_eta <- eta_squared(mixed_sas)
+# 简单效应与配对检验
+sas_emm <- emmeans(mixed_sas, pairwise ~  sas, cov.reduce = function(x) quantile(x, c(0.1, 0.3, 0.5, 0.7,0.9)))
+
+sas_se2 <- joint_tests(mixed_sas , cov.reduce = function(x) quantile(x, c(0.1, 0.3, 0.5, 0.7,0.9)))
+sas_pair <- contrast(sas_emm, "consec", simple = "each", combine = TRUE, adjust = "mvt")
+
+
+# 模型固定因子效应量
+sas_p1 <- plot_model(mixed_sas, show.values = TRUE, value.offset = .3, title = metri)
+# 模型交互1
+sas_p2 <- plot_model(mixed_sas, type = "pred", terms = c("sas"), title = metri, axis.title = metri)
+# 模型交互2
+
+# 结果汇总
+sas_results <- list(sas_t=sas_t, sas_perfor=sas_perfor, sas_jh=sas_jh, sas_eta=sas_eta,  sas_emm=sas_emm,  sas_se2=sas_se2,  sas_pair=sas_pair,  p1=sas_p1, p2=sas_p2)
+
+# two 结果
+two_t <- model_parameters(mixed_two)
+two_perfor <- model_performance(mixed_two)
+two_jh <- anova(mixed_two)
+two_eta <- eta_squared(mixed_two)
+# 简单效应与配对检验
+two_emm <- emmeans(mixed_two, pairwise ~ maas*sas, cov.reduce = function(x) quantile(x, c(0.1, 0.3, 0.5, 0.7,0.9)))
+
+two_se2 <- joint_tests(mixed_two , by=c("maas"), cov.reduce = function(x) quantile(x, c(0.1, 0.3, 0.5, 0.7,0.9)))
+two_se3 <- joint_tests(mixed_two , by=c("sas"), cov.reduce = function(x) quantile(x, c(0.1, 0.3, 0.5, 0.7,0.9)))
+# 交互作用可视化
+two_inter_v_m <- emmip(mixed_two, maas ~ sas, mult.name = "variety", cov.reduce = FALSE)
+two_inter_v_s <- emmip(mixed_two, sas ~ maas, mult.name = "variety", cov.reduce = FALSE)
+
+# 模型固定因子
+two_p1 <- plot_model(mixed_two, show.values = TRUE, value.offset = .3, title = metri)
+# 模型交互1
+two_p2 <- plot_model(mixed_two, type = "pred", terms = c("maas", "sas"), title = metri, axis.title = metri)
+# 模型交互2
+two_p3 <- plot_model(mixed_two, type = "pred", terms = c("sas", "maas"), title = metri, axis.title = metri)
+
+two_results <- list(two_t=two_t, two_perfor=two_perfor, two_jh=two_jh, two_eta=two_eta,  two_emm=two_emm,  two_se2=two_se2,  two_se3=two_se3, two_inter_v_m=two_inter_v_m,two_inter_v_s=two_inter_v_s,  p1=two_p1, p2=two_p2, two_p3=two_p3)
+
+f <- list(maas_results, sas_results, two_results)

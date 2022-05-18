@@ -85,15 +85,16 @@ cronbach.alpha(sas)
 ### 报告三个量表彼此的相关
 ```{r, message=FALSE, warning=FALSE}
 # 读取前期计算完成的数据
-dt2 <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/sclae_cred/processed/all_4.csv")
+dt2 <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/sclae_cred/processed/all_4.csv") %>%
+  rename(Anxiety=tzjl, MAAS=maas, SAS=phoneadd)
 
 # 数据形态转换
-dt3 <- dt2 %>% select(participant_phone, ztjl, tzjl, maas, phoneadd) %>%
+dt3 <- dt2 %>% select(participant_phone, ztjl, Anxiety, MAAS, SAS) %>%
   pivot_longer(2:5, names_to = "scale", values_to = "score") %>%
   filter(scale!="ztjl") %>%
   mutate(scale=as.factor(scale))
 
-dt4 <- dt2 %>% select(tzjl, maas, phoneadd)
+dt4 <- dt2 %>% select(Anxiety, MAAS, SAS)
 
 # Density plots with semi-transparent fill
 ggplot(dt3, aes(x=score, fill=scale)) + geom_density(alpha=.3)
@@ -103,20 +104,20 @@ ggpairs(dt4)
 
 ### 报告中介效应
 ```{r, message=FALSE, warning=FALSE}
-dt4 <- na.omit(dt4)
+dt2 <- na.omit(dt2)
 # maas 对 tzjl的直接效应
-fit.totaleffect=lm(tzjl~maas,dt4)
+fit.totaleffect=lm(Anxiety~MAAS,dt2)
 summary(fit.totaleffect)
 
 # maas 对 sas的效应
-fit.mediator=lm(phoneadd~maas,dt4)
+fit.mediator=lm(SAS~MAAS,dt2)
 summary(fit.mediator)
 
 # maas 作为 mediator 对tzjl的效应
-fit.dv=lm(tzjl~maas+phoneadd,dt4)
+fit.dv=lm(Anxiety~MAAS+SAS,dt2)
 summary(fit.dv)
 
-results = mediate(fit.mediator, fit.dv, treat='maas', mediator='phoneadd', boot=T)
+results = mediate(fit.mediator, fit.dv, treat='MAAS', mediator='SAS', boot=T)
 summary(results)
 ```
 由分析可知，maas直接对tzjl产生0.41效应   

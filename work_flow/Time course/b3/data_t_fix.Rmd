@@ -1,0 +1,365 @@
+---
+title: "b3时序眼动分析"
+author: "Chen Xing"
+date: '2022-05-16'
+output: html_document
+---
+
+## 摘要
+针对b3数据进行整理
+
+### 必要的包
+```{r, message=FALSE, warning=FALSE, results='hide', echo=FALSE}
+library(tidyverse)
+library(data.table)
+library(furrr)
+library("Matrix")
+library("lme4")
+library("ggplot2")
+library("eyetrackingR")
+plan(multisession, workers = 6)
+```
+
+### raw数据筛选整理
+```{r, message=FALSE, warning=FALSE}
+
+
+as.data.frame(colnames(dt))
+
+mdt <-function(fpath){
+  
+  dt <- fread(fpath) %>%
+  filter(block_name=="b3", stim==1)
+  if (nrow(dt)==0) {
+    NULL
+  } else {dt <- dt %>% select(1:17, b3_pos, b3_neg, b3_thr, b3_ne)
+    dt2 <- dt %>% mutate(trackloss=case_when((is.na(axp)|is.na(ayp))~TRUE,
+                                  !(is.na(axp)|is.na(ayp))~FALSE))
+  }
+}
+
+mdt2 <- function(dirpath, opath){
+  out_list <- paste(dirpath,"/",list.files(dirpath), sep = "")
+  ndt <- bind_rows(future_map(out_list, possibly(mdt, otherwise = NA_character_)))
+  write_csv(ndt, opath)
+}
+
+dirpath <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/fix_clean_aoi"
+opath <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/b3_fix.csv.gz"
+
+```
+`mdt2(dirpath, opath)`
+
+# 进行初步时序分析
+```{r, message=FALSE, warning=FALSE}
+dt3 <- fread("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/b3_fix.csv.gz") %>%
+  select(1:17, b3_pos, b3_neg, b3_thr, b3_ne, trackloss)
+
+dt3 <- make_eyetrackingr_data(dt3, 
+                       participant_column = "participant_phone",
+                       trial_column = "trial_id",
+                       time_column = "time_p",
+                       trackloss_column = "trackloss",
+                       aoi_columns = c("b3_pos", "b3_neg", "b3_thr", "b3_ne"),
+                       treat_non_aoi_looks_as_missing = TRUE
+)
+
+# subset to response window post word-onset
+response_window <- subset_by_window(dt3, 
+                                    window_start_time = 1, 
+                                    window_end_time = 30000, 
+                                    rezero = FALSE)
+
+trackloss <- trackloss_analysis(data = response_window)
+
+# remove trials with > 25% of trackloss
+response_window_clean <- clean_by_trackloss(data = response_window, trial_prop_thresh = .25)
+
+# create Target condition column
+response_window_clean$Target <- as.factor('b3_pos')
+
+# aggregate across trials within subjects in time analysis
+response_time <- make_time_sequence_data(response_window_clean, time_bin_size = 100, 
+                                 predictor_columns = c("Target"),
+                                 aois = c("b3_pos", "b3_neg", "b3_thr", "b3_ne")
+                            )
+
+
+# visualize time results
+plot(response_time, predictor_column = "Target") + 
+  theme_light() +
+  coord_cartesian(ylim = c(0,1))
+
+```
+
+# 进行初步时序分析,以特质正念高低为区分
+```{r, message=FALSE, warning=FALSE}
+dt3_1 <- fread("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/b3_fix.csv.gz") %>%
+  mutate(participant_phone=as.numeric(participant_phone)) %>%
+  select(1:17, b3_pos, b3_neg, b3_thr, b3_ne, trackloss)
+
+msg <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/scale_sum_r.csv") %>%
+  select(participant_phone, maas_g)
+
+dt_l <- full_join(dt3_1, msg) %>% filter(maas_g=="low")
+dt_h <- full_join(dt3_1, msg) %>% filter(maas_g=="high")
+dt_a <- bind_rows(dt_l, dt_h) %>% drop_na(trial_id)
+rm(dt_l)
+rm(dt_h)
+gc()
+
+dt_l <- make_eyetrackingr_data(dt_a, 
+                       participant_column = "participant_phone",
+                       trial_column = "trial_id",
+                       time_column = "stime_p",
+                       trackloss_column = "trackloss",
+                       aoi_columns = c("b3_pos", "b3_neg", "b3_thr", "b3_ne"),
+                       treat_non_aoi_looks_as_missing = TRUE
+)
+
+# subset to response window post word-onset
+response_window <- subset_by_window(dt_l, 
+                                    window_start_time = 1, 
+                                    window_end_time = 30000, 
+                                    rezero = FALSE)
+
+trackloss <- trackloss_analysis(data = response_window)
+
+# remove trials with > 25% of trackloss
+response_window_clean <- clean_by_trackloss(data = response_window, trial_prop_thresh = .25)
+
+# create Target condition column
+response_window_clean$Target <- as.factor(response_window_clean$maas_g)
+
+# aggregate across trials within subjects in time analysis
+response_time <- make_time_sequence_data(response_window_clean, time_bin_size = 500, 
+                                 predictor_columns = c("Target"),
+                                 aois = c("b3_pos", "b3_neg", "b3_thr", "b3_ne")
+                            )
+
+response_time <- response_time %>% mutate(Prop=SamplesInAOI)
+
+
+# visualize time results
+plot(response_time, predictor_column = "Target") + 
+  theme_light() +
+  coord_cartesian(ylim = c(0,1))
+
+
+response_time$TargetC <- ifelse(response_time$Target == 'High', .5, -.5)
+response_time$TargetC <- as.numeric(scale(response_time$TargetC, center=TRUE, scale=FALSE))
+model_time_sequence <- lmer(Elog ~ TargetC*(ot1) + (1 + ot1 | trial_id) + (1 + ot1 | participant_phone), 
+              data = response_time, REML = FALSE)
+broom::tidy(model_time_sequence, effects = "fixed")
+drop1(model_time_sequence, ~., test="Chi")
+plot(response_time, predictor_column = "Target", dv = "Elog", model = model_time_sequence) +
+  theme_light()
+
+
+response_time2 <- make_time_sequence_data(response_window_clean, time_bin_size = 500, 
+                                 predictor_columns = c("Target"),
+                                 aois = c("b3_pos"),
+                                 summarize_by = "participant_phone" 
+                            )
+response_time2 <- response_time2 %>% mutate(Prop=SamplesInAOI)
+
+response_time3 <- make_time_sequence_data(response_window_clean, time_bin_size = 500, 
+                                 predictor_columns = c("Target"),
+                                 aois = c("b3_ne"),
+                                 summarize_by = "participant_phone" 
+                            )
+
+response_time3 <- response_time3 %>% mutate(Prop=SamplesInAOI)
+
+tb_analysis <- analyze_time_bins(data = response_time3, predictor_column = "Target", test = "t.test", alpha = .05)
+
+plot(tb_analysis, type = "estimate") + theme_light()
+
+summary(tb_analysis)
+
+alpha <- .05
+num_time_bins <- nrow(tb_analysis)
+(prob_no_false_alarm_per_bin <- 1-alpha)
+
+(prob_no_false_alarm_any_bin <- prob_no_false_alarm_per_bin^num_time_bins)
+(prob_at_least_one_false_alarm <- 1-prob_no_false_alarm_any_bin)
+
+alpha <- .05 / num_time_bins
+(prob_no_false_alarm_per_bin <- 1-alpha)
+
+(prob_no_false_alarm_any_bin <- prob_no_false_alarm_per_bin^num_time_bins)
+(prob_at_least_one_false_alarm <- 1-prob_no_false_alarm_any_bin)
+
+tb_analysis_bonf <- analyze_time_bins(data = response_time3, predictor_column = "Target", test = "t.test", alpha = .05,p_adjust_method = "bonferroni")
+
+plot(tb_analysis_bonf) + theme_light()
+
+summary(tb_analysis_bonf)
+
+tb_analysis_holm <- analyze_time_bins(data = response_time3, predictor_column = "Target", test = "t.test", alpha = .05,p_adjust_method = "holm")
+
+plot(tb_analysis_holm) + theme_light()
+
+summary(tb_analysis_holm)
+
+r3 <- response_time2 %>% drop_na()
+r4 <- response_time3 %>% drop_na()
+
+tb_bootstrap <- analyze_time_bins(r3, predictor_column = 'Target', test= 'boot_splines', 
+                                  within_subj = F, bs_samples = 1000, alpha = .05)
+plot(tb_bootstrap) + theme_light()
+summary(tb_bootstrap)
+
+tb_bootstrap_bonf <- analyze_time_bins(r3, predictor_column = 'Target', test= 'boot_splines', 
+                                  within_subj = F, alpha = .05/num_time_bins)
+plot(tb_bootstrap_bonf) + theme_light()
+
+summary(tb_bootstrap_bonf)
+
+tb_bootstrap <- analyze_time_bins(r4, predictor_column = 'Target', test= 'boot_splines', 
+                                  within_subj = F, bs_samples = 1000, alpha = .05)
+plot(tb_bootstrap) + theme_light()
+summary(tb_bootstrap)
+
+tb_bootstrap_bonf <- analyze_time_bins(r4, predictor_column = 'Target', test= 'boot_splines', 
+                                  within_subj = F, bs_samples = 1000, alpha = .05/num_time_bins)
+plot(tb_bootstrap_bonf) + theme_light()
+
+summary(tb_bootstrap_bonf)
+
+
+```
+
+
+# 进行初步时序分析,以手机成瘾高低为区分
+```{r, message=FALSE, warning=FALSE}
+dt3_1 <- fread("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/b3_raw.csv.gz") %>%
+  mutate(participant_phone=as.numeric(participant_phone)) %>%
+  select(1:15, b3_pos, b3_neg, b3_thr, b3_ne, trackloss)
+
+msg <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/scale_sum_r.csv") %>%
+  select(participant_phone, sas_g)
+
+dt_l <- full_join(dt3_1, msg) %>% filter(sas_g=="low")
+dt_h <- full_join(dt3_1, msg) %>% filter(sas_g=="high")
+dt_a <- bind_rows(dt_l, dt_h) %>% drop_na(trial_id)
+rm(dt_l)
+rm(dt_h)
+gc()
+
+dt_l <- make_eyetrackingr_data(dt_a, 
+                       participant_column = "participant_phone",
+                       trial_column = "trial_id",
+                       time_column = "time_p",
+                       trackloss_column = "trackloss",
+                       aoi_columns = c("b3_pos", "b3_neg", "b3_thr", "b3_ne"),
+                       treat_non_aoi_looks_as_missing = TRUE
+)
+
+# subset to response window post word-onset
+response_window <- subset_by_window(dt_l, 
+                                    window_start_time = 1, 
+                                    window_end_time = 30000, 
+                                    rezero = FALSE)
+
+trackloss <- trackloss_analysis(data = response_window)
+
+# remove trials with > 25% of trackloss
+response_window_clean <- clean_by_trackloss(data = response_window, trial_prop_thresh = .25)
+
+# create Target condition column
+response_window_clean$Target <- as.factor(response_window_clean$sas_g)
+
+# aggregate across trials within subjects in time analysis
+response_time <- make_time_sequence_data(response_window_clean, time_bin_size = 100, 
+                                 predictor_columns = c("Target"),
+                                 aois = c("b3_pos", "b3_neg", "b3_thr", "b3_ne")
+                            )
+
+
+# visualize time results
+plot(response_time, predictor_column = "Target") + 
+  theme_light() +
+  coord_cartesian(ylim = c(0,1))
+
+
+response_time$TargetC <- ifelse(response_time$Target == 'High', .5, -.5)
+response_time$TargetC <- as.numeric(scale(response_time$TargetC, center=TRUE, scale=FALSE))
+model_time_sequence <- lmer(Elog ~ TargetC*(ot1) + (1 + ot1 | trial_id) + (1 + ot1 | participant_phone), 
+              data = response_time, REML = FALSE)
+broom::tidy(model_time_sequence, effects = "fixed")
+drop1(model_time_sequence, ~., test="Chi")
+plot(response_time, predictor_column = "Target", dv = "Elog", model = model_time_sequence) +
+  theme_light()
+
+
+response_time2 <- make_time_sequence_data(response_window_clean, time_bin_size = 100, 
+                                 predictor_columns = c("Target"),
+                                 aois = c("b3_pos"),
+                                 summarize_by = "participant_phone" 
+                            )
+
+response_time3 <- make_time_sequence_data(response_window_clean, time_bin_size = 100, 
+                                 predictor_columns = c("Target"),
+                                 aois = c("b3_ne"),
+                                 summarize_by = "participant_phone" 
+                            )
+
+tb_analysis <- analyze_time_bins(data = response_time3, predictor_column = "Target", test = "t.test", alpha = .05)
+
+plot(tb_analysis, type = "estimate") + theme_light()
+
+summary(tb_analysis)
+
+alpha <- .05
+num_time_bins <- nrow(tb_analysis)
+(prob_no_false_alarm_per_bin <- 1-alpha)
+
+(prob_no_false_alarm_any_bin <- prob_no_false_alarm_per_bin^num_time_bins)
+(prob_at_least_one_false_alarm <- 1-prob_no_false_alarm_any_bin)
+
+alpha <- .05 / num_time_bins
+(prob_no_false_alarm_per_bin <- 1-alpha)
+
+(prob_no_false_alarm_any_bin <- prob_no_false_alarm_per_bin^num_time_bins)
+(prob_at_least_one_false_alarm <- 1-prob_no_false_alarm_any_bin)
+
+tb_analysis_bonf <- analyze_time_bins(data = response_time2, predictor_column = "Target", test = "t.test", alpha = .05,p_adjust_method = "bonferroni")
+
+plot(tb_analysis_bonf) + theme_light()
+
+summary(tb_analysis_bonf)
+
+tb_analysis_holm <- analyze_time_bins(data = response_time2, predictor_column = "Target", test = "t.test", alpha = .05,p_adjust_method = "holm")
+
+plot(tb_analysis_holm) + theme_light()
+
+summary(tb_analysis_holm)
+
+r3 <- response_time2 %>% drop_na()
+r4 <- response_time3 %>% drop_na()
+
+tb_bootstrap <- analyze_time_bins(r3, predictor_column = 'Target', test= 'boot_splines', 
+                                  within_subj = F, bs_samples = 1000, alpha = .05)
+plot(tb_bootstrap) + theme_light()
+summary(tb_bootstrap)
+
+tb_bootstrap_bonf <- analyze_time_bins(r3, predictor_column = 'Target', test= 'boot_splines', 
+                                  within_subj = F, alpha = .05/num_time_bins)
+plot(tb_bootstrap_bonf) + theme_light()
+
+summary(tb_bootstrap_bonf)
+
+tb_bootstrap <- analyze_time_bins(r4, predictor_column = 'Target', test= 'boot_splines', 
+                                  within_subj = F, bs_samples = 1000, alpha = .05)
+plot(tb_bootstrap) + theme_light()
+summary(tb_bootstrap)
+
+tb_bootstrap_bonf <- analyze_time_bins(r4, predictor_column = 'Target', test= 'boot_splines', 
+                                  within_subj = F, alpha = .05/num_time_bins)
+plot(tb_bootstrap_bonf) + theme_light()
+
+summary(tb_bootstrap_bonf)
+
+
+```

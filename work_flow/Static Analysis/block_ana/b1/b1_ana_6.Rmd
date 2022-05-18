@@ -36,15 +36,15 @@ dt <- read.csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/
 mix_e_f <- function(dt, bname, sname, a, metri){
   # 数据准备
   dtc2 <- dt %>% filter(block_name %in% bname, stim %in% sname, AOI %in% a) %>%
-    group_by(participant_phone, block_name, AOI) %>%
+    group_by(participant_phone, block_name,trial_name, AOI) %>%
     summarise(fc=mean(!!sym(metri), na.rm=T), maas=mean(maas), tgjl=mean(tgjl), sas=mean(sas)) %>%
     filter(!is.na(fc)) %>%
     mutate(AOI=case_when(AOI == "b1_2_q"~"Q",
                          AOI == "b1_2_a"~"A",
                          AOI == "bg"~"BG")) %>%
     ungroup() %>%
-    convert_as_factor(participant_phone, block_name, AOI) %>%
-    select(participant_phone, block_name, AOI, tgjl, maas, sas, fc)
+    convert_as_factor(participant_phone, trial_name,block_name, AOI) %>%
+    select(participant_phone, block_name, trial_name,AOI, tgjl, maas, sas, fc)
   
   
   # 极端值处理
@@ -70,9 +70,9 @@ mix_e_f <- function(dt, bname, sname, a, metri){
   
   
   # 模型拟合
-  mixed_maas = lmer(fc ~ maas+AOI+maas*AOI+maas*block_name+AOI*block_name+AOI*block_name*maas + (1 | participant_phone), data = dtb3_r4)
-  mixed_sas = lmer(fc ~ sas*AOI+sas*block_name+AOI*block_name+AOI*block_name*sas + (1 | participant_phone), data = dtb3_r4)
-  mixed_two = lmer(fc ~ maas+sas+AOI+maas*sas+maas*AOI+sas*AOI+maas*block_name+AOI*block_name+sas*block_name+AOI*block_name*maas+AOI*block_name*sas+AOI*block_name*sas*maas + (1 | participant_phone), data = dtb3_r4)
+  mixed_maas = lmer(fc ~ maas+AOI+maas*AOI+maas*block_name+AOI*block_name+AOI*block_name*maas + (1 | participant_phone)+(1 | trial_name), data = dtb3_r4)
+  mixed_sas = lmer(fc ~ sas*AOI+sas*block_name+AOI*block_name+AOI*block_name*sas +  (1 | participant_phone)+(1 | trial_name), data = dtb3_r4)
+  mixed_two = lmer(fc ~ maas+sas+AOI+maas*sas+maas*AOI+sas*AOI+maas*block_name+AOI*block_name+sas*block_name+AOI*block_name*maas+AOI*block_name*sas+AOI*block_name*sas*maas +  (1 | participant_phone)+(1 | trial_name), data = dtb3_r4)
   
   # maas 结果
   # 基本参数

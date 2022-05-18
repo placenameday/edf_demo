@@ -34,12 +34,12 @@ mix_e_f <- function(dt, bname, sname, a, metri){
     mutate(AOI=case_when(AOI == "b5_q"~"Q",
                          AOI %in% c("b5_a_1", "b5_a_2", "b5_a_3", "b5_a_4", "b5_a_5", "b5_a_6")~"A",
                          AOI == "bg"~"BG")) %>%
-    group_by(participant_phone, participant_group, AOI) %>%
+    group_by(participant_group, participant_phone, trial_name, AOI) %>%
     summarise(fc=mean(!!sym(metri), na.rm=T), maas=mean(maas), tgjl=mean(tgjl), sas=mean(sas)) %>%
     filter(!is.na(fc)) %>%
     ungroup() %>%
-    convert_as_factor(participant_phone, participant_group, AOI) %>%
-    select(participant_phone, participant_group, AOI, tgjl, maas, sas, fc)
+    convert_as_factor(participant_group, participant_phone, trial_name, AOI) %>%
+    select(participant_group, participant_phone, trial_name, AOI, tgjl, maas, sas, fc)
   
   
   # 极端值处理
@@ -65,9 +65,9 @@ mix_e_f <- function(dt, bname, sname, a, metri){
   
   
   # 模型拟合
-  mixed_maas = lmer(fc ~ AOI+ maas+participant_group+ (1| participant_phone), data = dtb3_r4)
+  mixed_maas = lmer(fc ~ AOI+maas+participant_group+maas*participant_group+AOI*participant_group+ (1+ AOI| participant_phone) + (1|trial_name), data = dtb3_r4)
   
-  mixed_sas = lmer(fc ~ AOI+ sas+participant_group+ (1| participant_phone), data = dtb3_r4)
+  mixed_sas = lmer(fc ~ AOI+sas+participant_group+sas*participant_group+AOI*participant_group+ (1+ AOI| participant_phone) + (1|trial_name), data = dtb3_r4)
   
   
   # maas 结果
