@@ -25,7 +25,7 @@ plan(multisession, workers = 6)
 
 ### 读取数据
 ```{r, message=FALSE, warning=FALSE}
-dt <- read.csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/raw_time_b3.gz")
+dt <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/raw_time_b3.gz")
 
 dt2 <- dt %>% group_by(Target, participant_phone, Time, AOI) %>%
   summarise(sample=sum(SamplesInAOI, rm.na=T),  N=sum(SamplesTotal), Elog=mean(Elog, rm.na=T), Prop=mean(Prop,rm.na=T)) %>% mutate(nelog=log((sample + .5) / (N - sample + .5)))
@@ -80,16 +80,52 @@ d <- cl3(dt2, "nelog")
 ```{r, message=FALSE, warning=FALSE}
 dt3 <- dt
 
-dt3$TargetC <- ifelse(dt3$AOI == 'b3_pos', .5, -.5)
-dt3$TargetC <- scale(dt3$TargetC, center=T, scale=F)
+dt3$AOI <- as.factor(dt3$AOI)
+dt3$Target <- as.factor(dt3$Target)
+contrasts(dt3$AOI) = contr.sum(4)
 
-model <- lmer(Elog ~ TargetC*Time + (1 + TargetC + Time | participant_phone), data = dt3)
+dt3 <- dt3 %>% select(-c('ot1','ot2','ot3','ot4','ot5','ot6','ot7'))
+
+orthogonal_polynomials <- poly(sort(as.vector(unique(dt3$Time))), 11)
+
+ggplot(data.frame(orthogonal_polynomials), aes(x=X1, y=X1)) +
+               geom_point() +
+               geom_point(aes(y=X2), color='red') +  
+               geom_point(aes(y=X3), color='blue') +
+               geom_point(aes(y=X4), color='green') +
+               geom_point(aes(y=X5), color='purple') +
+               geom_point(aes(y=X6), color='yellow') +
+               geom_point(aes(y=X7), color='orange') +
+               geom_point(aes(y=X8), color='grey') +
+               geom_point(aes(y=X9), color='white')
+
+time_codes <- data.frame(
+                        sort(as.vector(unique(dt3$Time))),
+                        orthogonal_polynomials[, c(1:11)]
+                      )
+colnames(time_codes) <- c('Time','ot1','ot2','ot3','ot4','ot5','ot6','ot7','ot8','ot9','ot10','ot11')
+
+dt3 <- full_join(dt3, time_codes)
+
+
+model <- lmer(Elog ~ AOI*(ot1+ot2+ot3+ot4+ot5+ot6+ot7+ot8+ot9+ot10+ot11) + (1| participant_phone), data = dt3)
 summary(model)
+performance(model)
+drop1(model)
+
+
+model2 <- lmer(Elog ~ Target*AOI*(ot1+ot2+ot3+ot4+ot5+ot6+ot7+ot8+ot9+ot10+ot11) + (1| participant_phone), data = dt3)
+summary(model2)
+performance(model2)
+
 
 ggplot(dt3, aes(x=Time, y=Elog, color=AOI)) +
-                     stat_summary(fun.y=mean, geom="point") +
+                     stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.75, size=0.2) +
                      stat_summary(aes(y=predict(model,dt3,re.form=NA)), fun.y=mean, geom="line")
 
+ggplot(dt3, aes(x=Time, y=Elog, color=AOI)) + facet_grid(rows = vars(Target)) +
+                     stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.75, size=0.1) +
+                     stat_summary(aes(y=predict(model2,dt3,re.form=NA)), fun.y=mean, geom="line")
 
 
 ```
