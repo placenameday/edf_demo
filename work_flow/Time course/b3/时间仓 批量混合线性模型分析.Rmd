@@ -15,6 +15,9 @@ library(lmerTest)
 library(emmeans)
 library("ggplot2")
 library("gridExtra")
+library(viridis)
+library(ggthemes)
+library(cowplot)
 ```
 
 ### 读取数据初步时序图
@@ -46,7 +49,7 @@ contrasts(dt4$AOI) = contr.sum(4)
 
 mm2 <- function(dt, t){
   dt4 <- dt %>% filter(Time==t)
-  model <- lmer(Prop ~ AOI  + (1| participant_phone),  data = dt4)
+  model <- lmer(Prop ~ AOI  + (1| participant_phone) + (1| participant_phone:AOI) + (1|trial_id),  data = dt4)
   
   pwc <- summary(pairs(emmeans(model, "AOI", lmerTest.limit = 10000))) %>% filter(p.value <0.05) %>%
     mutate(Time=t)
@@ -55,9 +58,9 @@ mm2 <- function(dt, t){
 
 tlist <- unique(dt4$Time)
 
-k2 <- bind_rows(map(tlist, mm2, dt=dt4))
+k2 <- bind_rows(map(tlist, mm2, dt=dt3))
 
-k3 <- k2 %>% filter(p.value<(0.05/100))
+k3 <- k2 %>% filter(p.value<(0.05/300))
 
 k3 <- k3 %>% rowwise() %>%
   mutate(A1=str_split_fixed(contrast, " - ",2)[[1]], A2=str_split_fixed(contrast, " - ",2)[2]) %>%
@@ -123,10 +126,14 @@ p3 <- ggplot(dt_rank, aes(x=Time, y=AOI, fill=rank)) +
 p2 <- ggplot(dt_v, aes(x=Time, y=Prop,color=AOI, fill=AOI, shape=rank)) +
   scale_shape_manual(values=c(21:24))+
   stat_summary(fun.y=mean, geom="point", size=2, alpha = 0.35) +
-  theme(legend.key.size = unit(5, "pt"), legend.position = "right") +
-  theme_tufte(base_family="Helvetica")
+  theme(legend.key.size = unit(5, "pt"), legend.position = "right")
 
 p1 <- ggplot(dt_v, aes(x=Time, y=Prop, color=AOI)) +
+  stat_summary(fun.y=mean, geom="line", size=1, alpha = 0.75) +
+  theme(legend.key.size = unit(5, "pt"), legend.position = "right",
+        axis.text.x=element_blank(),axis.title.x=element_blank())
+
+p4 <- ggplot(dt_v, aes(x=Time, y=Prop, color=AOI)) +
   stat_summary(fun.y=mean, geom="line", size=1, alpha = 0.75) +
   theme(legend.key.size = unit(5, "pt"), legend.position = "right",
         plot.margin=unit(c(0,1,1,1), "cm"))
@@ -134,6 +141,22 @@ p1 <- ggplot(dt_v, aes(x=Time, y=Prop, color=AOI)) +
 p1_npg = p1 + ggsci::scale_color_npg()
 p2_npg = p2 + ggsci::scale_color_npg()
 p3_npg = p3
-grid.arrange(p1_npg, p3, ncol = 1, nrow=2)
-plot_grid(p3, p1_npg, ncol = 1, align = "v",rel_heights = c(1, 2), label_size= c(1,10))
+p4_npg = p4 + ggsci::scale_color_npg()
+grid.arrange(p1_npg, p2_npg, ncol = 1, nrow=2)
+plot_grid(p3, p4_npg, ncol = 1, align = "v",rel_heights = c(1, 2), label_size= c(1,10))
+```
+
+
+### 进行时序区间划分
+```{r, message=FALSE, warning=FALSE}
+timezone <- nk %>% group_by(Time) %>%
+  summarise(pairsn = n())
+
+timezone %>% rowwise() %>%
+  mutate(inter=diff(Time))
+
+timezone$inter <- append(diff(timezone$Time),0)
+
+t <- timezone %>% filter(inter>1000)
+
 ```

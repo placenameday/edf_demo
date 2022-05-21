@@ -82,50 +82,64 @@ dt3 <- dt
 
 dt3$AOI <- as.factor(dt3$AOI)
 dt3$Target <- as.factor(dt3$Target)
-contrasts(dt3$AOI) = contr.sum(4)
+
 
 dt3 <- dt3 %>% select(-c('ot1','ot2','ot3','ot4','ot5','ot6','ot7'))
 
-orthogonal_polynomials <- poly(sort(as.vector(unique(dt3$Time))), 11)
-
-ggplot(data.frame(orthogonal_polynomials), aes(x=X1, y=X1)) +
-               geom_point() +
-               geom_point(aes(y=X2), color='red') +  
-               geom_point(aes(y=X3), color='blue') +
-               geom_point(aes(y=X4), color='green') +
-               geom_point(aes(y=X5), color='purple') +
-               geom_point(aes(y=X6), color='yellow') +
-               geom_point(aes(y=X7), color='orange') +
-               geom_point(aes(y=X8), color='grey') +
-               geom_point(aes(y=X9), color='white')
-
-time_codes <- data.frame(
-                        sort(as.vector(unique(dt3$Time))),
-                        orthogonal_polynomials[, c(1:11)]
-                      )
-colnames(time_codes) <- c('Time','ot1','ot2','ot3','ot4','ot5','ot6','ot7','ot8','ot9','ot10','ot11')
-
-dt3 <- full_join(dt3, time_codes)
+# 针对timezone对数据进行切割
+dt3_1 <- dt3 %>% filter(between(Time,0,8600))
+dt3_2 <- dt3 %>% filter(between(Time,8600,17700)) %>% mutate(Time=Time-8600)
+dt3_3 <- dt3 %>% filter(between(Time,17700,30000)) %>% mutate(Time=Time-17700)
 
 
-model <- lmer(Elog ~ AOI*(ot1+ot2+ot3+ot4+ot5+ot6+ot7+ot8+ot9+ot10+ot11) + (1| participant_phone), data = dt3)
-summary(model)
+
+
+
+time_code_m <- function(dt3){
+  dt3 <- dt3 %>% group_by(participant_phone,trial_id, AOI,TimeBin) %>%
+    summarise(Prop=mean(Prop, rm.na=T), y= sum(SamplesInAOI), N = sum(SamplesTotal), Time=min(Time)) %>%
+    mutate(Elog = log( (y+.5) / (N-y+.5) )) %>% ungroup()
+  
+  orthogonal_polynomials <- poly(sort(as.vector(unique(dt3$Time))), 5)
+  
+  ggplot(data.frame(orthogonal_polynomials), aes(x=X1, y=X1)) +
+                 geom_point() +
+                 geom_point(aes(y=X2), color='red') +  
+                 geom_point(aes(y=X3), color='blue') +
+                 geom_point(aes(y=X4), color='green') +
+                 geom_point(aes(y=X5), color='purple')
+  
+  time_codes <- data.frame(
+                          sort(as.vector(unique(dt3$Time))),
+                          orthogonal_polynomials[, c(1:5)]
+                        )
+  colnames(time_codes) <- c('Time','ot1','ot2','ot3','ot4','ot5')
+  
+  dt3 <- full_join(dt3, time_codes)
+}
+
+dt3_1 <- time_code_m(dt3_1)
+dt3_2 <- time_code_m(dt3_2)
+dt3_3 <- time_code_m(dt3_3)
+
+
+model.base <- lmer(Elog ~ (ot1+ot2+ot3+ot4) + (1| participant_phone), data = dt3_3)
+model.0 <- lmer(Elog ~ (ot1+ot2+ot3+ot4)+AOI + (1| participant_phone), data = dt3_3)
+model.1 <- lmer(Elog ~ (ot1+ot2+ot3+ot4)+AOI+ot1*AOI + (1| participant_phone), data = dt3_3)
+model.2 <- lmer(Elog ~ (ot1+ot2+ot3+ot4)+AOI+(ot1+ot2)*AOI + (1| participant_phone), data = dt3_3)
+model.3 <- lmer(Elog ~ (ot1+ot2+ot3+ot4)+AOI+(ot1+ot2+ot3)*AOI + (1| participant_phone), data = dt3_3)
+model.4 <- lmer(Elog ~ (ot1+ot2+ot3+ot4)*AOI + (1| participant_phone), data = dt3_3)
+
+anova(model.base, model.0, model.1, model.2, model.3, model.4)
+
+summary(model.4)
 performance(model)
 drop1(model)
 
 
-model2 <- lmer(Elog ~ Target*AOI*(ot1+ot2+ot3+ot4+ot5+ot6+ot7+ot8+ot9+ot10+ot11) + (1| participant_phone), data = dt3)
-summary(model2)
-performance(model2)
 
-
-ggplot(dt3, aes(x=Time, y=Elog, color=AOI)) +
-                     stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.75, size=0.2) +
-                     stat_summary(aes(y=predict(model,dt3,re.form=NA)), fun.y=mean, geom="line")
-
-ggplot(dt3, aes(x=Time, y=Elog, color=AOI)) + facet_grid(rows = vars(Target)) +
-                     stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.75, size=0.1) +
-                     stat_summary(aes(y=predict(model2,dt3,re.form=NA)), fun.y=mean, geom="line")
-
+ggplot(dt3_3, aes(x=Time, y=Elog, color=AOI)) +
+                     stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.75, size=0.3) +
+                     stat_summary(aes(y=predict(model.4,dt3_3,re.form=NA)), fun.y=mean, geom="line")
 
 ```
