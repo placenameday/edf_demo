@@ -1,7 +1,7 @@
 ---
 title: "GCA手动_1"
 author: "Chen Xing"
-date: '2022-05-18'
+date: '2022-05-22'
 output: html_document
 ---
 
@@ -19,8 +19,6 @@ library(performance)
 library(sjPlot)
 library(ggpubr)
 library(rstatix)
-library(furrr)
-plan(multisession, workers = 6)
 ```
 
 ### 读取数据
@@ -30,49 +28,6 @@ dt <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/
 dt2 <- dt %>% group_by(Target, participant_phone, Time, AOI) %>%
   summarise(sample=sum(SamplesInAOI, rm.na=T),  N=sum(SamplesTotal), Elog=mean(Elog, rm.na=T), Prop=mean(Prop,rm.na=T)) %>% mutate(nelog=log((sample + .5) / (N - sample + .5)))
 
-tlist <- unique(dt2$Time)
-alist <- unique(dt2$AOI)
-
-cl <- function(dt, time, metri){
-  dts <- filter(dt, Time==time) %>% drop_na(!!sym(metri)) %>% ungroup() %>%
-    select(!!sym(metri))
-  
-  
-  l <- shapiro.test(dts[,1][[1]])[2][[1]]
-}
-
-cl2 <- function(dt, aoi, metri){
-  dts <- filter(dt, AOI==aoi) %>% drop_na()
-  future_map(tlist, cl, dt=dts, metri=metri)
-}
-
-
-cl3 <- function(dt, metri){
-  dts <- dt
-  future_map(alist, cl2, dt=dts, metri=metri)
-}
-
-
-
-metri <- "sample"
-
-dttt <- dt2 %>% filter(AOI=="b3_ne")
-
-dts <- filter(dttt, Time==100) %>% drop_na(!!sym(metri)) %>% ungroup() %>%
-  select(!!sym(metri))
-
-
-l <- shapiro.test(dts[,1][[1]])[2][[1]]
-
-
-cl(dttt, 100, "sample")
-
-shapiro.test(dttt$sample)
-
-a <- cl3(dt2, "sample")
-b <- cl3(dt2, "Prop")
-c <- cl3(dt2, "Elog")
-d <- cl3(dt2, "nelog")
 ```
 
 
@@ -87,17 +42,14 @@ dt3$Target <- as.factor(dt3$Target)
 dt3 <- dt3 %>% select(-c('ot1','ot2','ot3','ot4','ot5','ot6','ot7'))
 
 # 针对timezone对数据进行切割
-dt3_1 <- dt3 %>% filter(between(Time,0,8600))
-dt3_2 <- dt3 %>% filter(between(Time,8600,17700)) %>% mutate(Time=Time-8600)
-dt3_3 <- dt3 %>% filter(between(Time,17700,30000)) %>% mutate(Time=Time-17700)
-
-
-
+dt3_1 <- dt3 %>% filter(between(Time,0,8600)) %>% mutate(Time2=Time)
+dt3_2 <- dt3 %>% filter(between(Time,8600,17700)) %>% mutate(Time2=Time, Time=Time-8600)
+dt3_3 <- dt3 %>% filter(between(Time,17700,30000)) %>% mutate(Time2=Time, Time=Time-17700)
 
 
 time_code_m <- function(dt3){
   dt3 <- dt3 %>% group_by(participant_phone,trial_id, AOI,TimeBin) %>%
-    summarise(Prop=mean(Prop, rm.na=T), y= sum(SamplesInAOI), N = sum(SamplesTotal), Time=min(Time)) %>%
+    summarise(Prop=mean(Prop, rm.na=T), y= sum(SamplesInAOI), N = sum(SamplesTotal), Time=min(Time), Time2=min(Time2)) %>%
     mutate(Elog = log( (y+.5) / (N-y+.5) )) %>% ungroup()
   
   orthogonal_polynomials <- poly(sort(as.vector(unique(dt3$Time))), 5)
@@ -118,28 +70,85 @@ time_code_m <- function(dt3){
   dt3 <- full_join(dt3, time_codes)
 }
 
+# 分别生成3段区间
 dt3_1 <- time_code_m(dt3_1)
 dt3_2 <- time_code_m(dt3_2)
 dt3_3 <- time_code_m(dt3_3)
-
-
-model.base <- lmer(Elog ~ (ot1+ot2+ot3+ot4) + (1| participant_phone), data = dt3_3)
-model.0 <- lmer(Elog ~ (ot1+ot2+ot3+ot4)+AOI + (1| participant_phone), data = dt3_3)
-model.1 <- lmer(Elog ~ (ot1+ot2+ot3+ot4)+AOI+ot1*AOI + (1| participant_phone), data = dt3_3)
-model.2 <- lmer(Elog ~ (ot1+ot2+ot3+ot4)+AOI+(ot1+ot2)*AOI + (1| participant_phone), data = dt3_3)
-model.3 <- lmer(Elog ~ (ot1+ot2+ot3+ot4)+AOI+(ot1+ot2+ot3)*AOI + (1| participant_phone), data = dt3_3)
-model.4 <- lmer(Elog ~ (ot1+ot2+ot3+ot4)*AOI + (1| participant_phone), data = dt3_3)
-
-anova(model.base, model.0, model.1, model.2, model.3, model.4)
-
-summary(model.4)
-performance(model)
-drop1(model)
+```
 
 
 
-ggplot(dt3_3, aes(x=Time, y=Elog, color=AOI)) +
-                     stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.75, size=0.3) +
-                     stat_summary(aes(y=predict(model.4,dt3_3,re.form=NA)), fun.y=mean, geom="line")
+# 分别对各个区间进行模型拟合并比较模型
+```{r, message=FALSE, warning=FALSE}
+# 定义批量拟合方法
+make.model <- function(dt){
+  model.base <- lmer(Elog ~ (ot1+ot2+ot3+ot4) + (1| participant_phone), data = dt)
+  model.0 <- lmer(Elog ~ (ot1+ot2+ot3+ot4)+AOI + (1| participant_phone), data = dt)
+  model.1 <- lmer(Elog ~ ot1*AOI + (1| participant_phone), data = dt)
+  model.2 <- lmer(Elog ~ (ot1+ot2)*AOI + (1| participant_phone), data = dt)
+  model.3 <- lmer(Elog ~ (ot1+ot2+ot3)*AOI + (1| participant_phone), data = dt)
+  model.4 <- lmer(Elog ~ (ot1+ot2+ot3+ot4)*AOI + (1| participant_phone), data = dt)
+  
+  m.comparsion <- anova(model.base, model.0, model.1, model.2, model.3, model.4)
+  
+  p.base <- ggplot(dt, aes(x=Time2, y=Elog, color=AOI)) +
+                       stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.75, size=0.3) +
+                       stat_summary(aes(y=predict(model.base,dt,re.form=NA)), fun.y=mean, geom="line") +
+                       labs(title = "m.base")
+  s.base <- summary(model.base)
+  
+  p.0 <- ggplot(dt, aes(x=Time2, y=Elog, color=AOI)) +
+                       stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.75, size=0.3) +
+                       stat_summary(aes(y=predict(model.0,dt,re.form=NA)), fun.y=mean, geom="line") +
+                       labs(title = "m.0")
+  s.0 <- summary(model.0)
+  
+  p.1 <- ggplot(dt, aes(x=Time2, y=Elog, color=AOI)) +
+                       stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.75, size=0.3) +
+                       stat_summary(aes(y=predict(model.1,dt,re.form=NA)), fun.y=mean, geom="line") +
+                       labs(title = "m.1")
+  s.1 <- summary(model.1)
+  
+  p.2 <- ggplot(dt, aes(x=Time2, y=Elog, color=AOI)) +
+                       stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.75, size=0.3) +
+                       stat_summary(aes(y=predict(model.2,dt,re.form=NA)), fun.y=mean, geom="line") +
+                       labs(title = "m.2")
+  s.2 <- summary(model.2)
+  
+  p.3 <- ggplot(dt, aes(x=Time2, y=Elog, color=AOI)) +
+                       stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.75, size=0.3) +
+                       stat_summary(aes(y=predict(model.3,dt,re.form=NA)), fun.y=mean, geom="line") +
+                       labs(title = "m.3")
+  s.3 <- summary(model.3)
+  
+  p.4 <- ggplot(dt, aes(x=Time2, y=Elog, color=AOI)) +
+                       stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.75, size=0.3) +
+                       stat_summary(aes(y=predict(model.4,dt,re.form=NA)), fun.y=mean, geom="line") +
+                       labs(title = "m.4")
+  s.4 <- summary(model.4)
+  
+  f <- list(m.comparsion, p.base, s.base, p.0, s.0, p.1, s.1, p.2, s.2, p.3, s.3, p.4, s.4)
+}
+
+f3_1 <- make.model(dt3_1)
+f3_2 <- make.model(dt3_2)
+f3_3 <- make.model(dt3_3)
+
+print("Time 1")
+f3_1
+
+print("Time 2")
+f3_2
+
+print("Time 3")
+f3_3
+```
+
+
+# 选择模型输出细节
+```{r, message=FALSE, warning=FALSE}
+
+
+
 
 ```
