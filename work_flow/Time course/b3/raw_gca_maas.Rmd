@@ -40,9 +40,9 @@ dt3$Target <- as.factor(dt3$Target)
 dt3 <- dt3 %>% select(-c('ot1','ot2','ot3','ot4','ot5','ot6','ot7'))
 
 # 针对timezone对数据进行切割
-dt3_1 <- dt3 %>% filter(between(Time,0,8600)) %>% mutate(Time2=Time)
-dt3_2 <- dt3 %>% filter(between(Time,8600,17700)) %>% mutate(Time2=Time, Time=Time-8600)
-dt3_3 <- dt3 %>% filter(between(Time,17700,30000)) %>% mutate(Time2=Time, Time=Time-17700)
+dt3_1 <- dt3 %>% filter(between(Time,0,10000)) %>% mutate(Time2=Time)
+dt3_2 <- dt3 %>% filter(between(Time,10000,20000)) %>% mutate(Time2=Time, Time=Time-10000)
+dt3_3 <- dt3 %>% filter(between(Time,20000,30000)) %>% mutate(Time2=Time, Time=Time-20000)
 
 
 time_code_m <- function(dt3){
@@ -70,8 +70,11 @@ time_code_m <- function(dt3){
 
 # 分别生成3段区间
 dt3_1 <- time_code_m(dt3_1)
+write_csv(dt3_1, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_1_ot.csv")
 dt3_2 <- time_code_m(dt3_2)
+write_csv(dt3_2, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_2_ot.csv")
 dt3_3 <- time_code_m(dt3_3)
+write_csv(dt3_3, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_3_ot.csv")
 ```
 
 
@@ -146,13 +149,4 @@ f3_2
 
 print("Time 3")
 f3_3
-```
-
-
-# 选择模型输出细节
-```{r, message=FALSE, warning=FALSE}
-
-
-
-
 ```
