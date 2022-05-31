@@ -156,7 +156,7 @@ plot_grid(p3, p4_npg, ncol = 1, align = "v",rel_heights = c(1, 2))
 
 ### 进行时序区间划分
 ```{r, message=FALSE, warning=FALSE}
-timezone <- nk %>% group_by(Target, Time) %>%
+timezone <- nk %>% group_by(Time) %>%
   summarise(pairsn = n())
 
 timezone$inter <- append(diff(timezone$Time),0)
