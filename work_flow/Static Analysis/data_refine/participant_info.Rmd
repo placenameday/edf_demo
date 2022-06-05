@@ -1,0 +1,41 @@
+---
+title: "被试信息_b3_时序分析"
+author: "Chen Xing"
+date: '2022-06-05'
+output: html_document
+---
+
+## 摘要
+针对b3时序分析小论文的被试信息
+
+### 必要的包
+```{r, message=FALSE, warning=FALSE, results='hide', echo=FALSE}
+library(tidyverse)
+
+```
+
+### 读取数据
+```{r, message=FALSE, warning=FALSE}
+info <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/scale_sum_r.csv")
+
+dt <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/raw_time_b3.gz") %>%
+  select(1:7,10,13) %>% filter(Target!="mid")
+```
+
+### 统计
+```{r, message=FALSE, warning=FALSE}
+par <- unique(dt$participant_phone)
+pi <- info %>% group_by(maas_g) %>%
+  filter(participant_phone %in% par) %>%
+  mutate(nage=case_when(age=="18-22"~20,
+                        age=="22-26"~24,
+                        age=="26-30"~28),
+         nmale=case_when(sex=="男"~1),
+         nfemale=case_when(sex=="女"~1)) %>%
+  summarise(mm=mean(maas), sdm=sd(maas), n=n(), mage=mean(nage), nmale=sum(nmale, na.rm=T), nfemale=sum(nfemale, na.rm=T))
+
+
+
+pi <- pi %>% mutate(maas=90-mm)
+pi
+```

@@ -18,6 +18,7 @@ library("gridExtra")
 library(viridis)
 library(ggthemes)
 library(cowplot)
+library(ggpubr)
 ```
 
 ### 读取数据初步时序图
@@ -118,11 +119,12 @@ nk2 <- nk  %>% select(Target, Time, neutral, positive, dysphoric, threat) %>%
 
 ### 进行叠加可视化
 ```{r, message=FALSE, warning=FALSE}
-dt_v2 <- full_join(dt2, nk2)
+dt_v2 <- full_join(dt2, nk2) %>% mutate(Time=Time/1000, AOI=factor(AOI, levels=c("threat",  "dysphoric", "positive", "neutral")))
 dt_v <- dt_v2 %>%
   mutate(Dominance_Times=factor(Dominance_Times, levels=c(0,1,2,3)))
 
-dt_rank <- dt_v2 %>% group_by(Target, Time, AOI) %>%
+dt_rank <- dt_v2 %>% mutate(AOI=factor(AOI, levels=c("neutral", "positive", "dysphoric", "threat"))) %>%
+  group_by(Target, Time, AOI) %>%
   mutate(Dominance_Times=as.numeric(Dominance_Times)) %>%
   summarise(Dominance_Times=mean(Dominance_Times, na.rm=T))
 
@@ -130,34 +132,40 @@ p3 <- ggplot(dt_rank, aes(x=Time, y=AOI, fill=Dominance_Times)) +
   facet_grid(rows = vars(Target)) +
   geom_raster() + scale_fill_viridis() +
   theme_tufte(base_family="Helvetica") +
-  theme(axis.ticks=element_blank(), axis.text.x=element_blank(),axis.title.x=element_blank(),
+  guides(fill=guide_legend(title="DCPC")) +
+  labs(y="Stimuli") +
+  theme(axis.ticks=element_blank(),
+        legend.title=element_text(face = "bold"),
+        strip.text.y=element_text(face = "bold"),
+        legend.key.size = unit(0.4, 'cm'),
+        axis.text.x=element_blank(),axis.title.x=element_blank(),
+        axis.text.y=element_blank(),
+        legend.text=element_text(face = "bold"),
+        axis.title.y=element_text(face = "bold"),
         plot.margin=unit(c(1,1,0,1), "cm"))
-
-
-p2 <- ggplot(dt_v, aes(x=Time, y=Prop,color=AOI, fill=AOI, shape=Dominance_Times)) +
-  facet_grid(rows = vars(Target)) +
-  scale_shape_manual(values=c(21:24))+
-  stat_summary(fun.y=mean, geom="point", size=2, alpha = 0.35) +
-  theme(legend.key.size = unit(5, "pt"), legend.position = "right")
-
-p1 <- ggplot(dt_v, aes(x=Time, y=Prop, color=AOI)) +
-  facet_grid(rows = vars(Target)) +
-  stat_summary(fun.y=mean, geom="line", size=1, alpha = 0.75) +
-  theme(legend.key.size = unit(5, "pt"), legend.position = "right",
-        axis.text.x=element_blank(),axis.title.x=element_blank())
 
 p4 <- ggplot(dt_v, aes(x=Time, y=Prop, color=AOI)) +
   facet_grid(rows = vars(Target)) +
   stat_summary(fun.y=mean, geom="line", size=1, alpha = 0.75) +
-  theme(legend.key.size = unit(5, "pt"), legend.position = "right",
-        plot.margin=unit(c(0,1,1,1), "cm"))
+  geom_vline(xintercept = c(8.5,17.3,25.6),linetype="dotted", 
+                color = "black", size=1, alpha = 0.55) +
+  theme(legend.key.size = unit(5, "pt"), legend.position = "right", legend.key.width = unit(15, "pt"), legend.title=element_text(face = "bold"), axis.title.x=element_text(face = "bold"),
+        axis.title.y=element_text(face = "bold"),
+        axis.text.x=element_text(face = "bold"),
+        axis.text.y=element_text(face = "bold"),
+        strip.text.y=element_text(face = "bold"),
+        legend.text=element_text(face = "bold"),
+        plot.margin=unit(c(0,1,1,1), "cm")) +
+  labs(colour = "Stimuli") +
+  labs(y="Gaze proportion") +
+  labs(x="Time(s)")
 
-p1_npg = p1 + ggsci::scale_color_npg()
-p2_npg = p2 + ggsci::scale_color_npg()
 p3_npg = p3
 p4_npg = p4 + ggsci::scale_color_npg()
-grid.arrange(p1_npg, p2_npg, ncol = 1, nrow=2)
-plot_grid(p3, p4_npg, ncol = 1, align = "v",rel_heights = c(1, 2))
+
+plot_grid(p3, p4_npg, ncol = 1, align = "v",rel_heights = c(1, 2), labels = c("A", "B"))
+
+
 ```
 
 
@@ -168,6 +176,6 @@ timezone <- nk %>% group_by(Time) %>%
 
 timezone$inter <- append(diff(timezone$Time),0)
 
-t <- timezone %>% filter(inter>1000)
+t <- timezone %>% filter(inter>2000)
 t
 ```
