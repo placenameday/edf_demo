@@ -44,70 +44,7 @@ ggplot(dt2, aes(x=Time, y=Prop, color=AOI)) +
 
 ### 混合模型数据准备,初步进行各个时间段两两对比
 ```{r, message=FALSE, warning=FALSE}
-dt3 <- dt
-dt4 <- dt2
-
-# 对AOI因子重新编码
-dt3$AOI <- factor(dt3$AOI, levels=c("neutral", "positive", "dysphoric", "threat"))
-contrasts(dt3$AOI) = contr.sum(4)
-
-dt3$Target <- factor(dt3$Target, levels=c("LTM", "HTM"))
-contrasts(dt3$Target) = contr.sum(2)
-
-dt4$AOI <- factor(dt4$AOI, levels=c("neutral", "positive", "dysphoric", "threat"))
-contrasts(dt4$AOI) = contr.sum(4)
-
-
-
-mm2 <- function(dt, t){
-  dt4 <- dt %>% filter(Time==t)
-  model <- lmer(Prop ~ AOI*Target  + (1| participant_phone) + (1| participant_phone:AOI) + (1|trial_id),  data = dt4)
-  
-  pwc <- summary(pairs(emmeans(model, "AOI",by = "Target", lmerTest.limit = 10000))) %>% filter(p.value <0.05) %>%
-    mutate(Time=t)
-  pwc
-}
-
-tlist <- unique(dt3$Time)
-
-k2 <- bind_rows(map(tlist, mm2, dt=dt3))
-
-k3 <- k2 %>% filter(p.value<(0.05/300))
-
-k3 <- k3 %>% rowwise() %>%
-  mutate(A1=str_split_fixed(contrast, " - ",2)[[1]], A2=str_split_fixed(contrast, " - ",2)[2]) %>%
-  mutate(Big=case_when(estimate>0~A1,
-                       estimate<0~A2),
-         Small=case_when(estimate>0~A2,
-                       estimate<0~A1))
-
-
-rankc <- function(dt, aoi){
-  dt[[aoi]] <- sum(aoi == dt$Big)
-  dt
-}
-
-
-rankc2 <- function(dt, time){
-  dt <- dt %>% filter(Time==time)
-  alist <- append(unique(dt$Big), unique(dt$Small))
-  reduce((map(alist, rankc, dt=dt)), full_join)
-}
-
-rankc3 <- function(dt, tar){
-  dt <- dt %>% filter(Target==tar)
-  tblist <- unique(dt$Time)
-  reduce((map(tblist, rankc2, dt=dt)), full_join)
-}
-
-rankc4 <- function(dt){
-  tarlist <- unique(dt$Target)
-  reduce((map(tarlist, rankc3, dt=dt)), full_join)
-}
-
-nk <- rankc4(k3)
-
-write_csv(nk, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_timec_pwc_maas_a.csv")
+nk <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_timec_pwc_maas_a.csv")
 
 
 nk2 <- nk  %>% select(Target, Time, neutral, positive, dysphoric, threat) %>%

@@ -15,9 +15,7 @@ library(lmerTest)
 library(ggpubr)
 library(viridis)
 library(ggthemes)
-library(cowplot)
-library(ggpubr)
-library("gridExtra")
+library(patchwork)
 ```
 
 ### 读取数据
@@ -38,51 +36,16 @@ dt <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/
 
 ### 开始gca
 ```{r, message=FALSE, warning=FALSE}
-dt3 <- dt %>% filter(Target!="mid")
-
-dt3$AOI <- as.factor(dt3$AOI)
-dt3$Target <- as.factor(dt3$Target)
 
 
-dt3 <- dt3 %>% select(-c('ot1','ot2','ot3','ot4','ot5','ot6','ot7'))
+dt3_1<-read_csv( "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_1_ot.csv") %>%
+  mutate(AOI=factor(AOI, levels=c("threat",  "dysphoric", "positive", "neutral")))
 
-# 针对timezone对数据进行切割
-dt3_1 <- dt3 %>% filter(between(Time,0,8500)) %>% mutate(Time2=Time/1000)
-dt3_2 <- dt3 %>% filter(between(Time,8500,17300)) %>% mutate(Time2=Time/1000, Time=Time-8500)
-dt3_3 <- dt3 %>% filter(between(Time,17300,25600)) %>% mutate(Time2=Time/1000, Time=Time-17300)
+dt3_2<-read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_2_ot.csv") %>%
+  mutate(AOI=factor(AOI, levels=c("threat",  "dysphoric", "positive", "neutral")))
 
-
-
-time_code_m <- function(dt3){
-  dt3 <- dt3 %>% group_by(Target, participant_phone,trial_id, AOI,TimeBin) %>%
-    summarise(Prop=mean(Prop, rm.na=T), y= sum(SamplesInAOI), N = sum(SamplesTotal), Time=min(Time), Time2=min(Time2)) %>%
-    mutate(Elog = log( (y+.5) / (N-y+.5) )) %>% ungroup()
-  
-  orthogonal_polynomials <- poly(sort(as.vector(unique(dt3$Time))), 5)
-  
-  ggplot(data.frame(orthogonal_polynomials), aes(x=X1, y=X1)) +
-                 geom_point() +
-                 geom_point(aes(y=X2), color='red') +  
-                 geom_point(aes(y=X3), color='blue') +
-                 geom_point(aes(y=X4), color='green') +
-                 geom_point(aes(y=X5), color='purple')
-  
-  time_codes <- data.frame(
-                          sort(as.vector(unique(dt3$Time))),
-                          orthogonal_polynomials[, c(1:5)]
-                        )
-  colnames(time_codes) <- c('Time','ot1','ot2','ot3','ot4','ot5')
-  
-  dt3 <- full_join(dt3, time_codes)
-}
-
-# 分别生成5段区间
-dt3_1 <- time_code_m(dt3_1)
-write_csv(dt3_1, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_1_ot.csv")
-dt3_2 <- time_code_m(dt3_2)
-write_csv(dt3_2, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_2_ot.csv")
-dt3_3 <- time_code_m(dt3_3)
-write_csv(dt3_3, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_3_ot.csv")
+dt3_3<-read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_3_ot.csv") %>%
+  mutate(AOI=factor(AOI, levels=c("threat",  "dysphoric", "positive", "neutral")))
 
 
 ```
@@ -100,67 +63,67 @@ model.3 <- lmer(Elog ~ (ot1+ot2)*AOI*Target + (1| participant_phone), data = dt3
 
 p.1 <- ggplot(dt3_1, aes(x=Time2, y=Elog, color=AOI)) +
                      facet_grid(rows = vars(Target)) +
-                     stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.75, size=0.1) +
-                     stat_summary(aes(y=predict(model.1,dt3_1,re.form=NA)), fun.y=mean, geom="line",size=1) +
+                     stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.65, size=0.1) +
+                     stat_summary(aes(y=predict(model.1,dt3_1,re.form=NA)), fun.y=mean, geom="line",size=1,alpha=0.75) +
                      labs(x="Time(s)") +
-                      labs(colour = "Stimuli") +
+                     labs(colour = "Stimuli") +
                      theme(axis.text.x=element_text(face = "bold"),
                            legend.title=element_text(face = "bold"),
                            legend.text=element_text(face = "bold"),
                            axis.text.y=element_text(face = "bold"),axis.title.y=element_text(face = "bold"),
                            plot.title = element_text(hjust = 0.5),
                            axis.title.x=element_text(face = "bold"),
-                           legend.position="none",
-                           strip.text.y = element_blank())+ coord_cartesian(ylim = c(-3.5, -0.5))
+                           strip.text.y = element_blank()) +
+                     coord_cartesian(ylim = c(-3.5, -0.5)) +
+                     scale_x_continuous(breaks = c(0,2,4,6,8.5))
 
 
 
 p.2 <- ggplot(dt3_2, aes(x=Time2, y=Elog, color=AOI)) +
                      facet_grid(rows = vars(Target)) +
-                     stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.75, size=0.1) +
-                     stat_summary(aes(y=predict(model.2,dt3_2,re.form=NA)), fun.y=mean, geom="line",size=1) +
-  labs(x="Time(s)") +
+                     stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.65, size=0.1) +
+                     stat_summary(aes(y=predict(model.2,dt3_2,re.form=NA)), fun.y=mean, geom="line",size=1,alpha=0.75) +
+                     labs(x="Time(s)") +
+                     labs(colour = "Stimuli") +
                      theme(axis.ticks=element_blank(),
-                            axis.text.x=element_text(face = "bold"),
+                           axis.text.x=element_text(face = "bold"),
                            axis.title.x=element_text(face = "bold"),
-                            axis.text.y=element_blank(),
-                            axis.title.y=element_blank(),
+                           axis.text.y=element_blank(),
+                           axis.title.y=element_blank(),
                            plot.title = element_text(hjust = 0.5),
                            strip.text.y = element_blank(),
                            legend.position="none") +
-                    coord_cartesian(ylim = c(-3.5, -0.5))
+                     coord_cartesian(ylim = c(-3.5, -0.5)) +
+                     scale_x_continuous(breaks = c(8.5,10,12,14,16,17.3))
 
 p.3 <- ggplot(dt3_3, aes(x=Time2, y=Elog, color=AOI)) +
                      facet_grid(rows = vars(Target)) +
-                     stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.75, size=0.1) +
-                     stat_summary(aes(y=predict(model.3,dt3_3,re.form=NA)), fun.y=mean, geom="line",size=1) +
-  labs(x="Time(s)") +
+                     stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.65, size=0.1) +
+                     stat_summary(aes(y=predict(model.3,dt3_3,re.form=NA)), fun.y=mean, geom="line",size=1,alpha=0.75) +
+                     labs(x="Time(s)") +
+                     labs(colour = "Stimuli") +
                      theme(axis.ticks=element_blank(),
-                            axis.text.x=element_text(face = "bold"),
-                            axis.text.y=element_blank(),
+                           axis.text.x=element_text(face = "bold"),
+                           axis.text.y=element_blank(),
                            axis.title.x=element_text(face = "bold"),
                            plot.title = element_text(hjust = 0.5),
                            legend.position="none",
-                            axis.title.y=element_blank())+ coord_cartesian(ylim = c(-3.5, -0.5))
+                           strip.text.y = element_text(face = "bold"),
+                           axis.title.y=element_blank()) +
+                     coord_cartesian(ylim = c(-3.5, -0.5)) +
+                     scale_x_continuous(breaks = c(17.3,20,22,24,25.6))
 
 p1 <- p.1 + ggsci::scale_color_npg()
 p2 <- p.2 + ggsci::scale_color_npg()
 p3 <- p.3 + ggsci::scale_color_npg()
 
-legend <- get_legend(
-  # create some space to the left of the legend
-  p1 + theme(legend.box.margin = margin(0, 0, 0, 2))
-)
 
 
-c <- cowplot::plot_grid(p1+ theme(legend.position="none"), p2+ theme(legend.position="none"), p3+ theme(legend.position="none"), nrow = 1, align = "hv",axis= "l", labels = c("A", "B", "C"))
+# ggpubr::ggarrange(p1,p2,p3, nrow = 1, common.legend = TRUE,align="hv", labels="AUTO",hjust = -3.5)
 
+p123 <- ((p1 + plot_layout(guides = "collect") & theme(legend.position = "top")) + plot_spacer() + (p2 + theme(legend.position = "none")) + plot_spacer() + (p3 + theme(legend.position = "none")))
 
-
-grid.arrange(p1+ theme(legend.position="none"),p2+ theme(legend.position="none"),p3+ theme(legend.position="none"),ncol = 3, nrow = 1)
-
-ggpubr::ggarrange(p1,p2,p3, nrow = 1, common.legend = TRUE,align="hv", labels="AUTO",hjust = -3.5)
-
+p123 + plot_layout(widths = c(4, -0.3 ,4.5,-0.3 ,3.5), guides = "collect")
 
 
 ```
