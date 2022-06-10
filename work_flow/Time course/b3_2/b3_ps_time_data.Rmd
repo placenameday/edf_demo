@@ -1,0 +1,53 @@
+---
+title: "b3ps时序原始数据生成"
+author: "Chen Xing"
+date: '2022-06-10'
+output: html_document
+---
+
+## 摘要
+b3瞳孔直径原始时序数据生成
+
+### 必要的包
+```{r, message=FALSE, warning=FALSE, results='hide', echo=FALSE}
+library(tidyverse)
+library(data.table)
+```
+
+## 数据倒入
+```{r, message=FALSE, warning=FALSE}
+dt3_1 <- fread("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/b3_raw.csv.gz") %>%
+  mutate(participant_phone=as.numeric(participant_phone)) %>%
+  select(1:15, b3_pos, b3_neg, b3_thr, b3_ne, trackloss)
+```
+
+## 分段计算
+```{r, message=FALSE, warning=FALSE}
+time.bin.list <- seq(from=0, to=29900, by=100)
+
+dt3_11 <- dt3_1 %>% mutate(time_bin=cut(time_p, breaks = 300, labels = time.bin.list))
+
+loss_info <- dt3_11 %>% group_by(participant_phone, trial_id) %>%
+  summarise(N=n(), trackloss_count=sum(trackloss)) %>% mutate(trackloss.p=trackloss_count/N)
+ 
+loss_info <- loss_info %>% group_by(participant_phone) %>%
+  summarise(trackloss.all=mean(trackloss.p)) %>% full_join(loss_info)
+
+loss_id_list <- loss_info %>% filter(trackloss.all>0.2) %>% select(participant_phone)
+loss_trial_list <- loss_info %>% filter(trackloss.p>0.2) %>% select(participant_phone, trial_id)
+
+dt3_12 <- anti_join(dt3_11, loss_id_list) %>% anti_join(loss_trial_list) %>%
+  pivot_longer(16:19,names_to = "AOI", values_to = "mz") %>%
+  filter(mz==TRUE) %>% select(-mz)
+
+dt3_13 <- dt3_12 %>% ungroup() %>% group_by(participant_phone, trial_id, AOI, time_bin) %>%
+  summarise(ps=mean(ps, na.rm=T))
+
+msg <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/scale_sum_r.csv") %>%
+  select(participant_phone, sas_g, maas_g, tgjl_g)
+
+dt_a <- full_join(dt3_13, msg) %>% drop_na(trial_id)
+
+  
+write_csv(dt_a, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/raw_time_b3_sas_ps.gz")
+```

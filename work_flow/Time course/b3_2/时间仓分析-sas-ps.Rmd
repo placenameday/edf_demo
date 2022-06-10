@@ -1,0 +1,131 @@
+---
+title: "Time_bin_mixed_sas"
+author: "Chen Xing"
+date: '2022-05-25'
+output: html_document
+---
+
+## 摘要
+针对注视比例出时序图并进行mixed模型差异分析, 按照手机成瘾进行分组，进一步优化分析
+
+### 必要的包
+```{r, message=FALSE, warning=FALSE, results='hide', echo=FALSE}
+library(tidyverse)
+library(lmerTest)
+library(emmeans)
+library("ggplot2")
+library("gridExtra")
+library(viridis)
+library(ggthemes)
+library(cowplot)
+```
+
+### 读取数据初步时序图
+```{r, message=FALSE, warning=FALSE}
+dt <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/raw_time_b3_sas_ps.gz") %>%
+  mutate(Target=case_when(sas_g=="high"~"HPA",
+                          sas_g=="low"~"LPA"),
+         AOI=case_when(AOI=="b3_ne"~"neutral",
+                       AOI=="b3_neg"~"dysphoric",
+                       AOI=="b3_pos"~"positive",
+                       AOI=="b3_thr"~"threat")) %>%
+  filter(sas_g != "mid") %>% rename(Time=time_bin)
+
+
+ggplot(dt, aes(x=Time, y=ps, color=AOI)) +
+  facet_grid(rows = vars(Target)) +
+  stat_summary(fun.y=mean, geom="point")
+```
+
+
+### 混合模型数据准备,初步进行各个时间段两两对比
+```{r, message=FALSE, warning=FALSE}
+
+# 对AOI因子重新编码
+
+
+dt$Target <- factor(dt$Target, levels=c("LPA", "HPA"))
+contrasts(dt$Target) = contr.sum(2)
+
+dt$AOI <- factor(dt$AOI, levels=c("neutral", "positive", "dysphoric", "threat"))
+contrasts(dt$AOI) = contr.sum(4)
+
+
+
+mm2 <- function(dt, t){
+  dt4 <- dt %>% filter(Time==t)
+  model <- lmer(ps ~ AOI*Target  + (1| participant_phone) + (1| participant_phone:AOI) + (1|trial_id),  data = dt4)
+  
+  pwc <- summary(pairs(emmeans(model, "AOI",by = "Target", lmerTest.limit = 10000))) %>%
+    filter(p.value<0.05) %>%
+    mutate(Time=t)
+  pwc
+}
+
+tlist <- unique(dt$Time)
+
+k2 <- bind_rows(map(tlist, mm2, dt=dt))
+
+k2.2 <- k2 %>% arrange(p.value)
+n <- length(k2.2[,1])
+k2.2$no <- 1:n
+
+k2.3 <- k2.2 %>% mutate(hb=(0.05/(n-no+1))) %>% filter(hb<p.value)
+
+k3 <- k2.3
+
+k3 <- k3 %>% rowwise() %>%
+  mutate(A1=str_split_fixed(contrast, " - ",2)[[1]], A2=str_split_fixed(contrast, " - ",2)[2]) %>%
+  mutate(Big=case_when(estimate>0~A1,
+                       estimate<0~A2),
+         Small=case_when(estimate>0~A2,
+                       estimate<0~A1))
+
+
+rankc <- function(dt, aoi){
+  dt[[aoi]] <- sum(aoi == dt$Big)
+  dt
+}
+
+
+rankc2 <- function(dt, time){
+  dt <- dt %>% filter(Time==time)
+  alist <- append(unique(dt$Big), unique(dt$Small))
+  reduce((map(alist, rankc, dt=dt)), full_join)
+}
+
+rankc3 <- function(dt, tar){
+  dt <- dt %>% filter(Target==tar)
+  tblist <- unique(dt$Time)
+  reduce((map(tblist, rankc2, dt=dt)), full_join)
+}
+
+rankc4 <- function(dt){
+  tarlist <- unique(dt$Target)
+  reduce((map(tarlist, rankc3, dt=dt)), full_join)
+}
+
+nk <- rankc4(k3)
+
+write_csv(nk, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_timec_pwc_sas_a_ps.csv")
+
+
+nk2 <- nk  %>% select(Target, Time, neutral, positive, dysphoric, threat) %>%
+  distinct() %>% pivot_longer(3:6, names_to = "AOI", values_to = "Dominance_Times")
+
+
+```
+
+
+### 进行时序区间划分
+```{r, message=FALSE, warning=FALSE}
+timezone <- nk %>% group_by(Time) %>%
+  summarise(pairsn = n())
+
+timezone$inter <- append(diff(timezone$Time),0)
+
+t <- timezone %>% filter(inter>1500)
+t
+nt <- t$Time/1000
+```
+

@@ -1,0 +1,124 @@
+---
+title: "Time_bin_mixed_tgjl-pub"
+author: "Chen Xing"
+date: '2022-06-08'
+output: html_document
+---
+
+## 摘要
+针对注视比例出时序图并进行mixed模型差异分析, 按照特质焦虑进行分组，进一步优化分析
+
+### 必要的包
+```{r, message=FALSE, warning=FALSE, results='hide', echo=FALSE}
+library(tidyverse)
+library(lmerTest)
+library(emmeans)
+library("ggplot2")
+library("gridExtra")
+library(viridis)
+library(ggthemes)
+library(cowplot)
+library(ggpubr)
+```
+
+### 读取数据初步时序图
+```{r, message=FALSE, warning=FALSE}
+dt <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/raw_time_b3_tgjl.gz") %>%
+  select(1:7,10,13) %>% filter(Target!="mid") %>%
+  mutate(Target=case_when(Target=="high"~"HTA",
+                          Target=="low"~"LTA"),
+         AOI=case_when(AOI=="b3_ne"~"neutral",
+                       AOI=="b3_neg"~"dysphoric",
+                       AOI=="b3_pos"~"positive",
+                       AOI=="b3_thr"~"threat"))
+
+dt2 <- dt %>% filter(Target!="mid") %>%
+  group_by(Target, participant_phone, AOI, Time) %>%
+  summarise(Prop=mean(Prop, rm.na=T))
+
+ggplot(dt2, aes(x=Time, y=Prop, color=AOI)) +
+  facet_grid(rows = vars(Target)) +
+  stat_summary(fun.y=mean, geom="point")
+```
+
+
+### 混合模型数据准备,初步进行各个时间段两两对比
+```{r, message=FALSE, warning=FALSE}
+nk <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_timec_pwc_tgjl_a.csv")
+
+
+nk2 <- nk  %>% select(Target, Time, neutral, positive, dysphoric, threat) %>%
+  distinct() %>% pivot_longer(3:6, names_to = "AOI", values_to = "Dominance_Times")
+
+
+```
+
+
+### 进行时序区间划分
+```{r, message=FALSE, warning=FALSE}
+timezone <- nk %>% group_by(Time) %>%
+  summarise(pairsn = n())
+
+timezone$inter <- append(diff(timezone$Time),0)
+
+t <- timezone %>% filter(inter>1500)
+t
+nt <- t$Time/1000
+```
+
+
+### 进行叠加可视化
+```{r, message=FALSE, warning=FALSE}
+dt_v2 <- full_join(dt2, nk2) %>% mutate(Time=Time/1000, AOI=factor(AOI, levels=c("threat",  "dysphoric", "positive", "neutral")))
+dt_v <- dt_v2 %>%
+  mutate(Dominance_Times=factor(Dominance_Times, levels=c(0,1,2,3)))
+
+dt_rank <- dt_v2 %>% mutate(AOI=factor(AOI, levels=c("neutral", "positive", "dysphoric", "threat"))) %>%
+  group_by(Target, Time, AOI) %>%
+  mutate(Dominance_Times=as.numeric(Dominance_Times)) %>%
+  summarise(Dominance_Times=mean(Dominance_Times, na.rm=T))
+
+p3 <- ggplot(dt_rank, aes(x=Time, y=AOI, fill=Dominance_Times)) +
+  facet_grid(rows = vars(Target)) +
+  geom_raster() + scale_fill_viridis() +
+  theme_tufte(base_family="Helvetica") +
+  guides(fill=guide_legend(title="DCPC")) +
+  labs(y="Stimuli") +
+  theme(axis.ticks=element_blank(),
+        legend.title=element_text(face = "bold"),
+        strip.text.y=element_text(face = "bold"),
+        legend.key.size = unit(0.4, 'cm'),
+        axis.text.x=element_blank(),axis.title.x=element_blank(),
+        axis.text.y=element_blank(),
+        legend.text=element_text(face = "bold"),
+        axis.title.y=element_text(face = "bold"),
+        plot.margin=unit(c(1,1,0,1), "cm"))
+
+p4 <- ggplot(dt_v, aes(x=Time, y=Prop, color=AOI)) +
+  facet_grid(rows = vars(Target)) +
+  stat_summary(fun.y=mean, geom="line", size=1, alpha = 0.75) +
+  geom_vline(xintercept = nt,linetype="dotted", 
+                color = "black", size=1, alpha = 0.55) +
+  theme(legend.key.size = unit(5, "pt"), legend.position = "right", legend.key.width = unit(15, "pt"), legend.title=element_text(face = "bold"), axis.title.x=element_text(face = "bold"),
+        axis.title.y=element_text(face = "bold"),
+        axis.text.x=element_text(face = "bold"),
+        axis.text.y=element_text(face = "bold"),
+        strip.text.y=element_text(face = "bold"),
+        legend.text=element_text(face = "bold"),
+        plot.margin=unit(c(0,1,1,1), "cm")) +
+  labs(colour = "Stimuli") +
+  labs(y="Gaze proportion") +
+  labs(x="Time(s)")+
+  scale_x_continuous(breaks = append(nt, c(0,30)))
+
+p3_npg = p3
+p4_npg = p4 + ggsci::scale_color_npg()
+
+fig2 <- plot_grid(p3, p4_npg, ncol = 1, align = "v",rel_heights = c(1, 2), labels = c("A", "B"))
+
+fig2
+
+#ggsave(filename = "/Users/placenameday/Downloads/fig2.pdf", width = 180, height = 120, units = "mm")
+```
+
+

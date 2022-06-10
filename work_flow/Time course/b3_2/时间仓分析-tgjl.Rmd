@@ -1,0 +1,116 @@
+---
+title: "Time_bin_mixed_tgjl"
+author: "Chen Xing"
+date: '2022-06-08'
+output: html_document
+---
+
+## 摘要
+针对注视比例出时序图并进行mixed模型差异分析, 按照特质焦虑进行分组，进一步优化分析
+
+### 必要的包
+```{r, message=FALSE, warning=FALSE, results='hide', echo=FALSE}
+library(tidyverse)
+library(lmerTest)
+library(emmeans)
+library("ggplot2")
+library("gridExtra")
+library(viridis)
+library(ggthemes)
+library(cowplot)
+```
+
+### 读取数据初步时序图
+```{r, message=FALSE, warning=FALSE}
+dt <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/raw_time_b3_tgjl.gz") %>%
+  select(1:7,10,13) %>% filter(Target!="mid") %>%
+  mutate(Target=case_when(Target=="high"~"HTA",
+                          Target=="low"~"LTA"),
+         AOI=case_when(AOI=="b3_ne"~"neutral",
+                       AOI=="b3_neg"~"dysphoric",
+                       AOI=="b3_pos"~"positive",
+                       AOI=="b3_thr"~"threat"))
+
+dt2 <- dt %>% filter(Target!="mid") %>%
+  group_by(Target, participant_phone, AOI, Time) %>%
+  summarise(Prop=mean(Prop, rm.na=T))
+
+ggplot(dt2, aes(x=Time, y=Prop, color=AOI)) +
+  facet_grid(rows = vars(Target)) +
+  stat_summary(fun.y=mean, geom="point")
+```
+
+
+### 混合模型数据准备,初步进行各个时间段两两对比
+```{r, message=FALSE, warning=FALSE}
+dt3 <- dt
+dt4 <- dt2
+
+# 对AOI因子重新编码
+dt3$AOI <- factor(dt3$AOI, levels=c("neutral", "positive", "dysphoric", "threat"))
+contrasts(dt3$AOI) = contr.sum(4)
+
+dt3$Target <- factor(dt3$Target, levels=c("LTA", "HTA"))
+contrasts(dt3$Target) = contr.sum(2)
+
+dt4$AOI <- factor(dt4$AOI, levels=c("neutral", "positive", "dysphoric", "threat"))
+contrasts(dt4$AOI) = contr.sum(4)
+
+
+
+mm2 <- function(dt, t){
+  dt4 <- dt %>% filter(Time==t)
+  model <- lmer(Prop ~ AOI*Target  + (1| participant_phone) + (1| participant_phone:AOI) + (1|trial_id),  data = dt4)
+  
+  pwc <- summary(pairs(emmeans(model, "AOI",by = "Target", lmerTest.limit = 10000))) %>% filter(p.value <0.05) %>%
+    mutate(Time=t)
+  pwc
+}
+
+tlist <- unique(dt3$Time)
+
+k2 <- bind_rows(map(tlist, mm2, dt=dt3))
+
+k3 <- k2 %>% filter(p.value<(0.05/300))
+
+k3 <- k3 %>% rowwise() %>%
+  mutate(A1=str_split_fixed(contrast, " - ",2)[[1]], A2=str_split_fixed(contrast, " - ",2)[2]) %>%
+  mutate(Big=case_when(estimate>0~A1,
+                       estimate<0~A2),
+         Small=case_when(estimate>0~A2,
+                       estimate<0~A1))
+
+
+rankc <- function(dt, aoi){
+  dt[[aoi]] <- sum(aoi == dt$Big)
+  dt
+}
+
+
+rankc2 <- function(dt, time){
+  dt <- dt %>% filter(Time==time)
+  alist <- append(unique(dt$Big), unique(dt$Small))
+  reduce((map(alist, rankc, dt=dt)), full_join)
+}
+
+rankc3 <- function(dt, tar){
+  dt <- dt %>% filter(Target==tar)
+  tblist <- unique(dt$Time)
+  reduce((map(tblist, rankc2, dt=dt)), full_join)
+}
+
+rankc4 <- function(dt){
+  tarlist <- unique(dt$Target)
+  reduce((map(tarlist, rankc3, dt=dt)), full_join)
+}
+
+nk <- rankc4(k3)
+
+write_csv(nk, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_timec_pwc_tgjl_a.csv")
+
+
+nk2 <- nk  %>% select(Target, Time, neutral, positive, dysphoric, threat) %>%
+  distinct() %>% pivot_longer(3:6, names_to = "AOI", values_to = "Dominance_Times")
+
+
+```

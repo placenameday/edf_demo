@@ -1,0 +1,149 @@
+---
+title: "GCA_sas_"
+author: "Chen Xing"
+date: '2022-06-8'
+output: html_document
+---
+
+## 摘要
+手动gca_区分sas
+
+### 必要的包
+```{r, message=FALSE, warning=FALSE, results='hide', echo=FALSE}
+library(tidyverse)
+library(lmerTest)
+library(parameters)
+library(effectsize)
+library(emmeans)
+library(performance)
+library(sjPlot)
+library(ggpubr)
+library(rstatix)
+```
+
+### 读取数据
+```{r, message=FALSE, warning=FALSE}
+dt <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/raw_time_b3_sas.gz")
+
+
+```
+
+
+### 开始gca
+```{r, message=FALSE, warning=FALSE}
+dt3 <- dt %>% filter(Target!="mid")
+
+dt3$AOI <- as.factor(dt3$AOI)
+dt3$Target <- as.factor(dt3$Target)
+
+
+dt3 <- dt3 %>% select(-c('ot1','ot2','ot3','ot4','ot5','ot6','ot7'))
+
+# 针对timezone对数据进行切割
+dt3_1 <- dt3 %>% filter(between(Time,0,7900)) %>% mutate(Time2=Time)
+dt3_2 <- dt3 %>% filter(between(Time,7900,17300)) %>% mutate(Time2=Time, Time=Time-7900)
+dt3_3 <- dt3 %>% filter(between(Time,17300,25700)) %>% mutate(Time2=Time, Time=Time-17300)
+
+
+
+time_code_m <- function(dt3){
+  dt3 <- dt3 %>% group_by(Target, participant_phone,trial_id, AOI,TimeBin) %>%
+    summarise(Prop=mean(Prop, rm.na=T), y= sum(SamplesInAOI), N = sum(SamplesTotal), Time=min(Time), Time2=min(Time2)) %>%
+    mutate(Elog = log( (y+.5) / (N-y+.5) )) %>% ungroup()
+  
+  orthogonal_polynomials <- poly(sort(as.vector(unique(dt3$Time))), 5)
+  
+  ggplot(data.frame(orthogonal_polynomials), aes(x=X1, y=X1)) +
+                 geom_point() +
+                 geom_point(aes(y=X2), color='red') +  
+                 geom_point(aes(y=X3), color='blue') +
+                 geom_point(aes(y=X4), color='green') +
+                 geom_point(aes(y=X5), color='purple')
+  
+  time_codes <- data.frame(
+                          sort(as.vector(unique(dt3$Time))),
+                          orthogonal_polynomials[, c(1:5)]
+                        )
+  colnames(time_codes) <- c('Time','ot1','ot2','ot3','ot4','ot5')
+  
+  dt3 <- full_join(dt3, time_codes)
+}
+
+# 分别生成5段区间
+dt3_1 <- time_code_m(dt3_1)
+write_csv(dt3_1, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_1_ot_sas.csv")
+dt3_2 <- time_code_m(dt3_2)
+write_csv(dt3_2, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_2_ot_sas.csv")
+dt3_3 <- time_code_m(dt3_3)
+write_csv(dt3_3, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_3_ot_sas.csv")
+
+
+```
+
+
+
+# 分别对各个区间进行模型拟合并比较模型
+```{r, message=FALSE, warning=FALSE}
+# 定义批量拟合方法
+make.model <- function(dt){
+  model.base <- lmer(Elog ~ (ot1+ot2+ot3) + (1| participant_phone), data = dt)
+  model.0 <- lmer(Elog ~ (ot1+ot2+ot3)+AOI+Target + (1| participant_phone), data = dt)
+  model.1 <- lmer(Elog ~ ot1*AOI*Target + (1| participant_phone), data = dt)
+  model.2 <- lmer(Elog ~ (ot1+ot2)*AOI*Target + (1| participant_phone), data = dt)
+  model.3 <- lmer(Elog ~ (ot1+ot2+ot3)*AOI*Target + (1| participant_phone), data = dt)
+  
+  m.comparsion <- anova(model.base, model.0, model.1, model.2, model.3)
+  
+  p.base <- ggplot(dt, aes(x=Time2, y=Elog, color=AOI)) +
+                       facet_grid(rows = vars(Target)) +
+                       stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.75, size=0.3) +
+                       stat_summary(aes(y=predict(model.base,dt,re.form=NA)), fun.y=mean, geom="line") +
+                       labs(title = "m.base")
+  s.base <- summary(model.base)
+  
+  p.0 <- ggplot(dt, aes(x=Time2, y=Elog, color=AOI)) +
+                       facet_grid(rows = vars(Target)) +
+                       stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.75, size=0.3) +
+                       stat_summary(aes(y=predict(model.0,dt,re.form=NA)), fun.y=mean, geom="line") +
+                       labs(title = "m.0")
+  s.0 <- summary(model.0)
+  
+  p.1 <- ggplot(dt, aes(x=Time2, y=Elog, color=AOI)) +
+                       facet_grid(rows = vars(Target)) +
+                       stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.75, size=0.3) +
+                       stat_summary(aes(y=predict(model.1,dt,re.form=NA)), fun.y=mean, geom="line") +
+                       labs(title = "m.1")
+  s.1 <- summary(model.1)
+  
+  p.2 <- ggplot(dt, aes(x=Time2, y=Elog, color=AOI)) +
+                       facet_grid(rows = vars(Target)) +
+                       stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.75, size=0.3) +
+                       stat_summary(aes(y=predict(model.2,dt,re.form=NA)), fun.y=mean, geom="line") +
+                       labs(title = "m.2")
+  s.2 <- summary(model.2)
+  
+  p.3 <- ggplot(dt, aes(x=Time2, y=Elog, color=AOI)) +
+                       facet_grid(rows = vars(Target)) +
+                       stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.75, size=0.3) +
+                       stat_summary(aes(y=predict(model.3,dt,re.form=NA)), fun.y=mean, geom="line") +
+                       labs(title = "m.3")
+  s.3 <- summary(model.3)
+  
+  f <- list(m.comparsion, p.base, s.base, p.0, s.0, p.1, s.1, p.2, s.2, p.3, s.3)
+}
+
+f3_1 <- make.model(dt3_1)
+f3_2 <- make.model(dt3_2)
+f3_3 <- make.model(dt3_3)
+
+
+print("Time 1")
+f3_1
+
+print("Time 2")
+f3_2
+
+print("Time 3")
+f3_3
+
+```

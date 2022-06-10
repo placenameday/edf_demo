@@ -1,0 +1,54 @@
+---
+title: "Time_bin_mixed_tgjl"
+author: "Chen Xing"
+date: '2022-06-10'
+output: html_document
+---
+
+## 摘要
+针对注视比例出时序图并进行mixed模型差异分析, 按照tgjl进行分组，进一步优化分析
+
+### 必要的包
+```{r, message=FALSE, warning=FALSE, results='hide', echo=FALSE}
+library(tidyverse)
+library(lmerTest)
+library(emmeans)
+library("ggplot2")
+library("gridExtra")
+library(viridis)
+library(ggthemes)
+library(cowplot)
+```
+
+### 读取数据初步时序图
+```{r, message=FALSE, warning=FALSE}
+dt <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/raw_time_b3_sas_ps.gz") %>%
+  mutate(Target=case_when(tgjl_g=="high"~"HTA",
+                          tgjl_g=="low"~"LTA"),
+         AOI=case_when(AOI=="b3_ne"~"neutral",
+                       AOI=="b3_neg"~"dysphoric",
+                       AOI=="b3_pos"~"positive",
+                       AOI=="b3_thr"~"threat")) %>%
+  filter(tgjl_g != "mid") %>% rename(Time=time_bin)
+
+dt_all <- dt
+dt_pos <- dt %>% filter(AOI == "positive")
+
+
+ggplot(dt, aes(x=Time, y=ps, color=Target)) +
+  stat_summary(fun.y=mean, geom="point")
+
+ggplot(dt_pos, aes(x=Time, y=ps, color=Target)) +
+  stat_summary(fun.y=mean, geom="point")
+```
+
+
+### 混合模型数据准备,初步进行各个时间段两两对比
+```{r, message=FALSE, warning=FALSE}
+
+# 对AOI因子重新编码
+
+
+
+
+```

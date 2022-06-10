@@ -1,0 +1,80 @@
+---
+title: "b3-sacc-aoi-partern"
+author: "Chen Xing"
+date: '2022-06-08'
+output: html_document
+---
+
+## 摘要
+对b3眼跳模式进行计算
+
+### 必要的包
+```{r, message=FALSE, warning=FALSE, results='hide', echo=FALSE}
+library(tidyverse)
+
+```
+
+### 计算区域眼跳模式
+```{r, message=FALSE, warning=FALSE}
+aoilist <- c("b3_neg", "b3_pos", "b3_ne", "b3_thr")
+
+b3_sacc <-function(file_path){
+  dt <- read_csv(file_path) %>%
+    filter(block_name=="b3", AOI_S %in% aoilist, AOI_E %in% aoilist)
+}
+
+b3_saac_bind <- function(in_dir){
+  in_list <- paste(in_dir,"/",list.files(in_dir), sep = "")
+
+  bind_rows(map(in_list, b3_sacc))
+}
+
+in_dir <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/sacc_clean_re_aoi_patern"
+
+b3_s <- b3_saac_bind(in_dir)
+
+msg <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/scale_sum_r.csv") %>%
+  select(participant_phone, tgjl_g, maas_g, sas_g)
+
+b3_s1 <- full_join(b3_s, msg) %>% drop_na(trial_id)
+
+write_csv(b3_s1, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_saac_between.csv")
+
+```
+
+### 统计区域眼跳数据
+```{r, message=FALSE, warning=FALSE}
+b3_s1 <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_saac_between.csv")
+
+b3_s_sum <- b3_s1 %>% filter(sas_g %in% c("high", "low")) %>%
+  group_by(sas_g, participant_phone) %>%
+  summarise(betsacc=n())
+
+b3_s_period1 <- b3_s1 %>% filter(sas_g %in% c("high", "low"), between(stime_p, 7900,17300)) %>%
+  group_by(sas_g, participant_phone) %>%
+  summarise(betsacc=n())
+
+b3_s_period2 <- b3_s1 %>% filter(sas_g %in% c("high", "low"), between(stime_p, 0,3300)) %>%
+  group_by(sas_g, participant_phone) %>%
+  summarise(betsacc=n())
+
+b3_s_period3 <- b3_s1 %>% filter(sas_g %in% c("high", "low"), between(stime_p, 3300,7900)) %>%
+  group_by(sas_g, participant_phone) %>%
+  summarise(betsacc=n())
+
+# 整体区域眼跳两组差异
+a1 <- aov(betsacc~sas_g, data=b3_s_sum)
+summary(a1)
+
+# period1区域眼跳两组差异
+a2 <- aov(betsacc~sas_g, data=b3_s_period1)
+summary(a2)
+
+# period2区域眼跳两组差异
+a3 <- aov(betsacc~sas_g, data=b3_s_period2)
+summary(a3)
+
+# period3区域眼跳两组差异
+a4 <- aov(betsacc~sas_g, data=b3_s_period3)
+summary(a4)
+```
