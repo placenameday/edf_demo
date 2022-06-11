@@ -32,8 +32,12 @@ dt <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/
                        AOI=="b3_thr"~"threat")) %>%
   filter(tgjl_g != "mid") %>% rename(Time=time_bin)
 
+dt_0 <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_st0_ps.csv")
+
+dt <- dt %>% full_join(dt_0) %>% mutate(ps= ps- psz)
+
 dt_all <- dt
-dt_pos <- dt %>% filter(AOI == "positive")
+dt_pos <- dt %>% filter(AOI == "threat")
 
 
 ggplot(dt, aes(x=Time, y=ps, color=Target)) +
@@ -48,7 +52,7 @@ ggplot(dt_pos, aes(x=Time, y=ps, color=Target)) +
 
 ### 开始gca
 ```{r, message=FALSE, warning=FALSE}
-dt3 <- dt_pos %>% filter(Target!="mid")
+dt3 <- dt_all %>% filter(Target!="mid")
 
 dt3$AOI <- as.factor(dt3$AOI)
 dt3$Target <- as.factor(dt3$Target)
@@ -90,10 +94,10 @@ dt3_1 <- time_code_m(dt3_1)
 write_csv(dt3_1, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_1_ot_ps_tgjl.csv")
 dt3_2 <- time_code_m(dt3_2)
 write_csv(dt3_2, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_2_ot_ps_tgjl.csv")
-dt3_a <- time_code_m(dt3_a)
-write_csv(dt3_3, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_3_ot_ps_tgjl.csv")
 dt3_3 <- time_code_m(dt3_3)
-write_csv(dt3_3, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_a_ot_ps_tgjl.csv")
+write_csv(dt3_3, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_3_ot_ps_tgjl.csv")
+dt3_a <- time_code_m(dt3_a)
+write_csv(dt3_a, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_a_ot_ps_tgjl.csv")
 
 
 ```
@@ -104,11 +108,11 @@ write_csv(dt3_3, "/Users/placenameday/R study/edf_demo/data/processed/eye_tackin
 ```{r, message=FALSE, warning=FALSE}
 # 定义批量拟合方法
 make.model <- function(dt){
-  model.base <- lmer(ps ~ (ot1+ot2+ot3) + (ot1+ot2+ot3| participant_phone), data = dt)
-  model.0 <- lmer(ps ~ (ot1+ot2+ot3)+Target + (ot1+ot2+ot3| participant_phone), data = dt)
-  model.1 <- lmer(ps ~ ot1*Target + (ot1+ot2+ot3| participant_phone), data = dt)
-  model.2 <- lmer(ps ~ (ot1+ot2)*Target + (ot1+ot2+ot3| participant_phone), data = dt)
-  model.3 <- lmer(ps ~ (ot1+ot2+ot3)*Target + (ot1+ot2+ot3| participant_phone), data = dt)
+  model.base <- lmer(ps ~ (ot1+ot2+ot3) + (1| participant_phone), data = dt)
+  model.0 <- lmer(ps ~ (ot1+ot2+ot3)+Target + (1| participant_phone), data = dt)
+  model.1 <- lmer(ps ~ ot1*Target + (1| participant_phone), data = dt)
+  model.2 <- lmer(ps ~ (ot1+ot2)*Target + (1| participant_phone), data = dt)
+  model.3 <- lmer(ps ~ (ot1+ot2+ot3)*Target + (1| participant_phone), data = dt)
   
   m.comparsion <- anova(model.base, model.0, model.1, model.2, model.3)
   
@@ -148,13 +152,9 @@ make.model <- function(dt){
 f3_1 <- make.model(dt3_1)
 f3_2 <- make.model(dt3_2)
 f3_3 <- make.model(dt3_3)
+f3_a <- make.model(dt3_a)
 
-model.a <- lmer(ps ~ (ot1+ot2+ot3)*Target + (ot1+ot2+ot3| participant_phone), data = dt3_a)
-s.a <- summary(model.a)
-p.a <- ggplot(dt3_a, aes(x=Time2, y=ps, color=Target)) +
-                     stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.75, size=0.3) +
-                     stat_summary(aes(y=predict(model.a,dt3_a,re.form=NA)), fun.y=mean, geom="line") +
-                     labs(title = "m.3")
+
 
 
 
@@ -166,5 +166,8 @@ f3_2
 
 print("Time 3")
 f3_3
+
+print("All")
+f3_a
 
 ```

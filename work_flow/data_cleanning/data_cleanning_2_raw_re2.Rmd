@@ -1,0 +1,74 @@
+---
+title: "数据整理与清洗2"
+author: "Chen Xing"
+date: '2022-04-13'
+output: html_document
+---
+
+# 上接数据整理与清洗1
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(readxl)
+library(data.table)
+```
+
+
+
+
+### 定义清洗处理及保存方法
+```{r, message=FALSE, warning=FALSE}
+# 合并处理操作
+data_clean <- function(d){
+  dt <- fread(d) %>% filter(block_name=="b3", stim==0)
+}
+
+# 定义处理及保存方法
+raw_clean_save <- function(rdic, sdic){
+  if (!dir.exists(sdic)) {
+    dir.create(sdic)
+  }
+  out_list <- paste(sdic,"/",list.files(rdic),".gz", sep = "")
+  file_list <- paste(rdic,"/",list.files(rdic), sep = "")
+  map2(file_list, out_list, ~try(write_csv(data_clean(.x), .y)))
+  "done"
+}
+```
+
+### 进行保存操作
+```{r, message=FALSE, warning=FALSE}
+# 数据所在目录
+dic <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/"
+# 需要处理的文件夹名称
+rname <- c("raw")
+# 合并信息
+rlist <- paste(dic, rname, sep = "")
+olist <- paste(dic, rname, "_", "st0", sep = "")
+
+# 进行处理及保存
+map2(rlist, olist, raw_clean_save)
+```
+
+
+### 
+```{r, message=FALSE, warning=FALSE}
+st0d <- "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/raw_st0"
+st0_list <- paste(st0d,"/",list.files(st0d), sep = "")
+
+du <- function(path){
+  dt <- read_csv(path)
+}
+
+dt3_1 <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/b3_raw.csv.gz") %>%
+  group_by(participant_phone, trial_id) %>% drop_na(time) %>%
+  summarise(mintime=min(time, na.rm = T))
+
+st0_all <- bind_rows(map(st0_list, du)) 
+st0_all_2 <- st0_all %>% full_join(dt3_1) %>% mutate(time_cha= time- mintime) %>%
+  filter(between(time_cha, -400,0)) %>%
+  ungroup() %>% group_by(participant_phone, trial_id) %>%
+  summarise(psz=mean(ps, na.rm=T)) %>% drop_na(psz)
+
+write_csv(st0_all_2, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_st0_ps.csv")
+
+```
+数据清洗完毕

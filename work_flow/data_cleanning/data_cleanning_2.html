@@ -379,7 +379,7 @@ read_eye &lt;- function(file){
   if (unique(dt$participant_phone[[1]]) %in% pc$participant_phone) {
     return(NA)
   } else
-    dt &lt;- filter(dt, !is.na(participant_phone), block !=0, stim !=0)
+    dt &lt;- filter(dt, !is.na(participant_phone), block !=0)
 }</code></pre>
 </div>
 <div id="定义trackloss清洗方法" class="section level3">
@@ -455,18 +455,144 @@ olist &lt;- paste(dic, rname, &quot;_&quot;, &quot;clean&quot;, sep = &quot;&quo
 
 # 进行处理及保存
 map2(rlist, olist, raw_clean_save)</code></pre>
-<pre><code>## Error in write_excel_csv(data_clean(.x), .y) : 
-##   is.data.frame(x) is not TRUE
+<pre><code>## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
 ## Error in write_excel_csv(data_clean(.x), .y) : 
 ##   is.data.frame(x) is not TRUE
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
 ## Error in write_excel_csv(data_clean(.x), .y) : 
 ##   is.data.frame(x) is not TRUE
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
 ## Error in write_excel_csv(data_clean(.x), .y) : 
 ##   is.data.frame(x) is not TRUE
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
 ## Error in write_excel_csv(data_clean(.x), .y) : 
 ##   is.data.frame(x) is not TRUE
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
 ## Error in write_excel_csv(data_clean(.x), .y) : 
 ##   is.data.frame(x) is not TRUE
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error in write_excel_csv(data_clean(.x), .y) : 
+##   is.data.frame(x) is not TRUE
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
+## Error : Can only read from, not write to, .zip
 ## Error in write_excel_csv(data_clean(.x), .y) : 
 ##   is.data.frame(x) is not TRUE
 ## Error in write_excel_csv(data_clean(.x), .y) : 

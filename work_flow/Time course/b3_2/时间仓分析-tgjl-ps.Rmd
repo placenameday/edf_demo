@@ -31,24 +31,51 @@ dt <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/
                        AOI=="b3_thr"~"threat")) %>%
   filter(tgjl_g != "mid") %>% rename(Time=time_bin)
 
+dt_0 <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_st0_ps.csv")
+
+dt <- dt %>% full_join(dt_0) %>% mutate(ps= ps- psz)
+
 dt_all <- dt
-dt_pos <- dt %>% filter(AOI == "positive")
+
 
 
 ggplot(dt, aes(x=Time, y=ps, color=Target)) +
   stat_summary(fun.y=mean, geom="point")
 
-ggplot(dt_pos, aes(x=Time, y=ps, color=Target)) +
-  stat_summary(fun.y=mean, geom="point")
+
+```
+
+### 混合模型数据准备,初步进行各个时间段两两对比
+```{r, message=FALSE, warning=FALSE}
+
+
+
 ```
 
 
 ### 混合模型数据准备,初步进行各个时间段两两对比
 ```{r, message=FALSE, warning=FALSE}
-
+dt_v2 <- dt_all %>% mutate(Time=Time/1000, AOI=factor(AOI, levels=c("threat",  "dysphoric", "positive", "neutral")))
 # 对AOI因子重新编码
 
+nt <- c(7.9,18)
 
+p4 <- ggplot(dt_v2, aes(x=Time, y=ps, color=Target)) +
+  stat_summary(fun.y=mean, geom="line", size=1, alpha = 0.75) +
+  geom_vline(xintercept = nt,linetype="dotted", 
+                color = "black", size=1, alpha = 0.55) +
+  theme(legend.key.size = unit(5, "pt"), legend.position = "right", legend.key.width = unit(15, "pt"), legend.title=element_text(face = "bold"), axis.title.x=element_text(face = "bold"),
+        axis.title.y=element_text(face = "bold"),
+        axis.text.x=element_text(face = "bold"),
+        axis.text.y=element_text(face = "bold"),
+        strip.text.y=element_text(face = "bold"),
+        legend.text=element_text(face = "bold"),
+        plot.margin=unit(c(0,1,1,1), "cm")) +
+  labs(colour = "Stimuli") +
+  labs(y="Gaze proportion") +
+  labs(x="Time(s)")+
+  scale_x_continuous(breaks = append(nt, c(0,30)))
 
-
+p4_npg = p4 + ggsci::scale_color_npg()
+p4_npg
 ```

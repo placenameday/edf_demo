@@ -25,7 +25,7 @@ read_eye <- function(file){
   if (unique(dt$participant_phone[[1]]) %in% pc$participant_phone) {
     return(NA)
   } else
-    dt <- filter(dt, !is.na(participant_phone), block !=0, stim !=0)
+    dt <- filter(dt, !is.na(participant_phone), block !=0)
 }
 ```
 
