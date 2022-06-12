@@ -1,0 +1,115 @@
+---
+title: "GCA手动_2_maas"
+author: "Chen Xing"
+date: '2022-05-22'
+output: html_document
+---
+
+## 摘要
+手动gca_区分maas
+
+### 必要的包
+```{r, message=FALSE, warning=FALSE, results='hide', echo=FALSE}
+library(tidyverse)
+library(lmerTest)
+library(ggpubr)
+library(viridis)
+library(ggthemes)
+library(patchwork)
+```
+
+
+
+### 开始gca
+```{r, message=FALSE, warning=FALSE}
+
+
+dt3_1<-read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_1_ot_tgjl.csv") %>%
+  mutate(AOI=factor(AOI, levels=c("threat",  "dysphoric", "positive", "neutral")))
+
+dt3_2<-read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_2_ot_tgjl.csv") %>%
+  mutate(AOI=factor(AOI, levels=c("threat",  "dysphoric", "positive", "neutral")))
+
+dt3_3<-read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_3_ot_tgjl.csv") %>%
+  mutate(AOI=factor(AOI, levels=c("threat",  "dysphoric", "positive", "neutral")))
+
+
+```
+
+
+
+# 分别对各个区间进行模型拟合并比较模型
+```{r, message=FALSE, warning=FALSE}
+# 定义批量拟合方法
+
+model.1 <- lmer(Elog ~ (ot1+ot2+ot3)*AOI*Target + (1| participant_phone), data = dt3_1)
+model.2 <- lmer(Elog ~ (ot1+ot2)*AOI*Target + (1| participant_phone), data = dt3_2)
+model.3 <- lmer(Elog ~ (ot1+ot2)*AOI*Target + (1| participant_phone), data = dt3_3)
+
+
+p.1 <- ggplot(dt3_1, aes(x=Time2/1000, y=Elog, color=AOI)) +
+                     facet_grid(rows = vars(Target)) +
+                     stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.65, size=0.1) +
+                     stat_summary(aes(y=predict(model.1,dt3_1,re.form=NA)), fun.y=mean, geom="line",size=1,alpha=0.75) +
+                     labs(x="Time(s)") +
+                     labs(colour = "Stimuli") +
+                     theme(axis.text.x=element_text(face = "bold"),
+                           legend.title=element_text(face = "bold"),
+                           legend.text=element_text(face = "bold"),
+                           axis.text.y=element_text(face = "bold"),axis.title.y=element_text(face = "bold"),
+                           plot.title = element_text(hjust = 0.5),
+                           axis.title.x=element_text(face = "bold"),
+                           strip.text.y = element_blank()) +
+                     coord_cartesian(ylim = c(-3.5, -0.5)) +
+                     scale_x_continuous(breaks = c(0,2,4,6,7.9))
+
+
+
+p.2 <- ggplot(dt3_2, aes(x=Time2/1000, y=Elog, color=AOI)) +
+                     facet_grid(rows = vars(Target)) +
+                     stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.65, size=0.1) +
+                     stat_summary(aes(y=predict(model.2,dt3_2,re.form=NA)), fun.y=mean, geom="line",size=1,alpha=0.75) +
+                     labs(x="Time(s)") +
+                     labs(colour = "Stimuli") +
+                     theme(axis.ticks=element_blank(),
+                           axis.text.x=element_text(face = "bold"),
+                           axis.title.x=element_text(face = "bold"),
+                           axis.text.y=element_blank(),
+                           axis.title.y=element_blank(),
+                           plot.title = element_text(hjust = 0.5),
+                           strip.text.y = element_blank(),
+                           legend.position="none") +
+                     coord_cartesian(ylim = c(-3.5, -0.5)) +
+                     scale_x_continuous(breaks = c(7.9,10,12,14,16,18))
+
+p.3 <- ggplot(dt3_3, aes(x=Time2/1000, y=Elog, color=AOI)) +
+                     facet_grid(rows = vars(Target)) +
+                     stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.65, size=0.1) +
+                     stat_summary(aes(y=predict(model.3,dt3_3,re.form=NA)), fun.y=mean, geom="line",size=1,alpha=0.75) +
+                     labs(x="Time(s)") +
+                     labs(colour = "Stimuli") +
+                     theme(axis.ticks=element_blank(),
+                           axis.text.x=element_text(face = "bold"),
+                           axis.text.y=element_blank(),
+                           axis.title.x=element_text(face = "bold"),
+                           plot.title = element_text(hjust = 0.5),
+                           legend.position="none",
+                           strip.text.y = element_text(face = "bold"),
+                           axis.title.y=element_blank()) +
+                     coord_cartesian(ylim = c(-3.5, -0.5)) +
+                     scale_x_continuous(breaks = c(18,20,22,24,26,28,30))
+
+p1 <- p.1 + ggsci::scale_color_npg()
+p2 <- p.2 + ggsci::scale_color_npg()
+p3 <- p.3 + ggsci::scale_color_npg()
+
+
+
+# ggpubr::ggarrange(p1,p2,p3, nrow = 1, common.legend = TRUE,align="hv", labels="AUTO",hjust = -3.5)
+
+p123 <- ((p1 + plot_layout(guides = "collect") & theme(legend.position = "top")) + plot_spacer() + (p2 + theme(legend.position = "none")) + plot_spacer() + (p3 + theme(legend.position = "none")))
+
+fig3 <- p123 + plot_layout(widths = c(4, -0.3 ,4.5,-0.3 ,3.5), guides = "collect")
+fig3
+#ggsave(filename = "/Users/placenameday/Downloads/fig3.pdf", width = 180, height = 120, units = "mm")
+```

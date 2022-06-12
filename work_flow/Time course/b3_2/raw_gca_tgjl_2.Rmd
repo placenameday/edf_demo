@@ -37,11 +37,11 @@ contrasts(dt3_1$Target)
 
 # 定义批量拟合方法
 make.model2 <- function(dt, aoi){
-  targetlevel <- c("high", "low")
-  AOI_ne <- c("b3_ne", "b3_pos", "b3_neg", "b3_thr")
-  AOI_pos <- c("b3_pos", "b3_ne", "b3_neg", "b3_thr")
-  AOI_neg <- c("b3_neg", "b3_ne", "b3_pos", "b3_thr")
-  AOI_thr <- c("b3_thr", "b3_ne", "b3_pos", "b3_neg")
+  targetlevel <- c("LTA", "HTA")
+  AOI_ne <- c("neutral", "threat",  "dysphoric", "positive")
+  AOI_pos <- c("positive", "neutral", "threat",  "dysphoric")
+  AOI_neg <- c("dysphoric","neutral", "threat", "positive")
+  AOI_thr <- c("threat",  "dysphoric", "positive", "neutral")
   
   dt$Target <- factor(dt$Target, levels = targetlevel)
   

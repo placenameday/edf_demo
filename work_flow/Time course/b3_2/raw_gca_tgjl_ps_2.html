@@ -393,21 +393,22 @@ make.model2 &lt;- function(dt){
   
 
   
-  model.3 &lt;- lmer(ps ~ (ot1+ot2)*Target + (1| participant_phone), data = dt)
-  model.4 &lt;- lmer(ps ~ (ot1+ot2+ot3)*Target + (1| participant_phone), data = dt)
+  
+  model.4 &lt;- lmer(ps ~ (ot1+ot2+ot3)*Target + (1| participant_phone) + (1|trial_id), data = dt)
+  
+  #model.5 &lt;- lmer(ps ~ (ot1+ot2+ot3+ot4)*Target + (ot1+ot2+ot3+ot4| participant_phone), data = dt)
 
-  s.3 &lt;- summary(model.3)
+  #s.5 &lt;- summary(model.5)
   
   s.4 &lt;- summary(model.4)
   
-  f &lt;- list(targetlevel, s.3, s.4)
+  f &lt;- list(targetlevel, s.4)
 }
 
 
 
 f3_1 &lt;- make.model2(dt3_1)
-f3_2 &lt;- make.model2(dt3_2)
-f3_3 &lt;- make.model2(dt3_3)
+
 
 print(&quot;Time 1&quot;)</code></pre>
 <pre><code>## [1] &quot;Time 1&quot;</code></pre>
@@ -418,68 +419,33 @@ print(&quot;Time 1&quot;)</code></pre>
 ## [[2]]
 ## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
 ## lmerModLmerTest]
-## Formula: ps ~ (ot1 + ot2) * Target + (1 | participant_phone)
+## Formula: ps ~ (ot1 + ot2 + ot3) * Target + (1 | participant_phone) + (1 |  
+##     trial_id)
 ##    Data: dt
 ## 
-## REML criterion at convergence: 984003.6
+## REML criterion at convergence: -125836.9
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -8.0286 -0.5516  0.0269  0.5704  5.4368 
+## -6.4815 -0.6175  0.0051  0.6144  5.0397 
 ## 
 ## Random effects:
-##  Groups            Name        Variance Std.Dev.
-##  participant_phone (Intercept)  6385     79.91  
-##  Residual                      67986    260.74  
-## Number of obs: 70440, groups:  participant_phone, 83
+##  Groups            Name        Variance  Std.Dev.
+##  participant_phone (Intercept) 9.186e-04 0.030308
+##  trial_id          (Intercept) 7.451e-05 0.008632
+##  Residual                      9.746e-03 0.098720
+## Number of obs: 70440, groups:  participant_phone, 83; trial_id, 12
 ## 
 ## Fixed effects:
-##               Estimate Std. Error       df t value Pr(&gt;|t|)    
-## (Intercept)     -30.00      12.15    81.51  -2.470 0.015597 *  
-## ot1             221.69      12.23 70353.81  18.121  &lt; 2e-16 ***
-## ot2            -115.90      12.24 70353.55  -9.472  &lt; 2e-16 ***
-## TargetLTA        22.06      17.70    81.22   1.246 0.216294    
-## ot1:TargetLTA   -58.91      17.59 70353.76  -3.349 0.000811 ***
-## ot2:TargetLTA   -76.75      17.60 70353.88  -4.362 1.29e-05 ***
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## Correlation of Fixed Effects:
-##             (Intr) ot1    ot2    TrgLTA o1:TLT
-## ot1          0.001                            
-## ot2          0.000  0.007                     
-## TargetLTA   -0.686  0.000  0.000              
-## ot1:TrgtLTA  0.000 -0.696 -0.005  0.001       
-## ot2:TrgtLTA  0.000 -0.005 -0.695  0.000  0.008
-## 
-## [[3]]
-## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
-## lmerModLmerTest]
-## Formula: ps ~ (ot1 + ot2 + ot3) * Target + (1 | participant_phone)
-##    Data: dt
-## 
-## REML criterion at convergence: 983626.7
-## 
-## Scaled residuals: 
-##     Min      1Q  Median      3Q     Max 
-## -8.1249 -0.5535  0.0309  0.5689  5.2656 
-## 
-## Random effects:
-##  Groups            Name        Variance Std.Dev.
-##  participant_phone (Intercept)  6389     79.93  
-##  Residual                      67638    260.07  
-## Number of obs: 70440, groups:  participant_phone, 83
-## 
-## Fixed effects:
-##               Estimate Std. Error       df t value Pr(&gt;|t|)    
-## (Intercept)     -29.99      12.15    81.50  -2.469 0.015654 *  
-## ot1             221.85      12.20 70351.80  18.180  &lt; 2e-16 ***
-## ot2            -114.80      12.20 70351.55  -9.407  &lt; 2e-16 ***
-## ot3             160.06      12.20 70351.45  13.122  &lt; 2e-16 ***
-## TargetLTA        22.11      17.71    81.22   1.249 0.215337    
-## ot1:TargetLTA   -58.80      17.54 70351.76  -3.352 0.000803 ***
-## ot2:TargetLTA   -76.57      17.55 70351.87  -4.363 1.28e-05 ***
-## ot3:TargetLTA    14.66      17.55 70351.57   0.836 0.403283    
+##                 Estimate Std. Error         df t value Pr(&gt;|t|)    
+## (Intercept)   -8.803e-03  5.238e-03  8.170e+01  -1.681  0.09663 .  
+## ot1            8.027e-02  4.632e-03  7.034e+04  17.330  &lt; 2e-16 ***
+## ot2           -4.811e-02  4.633e-03  7.034e+04 -10.385  &lt; 2e-16 ***
+## ot3            6.177e-02  4.630e-03  7.034e+04  13.342  &lt; 2e-16 ***
+## TargetLTA      9.493e-03  6.714e-03  8.097e+01   1.414  0.16122    
+## ot1:TargetLTA -1.974e-02  6.660e-03  7.034e+04  -2.965  0.00303 ** 
+## ot2:TargetLTA -3.429e-02  6.662e-03  7.034e+04  -5.147 2.65e-07 ***
+## ot3:TargetLTA  8.069e-03  6.660e-03  7.034e+04   1.212  0.22567    
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
@@ -488,176 +454,10 @@ print(&quot;Time 1&quot;)</code></pre>
 ## ot1          0.001                                          
 ## ot2          0.000  0.007                                   
 ## ot3          0.000  0.001  0.007                            
-## TargetLTA   -0.686  0.000  0.000  0.000                     
+## TargetLTA   -0.604  0.000  0.000  0.000                     
 ## ot1:TrgtLTA  0.000 -0.696 -0.005 -0.001  0.001              
 ## ot2:TrgtLTA  0.000 -0.005 -0.695 -0.005  0.000  0.008       
 ## ot3:TrgtLTA  0.000 -0.001 -0.005 -0.695  0.000  0.001  0.007</code></pre>
-<pre class="r"><code>print(&quot;Time 2&quot;)</code></pre>
-<pre><code>## [1] &quot;Time 2&quot;</code></pre>
-<pre class="r"><code>f3_2</code></pre>
-<pre><code>## [[1]]
-## [1] &quot;HTA&quot; &quot;LTA&quot;
-## 
-## [[2]]
-## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
-## lmerModLmerTest]
-## Formula: ps ~ (ot1 + ot2) * Target + (1 | participant_phone)
-##    Data: dt
-## 
-## REML criterion at convergence: 1248584
-## 
-## Scaled residuals: 
-##     Min      1Q  Median      3Q     Max 
-## -6.8267 -0.5706  0.0138  0.5738  5.0058 
-## 
-## Random effects:
-##  Groups            Name        Variance Std.Dev.
-##  participant_phone (Intercept)  6622     81.37  
-##  Residual                      83142    288.34  
-## Number of obs: 88116, groups:  participant_phone, 83
-## 
-## Fixed effects:
-##                Estimate Std. Error        df t value Pr(&gt;|t|)    
-## (Intercept)      12.355     12.363    81.032   0.999   0.3206    
-## ot1              61.466     13.699 88029.869   4.487 7.24e-06 ***
-## ot2              -8.156     13.702 88029.273  -0.595   0.5517    
-## TargetLTA         2.543     18.018    80.737   0.141   0.8881    
-## ot1:TargetLTA    -8.028     19.648 88029.545  -0.409   0.6828    
-## ot2:TargetLTA    34.027     19.632 88029.198   1.733   0.0831 .  
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## Correlation of Fixed Effects:
-##             (Intr) ot1    ot2    TrgLTA o1:TLT
-## ot1          0.001                            
-## ot2          0.000  0.008                     
-## TargetLTA   -0.686  0.000  0.000              
-## ot1:TrgtLTA  0.000 -0.697 -0.005  0.001       
-## ot2:TrgtLTA  0.000 -0.005 -0.698  0.000  0.006
-## 
-## [[3]]
-## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
-## lmerModLmerTest]
-## Formula: ps ~ (ot1 + ot2 + ot3) * Target + (1 | participant_phone)
-##    Data: dt
-## 
-## REML criterion at convergence: 1248566
-## 
-## Scaled residuals: 
-##     Min      1Q  Median      3Q     Max 
-## -6.8167 -0.5705  0.0142  0.5739  5.0015 
-## 
-## Random effects:
-##  Groups            Name        Variance Std.Dev.
-##  participant_phone (Intercept)  6620     81.37  
-##  Residual                      83140    288.34  
-## Number of obs: 88116, groups:  participant_phone, 83
-## 
-## Fixed effects:
-##                Estimate Std. Error        df t value Pr(&gt;|t|)    
-## (Intercept)      12.346     12.362    81.032   0.999   0.3209    
-## ot1              61.418     13.699 88027.869   4.483 7.36e-06 ***
-## ot2              -8.326     13.702 88027.274  -0.608   0.5434    
-## ot3             -26.017     13.687 88027.217  -1.901   0.0573 .  
-## TargetLTA         2.552     18.017    80.737   0.142   0.8877    
-## ot1:TargetLTA    -7.978     19.648 88027.545  -0.406   0.6847    
-## ot2:TargetLTA    34.185     19.632 88027.198   1.741   0.0816 .  
-## ot3:TargetLTA    20.293     19.632 88027.120   1.034   0.3013    
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## Correlation of Fixed Effects:
-##             (Intr) ot1    ot2    ot3    TrgLTA o1:TLT o2:TLT
-## ot1          0.001                                          
-## ot2          0.000  0.008                                   
-## ot3          0.000  0.002  0.007                            
-## TargetLTA   -0.686  0.000  0.000  0.000                     
-## ot1:TrgtLTA  0.000 -0.697 -0.005 -0.001  0.001              
-## ot2:TrgtLTA  0.000 -0.005 -0.698 -0.005  0.000  0.006       
-## ot3:TrgtLTA  0.000 -0.001 -0.005 -0.697  0.000  0.001  0.004</code></pre>
-<pre class="r"><code>print(&quot;Time 3&quot;)</code></pre>
-<pre><code>## [1] &quot;Time 3&quot;</code></pre>
-<pre class="r"><code>f3_3</code></pre>
-<pre><code>## [[1]]
-## [1] &quot;HTA&quot; &quot;LTA&quot;
-## 
-## [[2]]
-## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
-## lmerModLmerTest]
-## Formula: ps ~ (ot1 + ot2) * Target + (1 | participant_phone)
-##    Data: dt
-## 
-## REML criterion at convergence: 1472908
-## 
-## Scaled residuals: 
-##     Min      1Q  Median      3Q     Max 
-## -6.9720 -0.5455  0.0070  0.5557  5.6122 
-## 
-## Random effects:
-##  Groups            Name        Variance Std.Dev.
-##  participant_phone (Intercept)  6412     80.07  
-##  Residual                      95889    309.66  
-## Number of obs: 102915, groups:  participant_phone, 83
-## 
-## Fixed effects:
-##                 Estimate Std. Error         df t value Pr(&gt;|t|)    
-## (Intercept)       38.239     12.167     80.216   3.143  0.00235 ** 
-## ot1              151.083     14.730 102828.415  10.256  &lt; 2e-16 ***
-## ot2               -3.879     14.762 102828.500  -0.263  0.79272    
-## TargetLTA          0.898     17.733     79.931   0.051  0.95974    
-## ot1:TargetLTA   -100.102     21.152 102828.017  -4.732 2.22e-06 ***
-## ot2:TargetLTA      6.880     21.174 102827.826   0.325  0.74524    
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## Correlation of Fixed Effects:
-##             (Intr) ot1    ot2    TrgLTA o1:TLT
-## ot1          0.000                            
-## ot2          0.000 -0.002                     
-## TargetLTA   -0.686  0.000  0.000              
-## ot1:TrgtLTA  0.000 -0.696  0.001  0.000       
-## ot2:TrgtLTA  0.000  0.001 -0.697  0.000  0.000
-## 
-## [[3]]
-## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
-## lmerModLmerTest]
-## Formula: ps ~ (ot1 + ot2 + ot3) * Target + (1 | participant_phone)
-##    Data: dt
-## 
-## REML criterion at convergence: 1472894
-## 
-## Scaled residuals: 
-##     Min      1Q  Median      3Q     Max 
-## -6.9718 -0.5459  0.0072  0.5556  5.6123 
-## 
-## Random effects:
-##  Groups            Name        Variance Std.Dev.
-##  participant_phone (Intercept)  6412     80.07  
-##  Residual                      95891    309.66  
-## Number of obs: 102915, groups:  participant_phone, 83
-## 
-## Fixed effects:
-##                 Estimate Std. Error         df t value Pr(&gt;|t|)    
-## (Intercept)    3.824e+01  1.217e+01  8.022e+01   3.143  0.00235 ** 
-## ot1            1.511e+02  1.473e+01  1.028e+05  10.257  &lt; 2e-16 ***
-## ot2           -3.878e+00  1.476e+01  1.028e+05  -0.263  0.79280    
-## ot3            1.682e+00  1.475e+01  1.028e+05   0.114  0.90922    
-## TargetLTA      8.984e-01  1.773e+01  7.993e+01   0.051  0.95972    
-## ot1:TargetLTA -1.001e+02  2.115e+01  1.028e+05  -4.733 2.22e-06 ***
-## ot2:TargetLTA  6.869e+00  2.117e+01  1.028e+05   0.324  0.74562    
-## ot3:TargetLTA -5.217e+00  2.117e+01  1.028e+05  -0.246  0.80532    
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## Correlation of Fixed Effects:
-##             (Intr) ot1    ot2    ot3    TrgLTA o1:TLT o2:TLT
-## ot1          0.000                                          
-## ot2          0.000 -0.002                                   
-## ot3          0.000  0.003  0.001                            
-## TargetLTA   -0.686  0.000  0.000  0.000                     
-## ot1:TrgtLTA  0.000 -0.696  0.001 -0.002  0.000              
-## ot2:TrgtLTA  0.000  0.001 -0.697 -0.001  0.000  0.000       
-## ot3:TrgtLTA  0.000 -0.002 -0.001 -0.697  0.000  0.001  0.002</code></pre>
 </div>
 
 

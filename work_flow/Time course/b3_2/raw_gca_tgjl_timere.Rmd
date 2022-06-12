@@ -23,7 +23,15 @@ library(rstatix)
 
 ### 读取数据
 ```{r, message=FALSE, warning=FALSE}
-dt <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/raw_time_b3_tgjl.gz")
+dt <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/raw_time_b3_tgjl.gz") %>%
+  filter(Target!="mid") %>%
+  mutate(Target=case_when(Target=="high"~"HTA",
+                          Target=="low"~"LTA"),
+         AOI=case_when(AOI=="b3_ne"~"neutral",
+                       AOI=="b3_neg"~"dysphoric",
+                       AOI=="b3_pos"~"positive",
+                       AOI=="b3_thr"~"threat"))
+
 
 
 ```

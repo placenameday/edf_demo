@@ -45,30 +45,27 @@ make.model2 <- function(dt){
   
 
   
-  model.3 <- lmer(ps ~ (ot1+ot2)*Target + (1| participant_phone), data = dt)
-  model.4 <- lmer(ps ~ (ot1+ot2+ot3)*Target + (1| participant_phone), data = dt)
+  
+  model.4 <- lmer(ps ~ (ot1+ot2+ot3)*Target + (1| participant_phone) + (1|trial_id), data = dt)
+  
+  #model.5 <- lmer(ps ~ (ot1+ot2+ot3+ot4)*Target + (ot1+ot2+ot3+ot4| participant_phone), data = dt)
 
-  s.3 <- summary(model.3)
+  #s.5 <- summary(model.5)
   
   s.4 <- summary(model.4)
   
-  f <- list(targetlevel, s.3, s.4)
+  f <- list(targetlevel, s.4)
 }
 
 
 
 f3_1 <- make.model2(dt3_1)
-f3_2 <- make.model2(dt3_2)
-f3_3 <- make.model2(dt3_3)
+
 
 print("Time 1")
 f3_1
 
-print("Time 2")
-f3_2
 
-print("Time 3")
-f3_3
 ```
 
 
