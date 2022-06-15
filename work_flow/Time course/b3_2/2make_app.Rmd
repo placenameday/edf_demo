@@ -1,0 +1,43 @@
+---
+title: "附件信息生成"
+author: "Chen Xing"
+date: '2022-06-6'
+output: html_document
+---
+
+## 摘要
+生成所需附件信息
+
+### 必要的包
+```{r, message=FALSE, warning=FALSE, results='hide', echo=FALSE}
+library(tidyverse)
+library(readxl)
+```
+
+
+### iaps刺激物信息
+```{r, message=FALSE, warning=FALSE}
+sti_list <- read_excel("/Users/placenameday/Research/PhD/eyetracking_phd/Stim/exp/图片素材/task3/iaps cato/list1.xlsx")
+
+all_list <- read_delim("/Users/placenameday/Research/Emotion Data (Raw)/IAPS 2008 1-20/IAPS Tech Report/AllSubjects_1-20.txt", skip = 6)
+
+ns <- sti_list %>% mutate(IAPS=as.numeric(str_sub(pic, start = 0L, end = 4L))) %>% select(IAPS)
+
+nall <- all_list %>% select(1:6) %>%
+  mutate(IAPS=round(IAPS,0)) %>% distinct(IAPS, .keep_all = TRUE)
+
+stim <- right_join(nall, ns)
+
+# 输出图片刺激信息列表
+#write_csv(stim, "/Users/placenameday/Documents/Work/科研/pp/trait mindfulness emotional sti/app/stimuli_list.csv")
+
+```
+
+
+### 混合线性模型100ms对比结果
+```{r, message=FALSE, warning=FALSE}
+pwc <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/b3_timec_pwc_tgjl_a.csv") %>% select(1:8)
+
+# 输出批量对比信息
+write_csv(pwc, "/Users/placenameday/Documents/Work/科研/pp/trait anxiety emotional sti/Sup./DCPC_list.csv")
+```

@@ -418,12 +418,14 @@ make.model2 &lt;- function(dt, aoi){
   
   model.3 &lt;- lmer(Elog ~ (ot1+ot2)*AOI*Target + (1| participant_phone), data = dt)
   model.4 &lt;- lmer(Elog ~ (ot1+ot2+ot3)*AOI*Target + (1| participant_phone), data = dt)
+  model.5 &lt;- lmer(Elog ~ (ot1+ot2+ot3+ot4)*AOI*Target + (1| participant_phone), data = dt)
 
   s.3 &lt;- summary(model.3)
   
   s.4 &lt;- summary(model.4)
+  s.5 &lt;- summary(model.5)
   
-  f &lt;- list(targetlevel, info, s.3, s.4)
+  f &lt;- list(targetlevel, info, s.3, s.4, s.5)
 }
 
 alist &lt;- c(&quot;ne&quot;, &quot;pos&quot;, &quot;neg&quot;, &quot;thr&quot;)
@@ -602,6 +604,111 @@ print(&quot;Time 1&quot;)</code></pre>
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
+## [[1]][[5]]
+## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
+## lmerModLmerTest]
+## Formula: 
+## Elog ~ (ot1 + ot2 + ot3 + ot4) * AOI * Target + (1 | participant_phone)
+##    Data: dt
+## 
+## REML criterion at convergence: 1616289
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -1.0393 -0.6607 -0.5674  0.6233  2.2667 
+## 
+## Random effects:
+##  Groups            Name        Variance  Std.Dev.
+##  participant_phone (Intercept)  0.002756 0.0525  
+##  Residual                      14.437805 3.7997  
+## Number of obs: 293440, groups:  participant_phone, 86
+## 
+## Fixed effects:
+##                              Estimate Std. Error         df  t value Pr(&gt;|t|)
+## (Intercept)                -2.749e+00  2.186e-02  5.351e+02 -125.791  &lt; 2e-16
+## ot1                         1.973e+00  1.805e-01  2.933e+05   10.927  &lt; 2e-16
+## ot2                         6.820e-01  1.805e-01  2.933e+05    3.778 0.000158
+## ot3                        -1.236e+00  1.805e-01  2.933e+05   -6.848 7.51e-12
+## ot4                         1.752e-01  1.805e-01  2.933e+05    0.970 0.331939
+## AOIthreat                   6.976e-01  2.854e-02  2.933e+05   24.438  &lt; 2e-16
+## AOIdysphoric                7.247e-01  2.854e-02  2.933e+05   25.389  &lt; 2e-16
+## AOIpositive                 6.603e-01  2.854e-02  2.933e+05   23.131  &lt; 2e-16
+## TargetHTA                   1.382e-01  3.038e-02  5.476e+02    4.548 6.66e-06
+## ot1:AOIthreat              -6.231e+00  2.553e-01  2.933e+05  -24.407  &lt; 2e-16
+## ot1:AOIdysphoric           -3.915e-01  2.553e-01  2.933e+05   -1.533 0.125187
+## ot1:AOIpositive            -4.687e-01  2.553e-01  2.933e+05   -1.836 0.066402
+## ot2:AOIthreat              -1.827e+00  2.553e-01  2.933e+05   -7.157 8.27e-13
+## ot2:AOIdysphoric           -1.167e+00  2.553e-01  2.933e+05   -4.569 4.90e-06
+## ot2:AOIpositive             4.398e-01  2.553e-01  2.933e+05    1.723 0.084930
+## ot3:AOIthreat               3.791e+00  2.553e-01  2.933e+05   14.847  &lt; 2e-16
+## ot3:AOIdysphoric            5.151e-01  2.553e-01  2.933e+05    2.017 0.043653
+## ot3:AOIpositive             5.454e-01  2.553e-01  2.933e+05    2.136 0.032666
+## ot4:AOIthreat              -9.322e-01  2.553e-01  2.933e+05   -3.651 0.000261
+## ot4:AOIdysphoric            6.052e-01  2.553e-01  2.933e+05    2.370 0.017765
+## ot4:AOIpositive            -2.052e-01  2.553e-01  2.933e+05   -0.804 0.421583
+## ot1:TargetHTA              -8.680e-02  2.511e-01  2.933e+05   -0.346 0.729593
+## ot2:TargetHTA               2.293e-01  2.511e-01  2.933e+05    0.913 0.361240
+## ot3:TargetHTA               2.717e-01  2.511e-01  2.933e+05    1.082 0.279265
+## ot4:TargetHTA               7.513e-04  2.511e-01  2.933e+05    0.003 0.997613
+## AOIthreat:TargetHTA        -1.882e-01  3.970e-02  2.933e+05   -4.741 2.13e-06
+## AOIdysphoric:TargetHTA     -2.247e-01  3.970e-02  2.933e+05   -5.659 1.52e-08
+## AOIpositive:TargetHTA      -6.215e-02  3.970e-02  2.933e+05   -1.565 0.117469
+## ot1:AOIthreat:TargetHTA     1.545e+00  3.551e-01  2.933e+05    4.350 1.36e-05
+## ot1:AOIdysphoric:TargetHTA -1.663e+00  3.551e-01  2.933e+05   -4.682 2.84e-06
+## ot1:AOIpositive:TargetHTA   2.304e-01  3.551e-01  2.933e+05    0.649 0.516539
+## ot2:AOIthreat:TargetHTA     8.117e-01  3.551e-01  2.933e+05    2.286 0.022271
+## ot2:AOIdysphoric:TargetHTA -3.827e-01  3.551e-01  2.933e+05   -1.078 0.281198
+## ot2:AOIpositive:TargetHTA  -1.227e+00  3.551e-01  2.933e+05   -3.455 0.000549
+## ot3:AOIthreat:TargetHTA    -1.296e+00  3.551e-01  2.933e+05   -3.649 0.000263
+## ot3:AOIdysphoric:TargetHTA  4.406e-01  3.551e-01  2.933e+05    1.241 0.214692
+## ot3:AOIpositive:TargetHTA  -3.376e-01  3.551e-01  2.933e+05   -0.951 0.341686
+## ot4:AOIthreat:TargetHTA    -6.171e-01  3.551e-01  2.933e+05   -1.738 0.082245
+## ot4:AOIdysphoric:TargetHTA -3.234e-01  3.551e-01  2.933e+05   -0.911 0.362441
+## ot4:AOIpositive:TargetHTA   1.107e+00  3.551e-01  2.933e+05    3.119 0.001816
+##                               
+## (Intercept)                ***
+## ot1                        ***
+## ot2                        ***
+## ot3                        ***
+## ot4                           
+## AOIthreat                  ***
+## AOIdysphoric               ***
+## AOIpositive                ***
+## TargetHTA                  ***
+## ot1:AOIthreat              ***
+## ot1:AOIdysphoric              
+## ot1:AOIpositive            .  
+## ot2:AOIthreat              ***
+## ot2:AOIdysphoric           ***
+## ot2:AOIpositive            .  
+## ot3:AOIthreat              ***
+## ot3:AOIdysphoric           *  
+## ot3:AOIpositive            *  
+## ot4:AOIthreat              ***
+## ot4:AOIdysphoric           *  
+## ot4:AOIpositive               
+## ot1:TargetHTA                 
+## ot2:TargetHTA                 
+## ot3:TargetHTA                 
+## ot4:TargetHTA                 
+## AOIthreat:TargetHTA        ***
+## AOIdysphoric:TargetHTA     ***
+## AOIpositive:TargetHTA         
+## ot1:AOIthreat:TargetHTA    ***
+## ot1:AOIdysphoric:TargetHTA ***
+## ot1:AOIpositive:TargetHTA     
+## ot2:AOIthreat:TargetHTA    *  
+## ot2:AOIdysphoric:TargetHTA    
+## ot2:AOIpositive:TargetHTA  ***
+## ot3:AOIthreat:TargetHTA    ***
+## ot3:AOIdysphoric:TargetHTA    
+## ot3:AOIpositive:TargetHTA     
+## ot4:AOIthreat:TargetHTA    .  
+## ot4:AOIdysphoric:TargetHTA    
+## ot4:AOIpositive:TargetHTA  ** 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
 ## 
 ## [[2]]
 ## [[2]][[1]]
@@ -770,6 +877,111 @@ print(&quot;Time 1&quot;)</code></pre>
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
+## [[2]][[5]]
+## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
+## lmerModLmerTest]
+## Formula: 
+## Elog ~ (ot1 + ot2 + ot3 + ot4) * AOI * Target + (1 | participant_phone)
+##    Data: dt
+## 
+## REML criterion at convergence: 1616289
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -1.0393 -0.6607 -0.5674  0.6233  2.2667 
+## 
+## Random effects:
+##  Groups            Name        Variance  Std.Dev.
+##  participant_phone (Intercept)  0.002756 0.0525  
+##  Residual                      14.437805 3.7997  
+## Number of obs: 293440, groups:  participant_phone, 86
+## 
+## Fixed effects:
+##                              Estimate Std. Error         df t value Pr(&gt;|t|)
+## (Intercept)                -2.089e+00  2.186e-02  5.351e+02 -95.581  &lt; 2e-16
+## ot1                         1.504e+00  1.805e-01  2.933e+05   8.331  &lt; 2e-16
+## ot2                         1.122e+00  1.805e-01  2.933e+05   6.214 5.17e-10
+## ot3                        -6.909e-01  1.805e-01  2.933e+05  -3.827 0.000130
+## ot4                        -3.003e-02  1.805e-01  2.933e+05  -0.166 0.867875
+## AOIneutral                 -6.603e-01  2.854e-02  2.933e+05 -23.131  &lt; 2e-16
+## AOIthreat                   3.731e-02  2.854e-02  2.933e+05   1.307 0.191194
+## AOIdysphoric                6.447e-02  2.854e-02  2.933e+05   2.258 0.023918
+## TargetHTA                   7.602e-02  3.038e-02  5.476e+02   2.502 0.012625
+## ot1:AOIneutral              4.687e-01  2.553e-01  2.933e+05   1.836 0.066402
+## ot1:AOIthreat              -5.763e+00  2.553e-01  2.933e+05 -22.571  &lt; 2e-16
+## ot1:AOIdysphoric            7.719e-02  2.553e-01  2.933e+05   0.302 0.762389
+## ot2:AOIneutral             -4.398e-01  2.553e-01  2.933e+05  -1.723 0.084930
+## ot2:AOIthreat              -2.267e+00  2.553e-01  2.933e+05  -8.880  &lt; 2e-16
+## ot2:AOIdysphoric           -1.606e+00  2.553e-01  2.933e+05  -6.292 3.14e-10
+## ot3:AOIneutral             -5.454e-01  2.553e-01  2.933e+05  -2.136 0.032666
+## ot3:AOIthreat               3.245e+00  2.553e-01  2.933e+05  12.711  &lt; 2e-16
+## ot3:AOIdysphoric           -3.032e-02  2.553e-01  2.933e+05  -0.119 0.905469
+## ot4:AOIneutral              2.052e-01  2.553e-01  2.933e+05   0.804 0.421583
+## ot4:AOIthreat              -7.270e-01  2.553e-01  2.933e+05  -2.847 0.004407
+## ot4:AOIdysphoric            8.104e-01  2.553e-01  2.933e+05   3.174 0.001503
+## ot1:TargetHTA               1.436e-01  2.511e-01  2.933e+05   0.572 0.567512
+## ot2:TargetHTA              -9.978e-01  2.511e-01  2.933e+05  -3.974 7.08e-05
+## ot3:TargetHTA              -6.597e-02  2.511e-01  2.933e+05  -0.263 0.792769
+## ot4:TargetHTA               1.108e+00  2.511e-01  2.933e+05   4.414 1.02e-05
+## AOIneutral:TargetHTA        6.215e-02  3.970e-02  2.933e+05   1.565 0.117469
+## AOIthreat:TargetHTA        -1.261e-01  3.970e-02  2.933e+05  -3.175 0.001498
+## AOIdysphoric:TargetHTA     -1.625e-01  3.970e-02  2.933e+05  -4.094 4.25e-05
+## ot1:AOIneutral:TargetHTA   -2.303e-01  3.551e-01  2.933e+05  -0.649 0.516539
+## ot1:AOIthreat:TargetHTA     1.314e+00  3.551e-01  2.933e+05   3.701 0.000215
+## ot1:AOIdysphoric:TargetHTA -1.893e+00  3.551e-01  2.933e+05  -5.331 9.80e-08
+## ot2:AOIneutral:TargetHTA    1.227e+00  3.551e-01  2.933e+05   3.455 0.000549
+## ot2:AOIthreat:TargetHTA     2.039e+00  3.551e-01  2.933e+05   5.741 9.41e-09
+## ot2:AOIdysphoric:TargetHTA  8.444e-01  3.551e-01  2.933e+05   2.378 0.017415
+## ot3:AOIneutral:TargetHTA    3.377e-01  3.551e-01  2.933e+05   0.951 0.341686
+## ot3:AOIthreat:TargetHTA    -9.581e-01  3.551e-01  2.933e+05  -2.698 0.006974
+## ot3:AOIdysphoric:TargetHTA  7.783e-01  3.551e-01  2.933e+05   2.192 0.028409
+## ot4:AOIneutral:TargetHTA   -1.107e+00  3.551e-01  2.933e+05  -3.119 0.001816
+## ot4:AOIthreat:TargetHTA    -1.725e+00  3.551e-01  2.933e+05  -4.857 1.19e-06
+## ot4:AOIdysphoric:TargetHTA -1.431e+00  3.551e-01  2.933e+05  -4.029 5.59e-05
+##                               
+## (Intercept)                ***
+## ot1                        ***
+## ot2                        ***
+## ot3                        ***
+## ot4                           
+## AOIneutral                 ***
+## AOIthreat                     
+## AOIdysphoric               *  
+## TargetHTA                  *  
+## ot1:AOIneutral             .  
+## ot1:AOIthreat              ***
+## ot1:AOIdysphoric              
+## ot2:AOIneutral             .  
+## ot2:AOIthreat              ***
+## ot2:AOIdysphoric           ***
+## ot3:AOIneutral             *  
+## ot3:AOIthreat              ***
+## ot3:AOIdysphoric              
+## ot4:AOIneutral                
+## ot4:AOIthreat              ** 
+## ot4:AOIdysphoric           ** 
+## ot1:TargetHTA                 
+## ot2:TargetHTA              ***
+## ot3:TargetHTA                 
+## ot4:TargetHTA              ***
+## AOIneutral:TargetHTA          
+## AOIthreat:TargetHTA        ** 
+## AOIdysphoric:TargetHTA     ***
+## ot1:AOIneutral:TargetHTA      
+## ot1:AOIthreat:TargetHTA    ***
+## ot1:AOIdysphoric:TargetHTA ***
+## ot2:AOIneutral:TargetHTA   ***
+## ot2:AOIthreat:TargetHTA    ***
+## ot2:AOIdysphoric:TargetHTA *  
+## ot3:AOIneutral:TargetHTA      
+## ot3:AOIthreat:TargetHTA    ** 
+## ot3:AOIdysphoric:TargetHTA *  
+## ot4:AOIneutral:TargetHTA   ** 
+## ot4:AOIthreat:TargetHTA    ***
+## ot4:AOIdysphoric:TargetHTA ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
 ## 
 ## [[3]]
 ## [[3]][[1]]
@@ -877,6 +1089,70 @@ print(&quot;Time 1&quot;)</code></pre>
 ## ot3:AOIneutral:TargetHTA  -4.406e-01  3.552e-01  2.933e+05  -1.240 0.214800    
 ## ot3:AOIthreat:TargetHTA   -1.736e+00  3.552e-01  2.933e+05  -4.889 1.02e-06 ***
 ## ot3:AOIpositive:TargetHTA -7.783e-01  3.552e-01  2.933e+05  -2.191 0.028446 *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## [[3]][[5]]
+## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
+## lmerModLmerTest]
+## Formula: 
+## Elog ~ (ot1 + ot2 + ot3 + ot4) * AOI * Target + (1 | participant_phone)
+##    Data: dt
+## 
+## REML criterion at convergence: 1616289
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -1.0393 -0.6607 -0.5674  0.6233  2.2667 
+## 
+## Random effects:
+##  Groups            Name        Variance  Std.Dev.
+##  participant_phone (Intercept)  0.002756 0.0525  
+##  Residual                      14.437805 3.7997  
+## Number of obs: 293440, groups:  participant_phone, 86
+## 
+## Fixed effects:
+##                             Estimate Std. Error         df t value Pr(&gt;|t|)    
+## (Intercept)               -2.025e+00  2.186e-02  5.351e+02 -92.632  &lt; 2e-16 ***
+## ot1                        1.581e+00  1.805e-01  2.933e+05   8.758  &lt; 2e-16 ***
+## ot2                       -4.846e-01  1.805e-01  2.933e+05  -2.684  0.00727 ** 
+## ot3                       -7.212e-01  1.805e-01  2.933e+05  -3.995 6.47e-05 ***
+## ot4                        7.804e-01  1.805e-01  2.933e+05   4.323 1.54e-05 ***
+## AOIneutral                -7.247e-01  2.854e-02  2.933e+05 -25.389  &lt; 2e-16 ***
+## AOIthreat                 -2.716e-02  2.854e-02  2.933e+05  -0.951  0.34140    
+## AOIpositive               -6.447e-02  2.854e-02  2.933e+05  -2.258  0.02392 *  
+## TargetHTA                 -8.651e-02  3.038e-02  5.476e+02  -2.848  0.00457 ** 
+## ot1:AOIneutral             3.915e-01  2.553e-01  2.933e+05   1.533  0.12519    
+## ot1:AOIthreat             -5.840e+00  2.553e-01  2.933e+05 -22.873  &lt; 2e-16 ***
+## ot1:AOIpositive           -7.719e-02  2.553e-01  2.933e+05  -0.302  0.76239    
+## ot2:AOIneutral             1.167e+00  2.553e-01  2.933e+05   4.569 4.90e-06 ***
+## ot2:AOIthreat             -6.606e-01  2.553e-01  2.933e+05  -2.588  0.00966 ** 
+## ot2:AOIpositive            1.606e+00  2.553e-01  2.933e+05   6.292 3.14e-10 ***
+## ot3:AOIneutral            -5.151e-01  2.553e-01  2.933e+05  -2.017  0.04365 *  
+## ot3:AOIthreat              3.276e+00  2.553e-01  2.933e+05  12.830  &lt; 2e-16 ***
+## ot3:AOIpositive            3.032e-02  2.553e-01  2.933e+05   0.119  0.90547    
+## ot4:AOIneutral            -6.052e-01  2.553e-01  2.933e+05  -2.370  0.01777 *  
+## ot4:AOIthreat             -1.537e+00  2.553e-01  2.933e+05  -6.022 1.73e-09 ***
+## ot4:AOIpositive           -8.104e-01  2.553e-01  2.933e+05  -3.174  0.00150 ** 
+## ot1:TargetHTA             -1.749e+00  2.511e-01  2.933e+05  -6.967 3.25e-12 ***
+## ot2:TargetHTA             -1.534e-01  2.511e-01  2.933e+05  -0.611  0.54120    
+## ot3:TargetHTA              7.123e-01  2.511e-01  2.933e+05   2.837  0.00456 ** 
+## ot4:TargetHTA             -3.226e-01  2.511e-01  2.933e+05  -1.285  0.19880    
+## AOIneutral:TargetHTA       2.247e-01  3.970e-02  2.933e+05   5.659 1.52e-08 ***
+## AOIthreat:TargetHTA        3.648e-02  3.970e-02  2.933e+05   0.919  0.35823    
+## AOIpositive:TargetHTA      1.625e-01  3.970e-02  2.933e+05   4.094 4.25e-05 ***
+## ot1:AOIneutral:TargetHTA   1.663e+00  3.551e-01  2.933e+05   4.682 2.84e-06 ***
+## ot1:AOIthreat:TargetHTA    3.207e+00  3.551e-01  2.933e+05   9.032  &lt; 2e-16 ***
+## ot1:AOIpositive:TargetHTA  1.893e+00  3.551e-01  2.933e+05   5.331 9.80e-08 ***
+## ot2:AOIneutral:TargetHTA   3.827e-01  3.551e-01  2.933e+05   1.078  0.28120    
+## ot2:AOIthreat:TargetHTA    1.194e+00  3.551e-01  2.933e+05   3.363  0.00077 ***
+## ot2:AOIpositive:TargetHTA -8.444e-01  3.551e-01  2.933e+05  -2.378  0.01742 *  
+## ot3:AOIneutral:TargetHTA  -4.406e-01  3.551e-01  2.933e+05  -1.241  0.21469    
+## ot3:AOIthreat:TargetHTA   -1.736e+00  3.551e-01  2.933e+05  -4.890 1.01e-06 ***
+## ot3:AOIpositive:TargetHTA -7.783e-01  3.551e-01  2.933e+05  -2.192  0.02841 *  
+## ot4:AOIneutral:TargetHTA   3.234e-01  3.551e-01  2.933e+05   0.911  0.36244    
+## ot4:AOIthreat:TargetHTA   -2.937e-01  3.551e-01  2.933e+05  -0.827  0.40819    
+## ot4:AOIpositive:TargetHTA  1.431e+00  3.551e-01  2.933e+05   4.029 5.59e-05 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
@@ -1046,6 +1322,111 @@ print(&quot;Time 1&quot;)</code></pre>
 ## ot3:AOIpositive:TargetHTA  ** 
 ## ot3:AOIneutral:TargetHTA   ***
 ## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## [[4]][[5]]
+## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
+## lmerModLmerTest]
+## Formula: 
+## Elog ~ (ot1 + ot2 + ot3 + ot4) * AOI * Target + (1 | participant_phone)
+##    Data: dt
+## 
+## REML criterion at convergence: 1616289
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -1.0393 -0.6607 -0.5674  0.6233  2.2667 
+## 
+## Random effects:
+##  Groups            Name        Variance  Std.Dev.
+##  participant_phone (Intercept)  0.002756 0.0525  
+##  Residual                      14.437805 3.7997  
+## Number of obs: 293440, groups:  participant_phone, 86
+## 
+## Fixed effects:
+##                              Estimate Std. Error         df t value Pr(&gt;|t|)
+## (Intercept)                -2.052e+00  2.186e-02  5.351e+02 -93.874  &lt; 2e-16
+## ot1                        -4.259e+00  1.805e-01  2.933e+05 -23.589  &lt; 2e-16
+## ot2                        -1.145e+00  1.805e-01  2.933e+05  -6.344 2.24e-10
+## ot3                         2.554e+00  1.805e-01  2.933e+05  14.149  &lt; 2e-16
+## ot4                        -7.570e-01  1.805e-01  2.933e+05  -4.193 2.75e-05
+## AOIdysphoric                2.716e-02  2.854e-02  2.933e+05   0.951 0.341402
+## AOIpositive                -3.731e-02  2.854e-02  2.933e+05  -1.307 0.191194
+## AOIneutral                 -6.976e-01  2.854e-02  2.933e+05 -24.438  &lt; 2e-16
+## TargetHTA                  -5.004e-02  3.038e-02  5.476e+02  -1.647 0.100097
+## ot1:AOIdysphoric            5.840e+00  2.553e-01  2.933e+05  22.873  &lt; 2e-16
+## ot1:AOIpositive             5.763e+00  2.553e-01  2.933e+05  22.571  &lt; 2e-16
+## ot1:AOIneutral              6.231e+00  2.553e-01  2.933e+05  24.407  &lt; 2e-16
+## ot2:AOIdysphoric            6.606e-01  2.553e-01  2.933e+05   2.588 0.009664
+## ot2:AOIpositive             2.267e+00  2.553e-01  2.933e+05   8.880  &lt; 2e-16
+## ot2:AOIneutral              1.827e+00  2.553e-01  2.933e+05   7.157 8.27e-13
+## ot3:AOIdysphoric           -3.276e+00  2.553e-01  2.933e+05 -12.830  &lt; 2e-16
+## ot3:AOIpositive            -3.245e+00  2.553e-01  2.933e+05 -12.711  &lt; 2e-16
+## ot3:AOIneutral             -3.791e+00  2.553e-01  2.933e+05 -14.847  &lt; 2e-16
+## ot4:AOIdysphoric            1.537e+00  2.553e-01  2.933e+05   6.022 1.73e-09
+## ot4:AOIpositive             7.270e-01  2.553e-01  2.933e+05   2.847 0.004407
+## ot4:AOIneutral              9.322e-01  2.553e-01  2.933e+05   3.651 0.000261
+## ot1:TargetHTA               1.458e+00  2.511e-01  2.933e+05   5.806 6.40e-09
+## ot2:TargetHTA               1.041e+00  2.511e-01  2.933e+05   4.146 3.39e-05
+## ot3:TargetHTA              -1.024e+00  2.511e-01  2.933e+05  -4.078 4.54e-05
+## ot4:TargetHTA              -6.164e-01  2.511e-01  2.933e+05  -2.455 0.014103
+## AOIdysphoric:TargetHTA     -3.648e-02  3.970e-02  2.933e+05  -0.919 0.358233
+## AOIpositive:TargetHTA       1.261e-01  3.970e-02  2.933e+05   3.175 0.001498
+## AOIneutral:TargetHTA        1.882e-01  3.970e-02  2.933e+05   4.741 2.13e-06
+## ot1:AOIdysphoric:TargetHTA -3.207e+00  3.551e-01  2.933e+05  -9.032  &lt; 2e-16
+## ot1:AOIpositive:TargetHTA  -1.314e+00  3.551e-01  2.933e+05  -3.701 0.000215
+## ot1:AOIneutral:TargetHTA   -1.545e+00  3.551e-01  2.933e+05  -4.350 1.36e-05
+## ot2:AOIdysphoric:TargetHTA -1.194e+00  3.551e-01  2.933e+05  -3.363 0.000770
+## ot2:AOIpositive:TargetHTA  -2.039e+00  3.551e-01  2.933e+05  -5.741 9.41e-09
+## ot2:AOIneutral:TargetHTA   -8.117e-01  3.551e-01  2.933e+05  -2.286 0.022271
+## ot3:AOIdysphoric:TargetHTA  1.736e+00  3.551e-01  2.933e+05   4.890 1.01e-06
+## ot3:AOIpositive:TargetHTA   9.581e-01  3.551e-01  2.933e+05   2.698 0.006974
+## ot3:AOIneutral:TargetHTA    1.296e+00  3.551e-01  2.933e+05   3.649 0.000263
+## ot4:AOIdysphoric:TargetHTA  2.937e-01  3.551e-01  2.933e+05   0.827 0.408189
+## ot4:AOIpositive:TargetHTA   1.725e+00  3.551e-01  2.933e+05   4.857 1.19e-06
+## ot4:AOIneutral:TargetHTA    6.171e-01  3.551e-01  2.933e+05   1.738 0.082245
+##                               
+## (Intercept)                ***
+## ot1                        ***
+## ot2                        ***
+## ot3                        ***
+## ot4                        ***
+## AOIdysphoric                  
+## AOIpositive                   
+## AOIneutral                 ***
+## TargetHTA                     
+## ot1:AOIdysphoric           ***
+## ot1:AOIpositive            ***
+## ot1:AOIneutral             ***
+## ot2:AOIdysphoric           ** 
+## ot2:AOIpositive            ***
+## ot2:AOIneutral             ***
+## ot3:AOIdysphoric           ***
+## ot3:AOIpositive            ***
+## ot3:AOIneutral             ***
+## ot4:AOIdysphoric           ***
+## ot4:AOIpositive            ** 
+## ot4:AOIneutral             ***
+## ot1:TargetHTA              ***
+## ot2:TargetHTA              ***
+## ot3:TargetHTA              ***
+## ot4:TargetHTA              *  
+## AOIdysphoric:TargetHTA        
+## AOIpositive:TargetHTA      ** 
+## AOIneutral:TargetHTA       ***
+## ot1:AOIdysphoric:TargetHTA ***
+## ot1:AOIpositive:TargetHTA  ***
+## ot1:AOIneutral:TargetHTA   ***
+## ot2:AOIdysphoric:TargetHTA ***
+## ot2:AOIpositive:TargetHTA  ***
+## ot2:AOIneutral:TargetHTA   *  
+## ot3:AOIdysphoric:TargetHTA ***
+## ot3:AOIpositive:TargetHTA  ** 
+## ot3:AOIneutral:TargetHTA   ***
+## ot4:AOIdysphoric:TargetHTA    
+## ot4:AOIpositive:TargetHTA  ***
+## ot4:AOIneutral:TargetHTA   .  
+## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <pre class="r"><code>print(&quot;Time 2&quot;)</code></pre>
 <pre><code>## [1] &quot;Time 2&quot;</code></pre>
@@ -1063,48 +1444,48 @@ print(&quot;Time 1&quot;)</code></pre>
 ## Formula: Elog ~ (ot1 + ot2) * AOI * Target + (1 | participant_phone)
 ##    Data: dt
 ## 
-## REML criterion at convergence: 2062164
+## REML criterion at convergence: 2001550
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -0.8862 -0.6595 -0.5616  0.6299  2.1462 
+## -0.8960 -0.6596 -0.5617  0.6305  2.1398 
 ## 
 ## Random effects:
 ##  Groups            Name        Variance  Std.Dev.
-##  participant_phone (Intercept)  0.007142 0.08451 
-##  Residual                      14.491128 3.80672 
-## Number of obs: 374136, groups:  participant_phone, 86
+##  participant_phone (Intercept)  0.006994 0.08363 
+##  Residual                      14.492582 3.80691 
+## Number of obs: 363132, groups:  participant_phone, 86
 ## 
 ## Fixed effects:
 ##                              Estimate Std. Error         df  t value Pr(&gt;|t|)
-## (Intercept)                -2.392e+00  2.239e-02  2.762e+02 -106.814  &lt; 2e-16
-## ot1                        -4.054e-02  1.809e-01  3.740e+05   -0.224 0.822643
-## ot2                         3.048e-01  1.809e-01  3.740e+05    1.685 0.091899
-## AOIthreat                  -1.149e-01  2.533e-02  3.740e+05   -4.538 5.69e-06
-## AOIdysphoric                3.350e-01  2.533e-02  3.740e+05   13.227  &lt; 2e-16
-## AOIpositive                 5.788e-01  2.533e-02  3.740e+05   22.854  &lt; 2e-16
-## TargetHTA                   1.238e-02  3.106e-02  2.850e+02    0.398 0.690634
-## ot1:AOIthreat               1.088e-02  2.558e-01  3.740e+05    0.043 0.966058
-## ot1:AOIdysphoric           -2.022e-01  2.558e-01  3.740e+05   -0.790 0.429261
-## ot1:AOIpositive             6.696e-01  2.558e-01  3.740e+05    2.618 0.008850
-## ot2:AOIthreat              -5.621e-01  2.558e-01  3.740e+05   -2.198 0.027964
-## ot2:AOIdysphoric           -3.185e-01  2.558e-01  3.740e+05   -1.245 0.213064
-## ot2:AOIpositive            -3.385e-02  2.558e-01  3.740e+05   -0.132 0.894717
-## ot1:TargetHTA              -1.075e+00  2.516e-01  3.740e+05   -4.272 1.94e-05
-## ot2:TargetHTA              -3.637e-01  2.516e-01  3.740e+05   -1.446 0.148230
-## AOIthreat:TargetHTA        -4.462e-02  3.523e-02  3.740e+05   -1.267 0.205221
-## AOIdysphoric:TargetHTA     -6.742e-02  3.523e-02  3.740e+05   -1.914 0.055637
-## AOIpositive:TargetHTA       2.281e-01  3.523e-02  3.740e+05    6.477 9.38e-11
-## ot1:AOIthreat:TargetHTA     1.303e+00  3.558e-01  3.740e+05    3.661 0.000251
-## ot1:AOIdysphoric:TargetHTA  1.467e+00  3.558e-01  3.740e+05    4.123 3.74e-05
-## ot1:AOIpositive:TargetHTA   1.480e+00  3.558e-01  3.740e+05    4.160 3.18e-05
-## ot2:AOIthreat:TargetHTA     1.013e+00  3.558e-01  3.740e+05    2.847 0.004413
-## ot2:AOIdysphoric:TargetHTA -7.866e-03  3.558e-01  3.740e+05   -0.022 0.982360
-## ot2:AOIpositive:TargetHTA   9.977e-02  3.558e-01  3.740e+05    0.280 0.779130
+## (Intercept)                -2.396e+00  2.253e-02  2.835e+02 -106.362  &lt; 2e-16
+## ot1                        -1.199e-01  1.809e-01  3.630e+05   -0.663 0.507529
+## ot2                         2.177e-01  1.809e-01  3.630e+05    1.203 0.228837
+## AOIthreat                  -1.059e-01  2.571e-02  3.630e+05   -4.120 3.78e-05
+## AOIdysphoric                3.410e-01  2.571e-02  3.630e+05   13.264  &lt; 2e-16
+## AOIpositive                 5.825e-01  2.571e-02  3.630e+05   22.660  &lt; 2e-16
+## TargetHTA                   2.483e-02  3.125e-02  2.925e+02    0.795 0.427504
+## ot1:AOIthreat               1.708e-01  2.558e-01  3.630e+05    0.668 0.504362
+## ot1:AOIdysphoric           -1.045e-01  2.558e-01  3.630e+05   -0.409 0.682768
+## ot1:AOIpositive             7.668e-01  2.558e-01  3.630e+05    2.998 0.002719
+## ot2:AOIthreat              -3.871e-01  2.558e-01  3.630e+05   -1.513 0.130155
+## ot2:AOIdysphoric           -2.213e-01  2.558e-01  3.630e+05   -0.865 0.386929
+## ot2:AOIpositive             1.364e-01  2.558e-01  3.630e+05    0.533 0.593866
+## ot1:TargetHTA              -9.000e-01  2.516e-01  3.630e+05   -3.578 0.000347
+## ot2:TargetHTA              -2.175e-01  2.516e-01  3.630e+05   -0.864 0.387379
+## AOIthreat:TargetHTA        -6.903e-02  3.576e-02  3.630e+05   -1.930 0.053550
+## AOIdysphoric:TargetHTA     -8.592e-02  3.576e-02  3.630e+05   -2.403 0.016262
+## AOIpositive:TargetHTA       2.161e-01  3.576e-02  3.630e+05    6.044 1.51e-09
+## ot1:AOIthreat:TargetHTA     9.289e-01  3.558e-01  3.630e+05    2.611 0.009031
+## ot1:AOIdysphoric:TargetHTA  1.205e+00  3.558e-01  3.630e+05    3.387 0.000707
+## ot1:AOIpositive:TargetHTA   1.334e+00  3.558e-01  3.630e+05    3.749 0.000177
+## ot2:AOIthreat:TargetHTA     6.580e-01  3.558e-01  3.630e+05    1.849 0.064396
+## ot2:AOIdysphoric:TargetHTA -2.798e-01  3.558e-01  3.630e+05   -0.787 0.431550
+## ot2:AOIpositive:TargetHTA  -4.324e-03  3.558e-01  3.630e+05   -0.012 0.990302
 ##                               
 ## (Intercept)                ***
 ## ot1                           
-## ot2                        .  
+## ot2                           
 ## AOIthreat                  ***
 ## AOIdysphoric               ***
 ## AOIpositive                ***
@@ -1112,18 +1493,18 @@ print(&quot;Time 1&quot;)</code></pre>
 ## ot1:AOIthreat                 
 ## ot1:AOIdysphoric              
 ## ot1:AOIpositive            ** 
-## ot2:AOIthreat              *  
+## ot2:AOIthreat                 
 ## ot2:AOIdysphoric              
 ## ot2:AOIpositive               
 ## ot1:TargetHTA              ***
 ## ot2:TargetHTA                 
-## AOIthreat:TargetHTA           
-## AOIdysphoric:TargetHTA     .  
+## AOIthreat:TargetHTA        .  
+## AOIdysphoric:TargetHTA     *  
 ## AOIpositive:TargetHTA      ***
-## ot1:AOIthreat:TargetHTA    ***
+## ot1:AOIthreat:TargetHTA    ** 
 ## ot1:AOIdysphoric:TargetHTA ***
 ## ot1:AOIpositive:TargetHTA  ***
-## ot2:AOIthreat:TargetHTA    ** 
+## ot2:AOIthreat:TargetHTA    .  
 ## ot2:AOIdysphoric:TargetHTA    
 ## ot2:AOIpositive:TargetHTA     
 ## ---
@@ -1135,56 +1516,56 @@ print(&quot;Time 1&quot;)</code></pre>
 ## Formula: Elog ~ (ot1 + ot2 + ot3) * AOI * Target + (1 | participant_phone)
 ##    Data: dt
 ## 
-## REML criterion at convergence: 2062108
+## REML criterion at convergence: 2001505
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -0.8849 -0.6600 -0.5632  0.6285  2.1455 
+## -0.8850 -0.6591 -0.5634  0.6286  2.1467 
 ## 
 ## Random effects:
 ##  Groups            Name        Variance  Std.Dev.
-##  participant_phone (Intercept)  0.007142 0.08451 
-##  Residual                      14.488766 3.80641 
-## Number of obs: 374136, groups:  participant_phone, 86
+##  participant_phone (Intercept)  0.006995 0.08364 
+##  Residual                      14.490592 3.80665 
+## Number of obs: 363132, groups:  participant_phone, 86
 ## 
 ## Fixed effects:
 ##                              Estimate Std. Error         df  t value Pr(&gt;|t|)
-## (Intercept)                -2.392e+00  2.239e-02  2.761e+02 -106.818  &lt; 2e-16
-## ot1                        -4.054e-02  1.808e-01  3.740e+05   -0.224 0.822628
-## ot2                         3.048e-01  1.808e-01  3.740e+05    1.686 0.091872
-## ot3                         1.225e-01  1.808e-01  3.740e+05    0.677 0.498344
-## AOIthreat                  -1.149e-01  2.532e-02  3.740e+05   -4.538 5.68e-06
-## AOIdysphoric                3.350e-01  2.532e-02  3.740e+05   13.228  &lt; 2e-16
-## AOIpositive                 5.788e-01  2.532e-02  3.740e+05   22.855  &lt; 2e-16
-## TargetHTA                   1.238e-02  3.106e-02  2.850e+02    0.398 0.690620
-## ot1:AOIthreat               1.088e-02  2.558e-01  3.740e+05    0.043 0.966055
-## ot1:AOIdysphoric           -2.022e-01  2.558e-01  3.740e+05   -0.791 0.429223
-## ot1:AOIpositive             6.696e-01  2.558e-01  3.740e+05    2.618 0.008845
-## ot2:AOIthreat              -5.621e-01  2.558e-01  3.740e+05   -2.198 0.027952
-## ot2:AOIdysphoric           -3.185e-01  2.558e-01  3.740e+05   -1.245 0.213027
-## ot2:AOIpositive            -3.385e-02  2.558e-01  3.740e+05   -0.132 0.894709
-## ot3:AOIthreat              -1.089e-01  2.558e-01  3.740e+05   -0.426 0.670352
-## ot3:AOIdysphoric            2.827e-01  2.558e-01  3.740e+05    1.105 0.268945
-## ot3:AOIpositive            -8.018e-01  2.558e-01  3.740e+05   -3.135 0.001720
-## ot1:TargetHTA              -1.075e+00  2.515e-01  3.740e+05   -4.272 1.94e-05
-## ot2:TargetHTA              -3.637e-01  2.515e-01  3.740e+05   -1.446 0.148197
-## ot3:TargetHTA              -4.497e-01  2.515e-01  3.740e+05   -1.788 0.073839
-## AOIthreat:TargetHTA        -4.462e-02  3.522e-02  3.740e+05   -1.267 0.205184
-## AOIdysphoric:TargetHTA     -6.742e-02  3.522e-02  3.740e+05   -1.914 0.055617
-## AOIpositive:TargetHTA       2.281e-01  3.522e-02  3.740e+05    6.477 9.35e-11
-## ot1:AOIthreat:TargetHTA     1.303e+00  3.557e-01  3.740e+05    3.662 0.000251
-## ot1:AOIdysphoric:TargetHTA  1.467e+00  3.557e-01  3.740e+05    4.123 3.73e-05
-## ot1:AOIpositive:TargetHTA   1.480e+00  3.557e-01  3.740e+05    4.161 3.17e-05
-## ot2:AOIthreat:TargetHTA     1.013e+00  3.557e-01  3.740e+05    2.847 0.004410
-## ot2:AOIdysphoric:TargetHTA -7.866e-03  3.557e-01  3.740e+05   -0.022 0.982358
-## ot2:AOIpositive:TargetHTA   9.977e-02  3.557e-01  3.740e+05    0.280 0.779113
-## ot3:AOIthreat:TargetHTA     1.195e+00  3.557e-01  3.740e+05    3.360 0.000779
-## ot3:AOIdysphoric:TargetHTA  6.345e-01  3.557e-01  3.740e+05    1.784 0.074468
-## ot3:AOIpositive:TargetHTA   4.379e-01  3.557e-01  3.740e+05    1.231 0.218298
+## (Intercept)                -2.396e+00  2.253e-02  2.834e+02 -106.365  &lt; 2e-16
+## ot1                        -1.199e-01  1.809e-01  3.630e+05   -0.663 0.507500
+## ot2                         2.177e-01  1.809e-01  3.630e+05    1.203 0.228805
+## ot3                         5.233e-02  1.809e-01  3.630e+05    0.289 0.772329
+## AOIthreat                  -1.059e-01  2.571e-02  3.630e+05   -4.121 3.78e-05
+## AOIdysphoric                3.410e-01  2.571e-02  3.630e+05   13.265  &lt; 2e-16
+## AOIpositive                 5.825e-01  2.571e-02  3.630e+05   22.662  &lt; 2e-16
+## TargetHTA                   2.483e-02  3.125e-02  2.925e+02    0.795 0.427487
+## ot1:AOIthreat               1.708e-01  2.558e-01  3.630e+05    0.668 0.504333
+## ot1:AOIdysphoric           -1.045e-01  2.558e-01  3.630e+05   -0.409 0.682748
+## ot1:AOIpositive             7.668e-01  2.558e-01  3.630e+05    2.998 0.002717
+## ot2:AOIthreat              -3.871e-01  2.558e-01  3.630e+05   -1.514 0.130129
+## ot2:AOIdysphoric           -2.213e-01  2.558e-01  3.630e+05   -0.865 0.386896
+## ot2:AOIpositive             1.364e-01  2.558e-01  3.630e+05    0.533 0.593841
+## ot3:AOIthreat               5.067e-02  2.558e-01  3.630e+05    0.198 0.842974
+## ot3:AOIdysphoric            4.101e-01  2.558e-01  3.630e+05    1.603 0.108888
+## ot3:AOIpositive            -6.744e-01  2.558e-01  3.630e+05   -2.637 0.008368
+## ot1:TargetHTA              -9.000e-01  2.516e-01  3.630e+05   -3.578 0.000347
+## ot2:TargetHTA              -2.175e-01  2.516e-01  3.630e+05   -0.864 0.387347
+## ot3:TargetHTA              -3.449e-01  2.516e-01  3.630e+05   -1.371 0.170368
+## AOIthreat:TargetHTA        -6.903e-02  3.576e-02  3.630e+05   -1.931 0.053533
+## AOIdysphoric:TargetHTA     -8.592e-02  3.576e-02  3.630e+05   -2.403 0.016255
+## AOIpositive:TargetHTA       2.161e-01  3.576e-02  3.630e+05    6.044 1.50e-09
+## ot1:AOIthreat:TargetHTA     9.289e-01  3.558e-01  3.630e+05    2.611 0.009026
+## ot1:AOIdysphoric:TargetHTA  1.205e+00  3.558e-01  3.630e+05    3.387 0.000706
+## ot1:AOIpositive:TargetHTA   1.334e+00  3.558e-01  3.630e+05    3.749 0.000177
+## ot2:AOIthreat:TargetHTA     6.580e-01  3.558e-01  3.630e+05    1.850 0.064378
+## ot2:AOIdysphoric:TargetHTA -2.798e-01  3.558e-01  3.630e+05   -0.787 0.431519
+## ot2:AOIpositive:TargetHTA  -4.324e-03  3.558e-01  3.630e+05   -0.012 0.990302
+## ot3:AOIthreat:TargetHTA     9.639e-01  3.558e-01  3.630e+05    2.710 0.006739
+## ot3:AOIdysphoric:TargetHTA  3.513e-01  3.558e-01  3.630e+05    0.987 0.323406
+## ot3:AOIpositive:TargetHTA   3.604e-01  3.558e-01  3.630e+05    1.013 0.311025
 ##                               
 ## (Intercept)                ***
 ## ot1                           
-## ot2                        .  
+## ot2                           
 ## ot3                           
 ## AOIthreat                  ***
 ## AOIdysphoric               ***
@@ -1193,7 +1574,7 @@ print(&quot;Time 1&quot;)</code></pre>
 ## ot1:AOIthreat                 
 ## ot1:AOIdysphoric              
 ## ot1:AOIpositive            ** 
-## ot2:AOIthreat              *  
+## ot2:AOIthreat                 
 ## ot2:AOIdysphoric              
 ## ot2:AOIpositive               
 ## ot3:AOIthreat                 
@@ -1201,19 +1582,124 @@ print(&quot;Time 1&quot;)</code></pre>
 ## ot3:AOIpositive            ** 
 ## ot1:TargetHTA              ***
 ## ot2:TargetHTA                 
-## ot3:TargetHTA              .  
-## AOIthreat:TargetHTA           
-## AOIdysphoric:TargetHTA     .  
+## ot3:TargetHTA                 
+## AOIthreat:TargetHTA        .  
+## AOIdysphoric:TargetHTA     *  
 ## AOIpositive:TargetHTA      ***
-## ot1:AOIthreat:TargetHTA    ***
+## ot1:AOIthreat:TargetHTA    ** 
 ## ot1:AOIdysphoric:TargetHTA ***
 ## ot1:AOIpositive:TargetHTA  ***
-## ot2:AOIthreat:TargetHTA    ** 
+## ot2:AOIthreat:TargetHTA    .  
 ## ot2:AOIdysphoric:TargetHTA    
 ## ot2:AOIpositive:TargetHTA     
-## ot3:AOIthreat:TargetHTA    ***
-## ot3:AOIdysphoric:TargetHTA .  
+## ot3:AOIthreat:TargetHTA    ** 
+## ot3:AOIdysphoric:TargetHTA    
 ## ot3:AOIpositive:TargetHTA     
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## [[1]][[5]]
+## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
+## lmerModLmerTest]
+## Formula: 
+## Elog ~ (ot1 + ot2 + ot3 + ot4) * AOI * Target + (1 | participant_phone)
+##    Data: dt
+## 
+## REML criterion at convergence: 2001481
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -0.8922 -0.6594 -0.5607  0.6296  2.1437 
+## 
+## Random effects:
+##  Groups            Name        Variance  Std.Dev.
+##  participant_phone (Intercept)  0.006995 0.08364 
+##  Residual                      14.489415 3.80650 
+## Number of obs: 363132, groups:  participant_phone, 86
+## 
+## Fixed effects:
+##                              Estimate Std. Error         df  t value Pr(&gt;|t|)
+## (Intercept)                -2.396e+00  2.253e-02  2.834e+02 -106.367  &lt; 2e-16
+## ot1                        -1.199e-01  1.809e-01  3.630e+05   -0.663 0.507483
+## ot2                         2.177e-01  1.809e-01  3.630e+05    1.203 0.228786
+## ot3                         5.233e-02  1.809e-01  3.630e+05    0.289 0.772320
+## ot4                        -8.106e-01  1.809e-01  3.630e+05   -4.482 7.40e-06
+## AOIthreat                  -1.059e-01  2.570e-02  3.630e+05   -4.121 3.78e-05
+## AOIdysphoric                3.410e-01  2.570e-02  3.630e+05   13.265  &lt; 2e-16
+## AOIpositive                 5.825e-01  2.570e-02  3.630e+05   22.663  &lt; 2e-16
+## TargetHTA                   2.483e-02  3.125e-02  2.925e+02    0.795 0.427478
+## ot1:AOIthreat               1.708e-01  2.558e-01  3.630e+05    0.668 0.504316
+## ot1:AOIdysphoric           -1.045e-01  2.558e-01  3.630e+05   -0.409 0.682736
+## ot1:AOIpositive             7.668e-01  2.558e-01  3.630e+05    2.998 0.002716
+## ot2:AOIthreat              -3.871e-01  2.558e-01  3.630e+05   -1.514 0.130113
+## ot2:AOIdysphoric           -2.213e-01  2.558e-01  3.630e+05   -0.865 0.386877
+## ot2:AOIpositive             1.364e-01  2.558e-01  3.630e+05    0.533 0.593826
+## ot3:AOIthreat               5.067e-02  2.558e-01  3.630e+05    0.198 0.842967
+## ot3:AOIdysphoric            4.101e-01  2.558e-01  3.630e+05    1.603 0.108874
+## ot3:AOIpositive            -6.744e-01  2.558e-01  3.630e+05   -2.637 0.008365
+## ot4:AOIthreat               8.944e-01  2.558e-01  3.630e+05    3.497 0.000471
+## ot4:AOIdysphoric            1.166e+00  2.558e-01  3.630e+05    4.560 5.11e-06
+## ot4:AOIpositive             9.776e-01  2.558e-01  3.630e+05    3.822 0.000132
+## ot1:TargetHTA              -9.000e-01  2.515e-01  3.630e+05   -3.578 0.000346
+## ot2:TargetHTA              -2.175e-01  2.515e-01  3.630e+05   -0.864 0.387328
+## ot3:TargetHTA              -3.449e-01  2.515e-01  3.630e+05   -1.371 0.170350
+## ot4:TargetHTA               4.649e-01  2.515e-01  3.630e+05    1.848 0.064603
+## AOIthreat:TargetHTA        -6.903e-02  3.575e-02  3.630e+05   -1.931 0.053524
+## AOIdysphoric:TargetHTA     -8.592e-02  3.575e-02  3.630e+05   -2.403 0.016251
+## AOIpositive:TargetHTA       2.161e-01  3.575e-02  3.630e+05    6.044 1.50e-09
+## ot1:AOIthreat:TargetHTA     9.289e-01  3.557e-01  3.630e+05    2.611 0.009024
+## ot1:AOIdysphoric:TargetHTA  1.205e+00  3.557e-01  3.630e+05    3.387 0.000706
+## ot1:AOIpositive:TargetHTA   1.334e+00  3.557e-01  3.630e+05    3.750 0.000177
+## ot2:AOIthreat:TargetHTA     6.580e-01  3.557e-01  3.630e+05    1.850 0.064367
+## ot2:AOIdysphoric:TargetHTA -2.798e-01  3.557e-01  3.630e+05   -0.787 0.431500
+## ot2:AOIpositive:TargetHTA  -4.324e-03  3.557e-01  3.630e+05   -0.012 0.990301
+## ot3:AOIthreat:TargetHTA     9.639e-01  3.557e-01  3.630e+05    2.710 0.006736
+## ot3:AOIdysphoric:TargetHTA  3.513e-01  3.557e-01  3.630e+05    0.988 0.323386
+## ot3:AOIpositive:TargetHTA   3.604e-01  3.557e-01  3.630e+05    1.013 0.311005
+## ot4:AOIthreat:TargetHTA    -4.947e-01  3.557e-01  3.630e+05   -1.391 0.164345
+## ot4:AOIdysphoric:TargetHTA -3.595e-01  3.557e-01  3.630e+05   -1.011 0.312244
+## ot4:AOIpositive:TargetHTA  -8.457e-01  3.557e-01  3.630e+05   -2.377 0.017436
+##                               
+## (Intercept)                ***
+## ot1                           
+## ot2                           
+## ot3                           
+## ot4                        ***
+## AOIthreat                  ***
+## AOIdysphoric               ***
+## AOIpositive                ***
+## TargetHTA                     
+## ot1:AOIthreat                 
+## ot1:AOIdysphoric              
+## ot1:AOIpositive            ** 
+## ot2:AOIthreat                 
+## ot2:AOIdysphoric              
+## ot2:AOIpositive               
+## ot3:AOIthreat                 
+## ot3:AOIdysphoric              
+## ot3:AOIpositive            ** 
+## ot4:AOIthreat              ***
+## ot4:AOIdysphoric           ***
+## ot4:AOIpositive            ***
+## ot1:TargetHTA              ***
+## ot2:TargetHTA                 
+## ot3:TargetHTA                 
+## ot4:TargetHTA              .  
+## AOIthreat:TargetHTA        .  
+## AOIdysphoric:TargetHTA     *  
+## AOIpositive:TargetHTA      ***
+## ot1:AOIthreat:TargetHTA    ** 
+## ot1:AOIdysphoric:TargetHTA ***
+## ot1:AOIpositive:TargetHTA  ***
+## ot2:AOIthreat:TargetHTA    .  
+## ot2:AOIdysphoric:TargetHTA    
+## ot2:AOIpositive:TargetHTA     
+## ot3:AOIthreat:TargetHTA    ** 
+## ot3:AOIdysphoric:TargetHTA    
+## ot3:AOIpositive:TargetHTA     
+## ot4:AOIthreat:TargetHTA       
+## ot4:AOIdysphoric:TargetHTA    
+## ot4:AOIpositive:TargetHTA  *  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
@@ -1231,48 +1717,48 @@ print(&quot;Time 1&quot;)</code></pre>
 ## Formula: Elog ~ (ot1 + ot2) * AOI * Target + (1 | participant_phone)
 ##    Data: dt
 ## 
-## REML criterion at convergence: 2062164
+## REML criterion at convergence: 2001550
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -0.8862 -0.6595 -0.5616  0.6299  2.1462 
+## -0.8960 -0.6596 -0.5617  0.6305  2.1398 
 ## 
 ## Random effects:
 ##  Groups            Name        Variance  Std.Dev.
-##  participant_phone (Intercept)  0.007142 0.08451 
-##  Residual                      14.491128 3.80672 
-## Number of obs: 374136, groups:  participant_phone, 86
+##  participant_phone (Intercept)  0.006994 0.08363 
+##  Residual                      14.492582 3.80691 
+## Number of obs: 363132, groups:  participant_phone, 86
 ## 
 ## Fixed effects:
 ##                              Estimate Std. Error         df t value Pr(&gt;|t|)
-## (Intercept)                -1.813e+00  2.239e-02  2.762e+02 -80.968  &lt; 2e-16
-## ot1                         6.290e-01  1.809e-01  3.740e+05   3.478 0.000505
-## ot2                         2.710e-01  1.809e-01  3.740e+05   1.498 0.134052
-## AOIneutral                 -5.788e-01  2.533e-02  3.740e+05 -22.854  &lt; 2e-16
-## AOIthreat                  -6.937e-01  2.533e-02  3.740e+05 -27.391  &lt; 2e-16
-## AOIdysphoric               -2.438e-01  2.533e-02  3.740e+05  -9.627  &lt; 2e-16
-## TargetHTA                   2.405e-01  3.106e-02  2.850e+02   7.743 1.70e-13
-## ot1:AOIneutral             -6.696e-01  2.558e-01  3.740e+05  -2.618 0.008850
-## ot1:AOIthreat              -6.587e-01  2.558e-01  3.740e+05  -2.575 0.010017
-## ot1:AOIdysphoric           -8.718e-01  2.558e-01  3.740e+05  -3.408 0.000654
-## ot2:AOIneutral              3.385e-02  2.558e-01  3.740e+05   0.132 0.894717
-## ot2:AOIthreat              -5.283e-01  2.558e-01  3.740e+05  -2.065 0.038881
-## ot2:AOIdysphoric           -2.846e-01  2.558e-01  3.740e+05  -1.113 0.265774
-## ot1:TargetHTA               4.054e-01  2.516e-01  3.740e+05   1.612 0.107051
-## ot2:TargetHTA              -2.639e-01  2.516e-01  3.740e+05  -1.049 0.294089
-## AOIneutral:TargetHTA       -2.281e-01  3.523e-02  3.740e+05  -6.477 9.38e-11
-## AOIthreat:TargetHTA        -2.728e-01  3.523e-02  3.740e+05  -7.744 9.69e-15
-## AOIdysphoric:TargetHTA     -2.956e-01  3.523e-02  3.740e+05  -8.391  &lt; 2e-16
-## ot1:AOIneutral:TargetHTA   -1.480e+00  3.558e-01  3.740e+05  -4.160 3.18e-05
-## ot1:AOIthreat:TargetHTA    -1.775e-01  3.558e-01  3.740e+05  -0.499 0.617748
-## ot1:AOIdysphoric:TargetHTA -1.326e-02  3.558e-01  3.740e+05  -0.037 0.970259
-## ot2:AOIneutral:TargetHTA   -9.977e-02  3.558e-01  3.740e+05  -0.280 0.779130
-## ot2:AOIthreat:TargetHTA     9.131e-01  3.558e-01  3.740e+05   2.567 0.010271
-## ot2:AOIdysphoric:TargetHTA -1.076e-01  3.558e-01  3.740e+05  -0.303 0.762223
+## (Intercept)                -1.814e+00  2.253e-02  2.835e+02 -80.504  &lt; 2e-16
+## ot1                         6.470e-01  1.809e-01  3.630e+05   3.577 0.000348
+## ot2                         3.541e-01  1.809e-01  3.630e+05   1.957 0.050292
+## AOIneutral                 -5.825e-01  2.571e-02  3.630e+05 -22.660  &lt; 2e-16
+## AOIthreat                  -6.885e-01  2.571e-02  3.630e+05 -26.781  &lt; 2e-16
+## AOIdysphoric               -2.416e-01  2.571e-02  3.630e+05  -9.396  &lt; 2e-16
+## TargetHTA                   2.409e-01  3.125e-02  2.925e+02   7.709 1.99e-13
+## ot1:AOIneutral             -7.668e-01  2.558e-01  3.630e+05  -2.998 0.002719
+## ot1:AOIthreat              -5.961e-01  2.558e-01  3.630e+05  -2.330 0.019793
+## ot1:AOIdysphoric           -8.714e-01  2.558e-01  3.630e+05  -3.407 0.000658
+## ot2:AOIneutral             -1.364e-01  2.558e-01  3.630e+05  -0.533 0.593866
+## ot2:AOIthreat              -5.235e-01  2.558e-01  3.630e+05  -2.047 0.040685
+## ot2:AOIdysphoric           -3.577e-01  2.558e-01  3.630e+05  -1.398 0.161981
+## ot1:TargetHTA               4.339e-01  2.516e-01  3.630e+05   1.725 0.084589
+## ot2:TargetHTA              -2.218e-01  2.516e-01  3.630e+05  -0.882 0.378010
+## AOIneutral:TargetHTA       -2.161e-01  3.576e-02  3.630e+05  -6.044 1.51e-09
+## AOIthreat:TargetHTA        -2.851e-01  3.576e-02  3.630e+05  -7.974 1.54e-15
+## AOIdysphoric:TargetHTA     -3.020e-01  3.576e-02  3.630e+05  -8.447  &lt; 2e-16
+## ot1:AOIneutral:TargetHTA   -1.334e+00  3.558e-01  3.630e+05  -3.749 0.000177
+## ot1:AOIthreat:TargetHTA    -4.050e-01  3.558e-01  3.630e+05  -1.138 0.254989
+## ot1:AOIdysphoric:TargetHTA -1.289e-01  3.558e-01  3.630e+05  -0.362 0.717193
+## ot2:AOIneutral:TargetHTA    4.324e-03  3.558e-01  3.630e+05   0.012 0.990302
+## ot2:AOIthreat:TargetHTA     6.623e-01  3.558e-01  3.630e+05   1.862 0.062662
+## ot2:AOIdysphoric:TargetHTA -2.755e-01  3.558e-01  3.630e+05  -0.774 0.438702
 ##                               
 ## (Intercept)                ***
 ## ot1                        ***
-## ot2                           
+## ot2                        .  
 ## AOIneutral                 ***
 ## AOIthreat                  ***
 ## AOIdysphoric               ***
@@ -1283,7 +1769,7 @@ print(&quot;Time 1&quot;)</code></pre>
 ## ot2:AOIneutral                
 ## ot2:AOIthreat              *  
 ## ot2:AOIdysphoric              
-## ot1:TargetHTA                 
+## ot1:TargetHTA              .  
 ## ot2:TargetHTA                 
 ## AOIneutral:TargetHTA       ***
 ## AOIthreat:TargetHTA        ***
@@ -1292,7 +1778,7 @@ print(&quot;Time 1&quot;)</code></pre>
 ## ot1:AOIthreat:TargetHTA       
 ## ot1:AOIdysphoric:TargetHTA    
 ## ot2:AOIneutral:TargetHTA      
-## ot2:AOIthreat:TargetHTA    *  
+## ot2:AOIthreat:TargetHTA    .  
 ## ot2:AOIdysphoric:TargetHTA    
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
@@ -1303,56 +1789,56 @@ print(&quot;Time 1&quot;)</code></pre>
 ## Formula: Elog ~ (ot1 + ot2 + ot3) * AOI * Target + (1 | participant_phone)
 ##    Data: dt
 ## 
-## REML criterion at convergence: 2062108
+## REML criterion at convergence: 2001505
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -0.8849 -0.6600 -0.5632  0.6285  2.1455 
+## -0.8850 -0.6591 -0.5634  0.6286  2.1467 
 ## 
 ## Random effects:
 ##  Groups            Name        Variance  Std.Dev.
-##  participant_phone (Intercept)  0.007142 0.08451 
-##  Residual                      14.488766 3.80641 
-## Number of obs: 374136, groups:  participant_phone, 86
+##  participant_phone (Intercept)  0.006995 0.08364 
+##  Residual                      14.490592 3.80665 
+## Number of obs: 363132, groups:  participant_phone, 86
 ## 
 ## Fixed effects:
 ##                              Estimate Std. Error         df t value Pr(&gt;|t|)
-## (Intercept)                -1.813e+00  2.239e-02  2.761e+02 -80.971  &lt; 2e-16
-## ot1                         6.290e-01  1.809e-01  3.740e+05   3.478 0.000505
-## ot2                         2.710e-01  1.809e-01  3.740e+05   1.498 0.134020
-## ot3                        -6.793e-01  1.809e-01  3.740e+05  -3.756 0.000173
-## AOIneutral                 -5.788e-01  2.532e-02  3.740e+05 -22.855  &lt; 2e-16
-## AOIthreat                  -6.937e-01  2.532e-02  3.740e+05 -27.394  &lt; 2e-16
-## AOIdysphoric               -2.438e-01  2.532e-02  3.740e+05  -9.628  &lt; 2e-16
-## TargetHTA                   2.405e-01  3.106e-02  2.850e+02   7.744 1.70e-13
-## ot1:AOIneutral             -6.696e-01  2.558e-01  3.740e+05  -2.618 0.008845
-## ot1:AOIthreat              -6.587e-01  2.558e-01  3.740e+05  -2.575 0.010011
-## ot1:AOIdysphoric           -8.718e-01  2.558e-01  3.740e+05  -3.409 0.000653
-## ot2:AOIneutral              3.385e-02  2.558e-01  3.740e+05   0.132 0.894709
-## ot2:AOIthreat              -5.283e-01  2.558e-01  3.740e+05  -2.066 0.038865
-## ot2:AOIdysphoric           -2.846e-01  2.558e-01  3.740e+05  -1.113 0.265735
-## ot3:AOIneutral              8.018e-01  2.558e-01  3.740e+05   3.135 0.001720
-## ot3:AOIthreat               6.929e-01  2.558e-01  3.740e+05   2.709 0.006745
-## ot3:AOIdysphoric            1.085e+00  2.558e-01  3.740e+05   4.240 2.23e-05
-## ot1:TargetHTA               4.054e-01  2.515e-01  3.740e+05   1.612 0.107023
-## ot2:TargetHTA              -2.639e-01  2.515e-01  3.740e+05  -1.049 0.294050
-## ot3:TargetHTA              -1.173e-02  2.515e-01  3.740e+05  -0.047 0.962814
-## AOIneutral:TargetHTA       -2.281e-01  3.522e-02  3.740e+05  -6.477 9.35e-11
-## AOIthreat:TargetHTA        -2.728e-01  3.522e-02  3.740e+05  -7.744 9.64e-15
-## AOIdysphoric:TargetHTA     -2.956e-01  3.522e-02  3.740e+05  -8.391  &lt; 2e-16
-## ot1:AOIneutral:TargetHTA   -1.480e+00  3.557e-01  3.740e+05  -4.161 3.17e-05
-## ot1:AOIthreat:TargetHTA    -1.775e-01  3.557e-01  3.740e+05  -0.499 0.617719
-## ot1:AOIdysphoric:TargetHTA -1.326e-02  3.557e-01  3.740e+05  -0.037 0.970257
-## ot2:AOIneutral:TargetHTA   -9.977e-02  3.557e-01  3.740e+05  -0.280 0.779113
-## ot2:AOIthreat:TargetHTA     9.131e-01  3.557e-01  3.740e+05   2.567 0.010265
-## ot2:AOIdysphoric:TargetHTA -1.076e-01  3.557e-01  3.740e+05  -0.303 0.762204
-## ot3:AOIneutral:TargetHTA   -4.379e-01  3.557e-01  3.740e+05  -1.231 0.218298
-## ot3:AOIthreat:TargetHTA     7.574e-01  3.557e-01  3.740e+05   2.129 0.033240
-## ot3:AOIdysphoric:TargetHTA  1.966e-01  3.557e-01  3.740e+05   0.553 0.580492
+## (Intercept)                -1.814e+00  2.253e-02  2.834e+02 -80.507  &lt; 2e-16
+## ot1                         6.470e-01  1.809e-01  3.630e+05   3.577 0.000347
+## ot2                         3.541e-01  1.809e-01  3.630e+05   1.958 0.050276
+## ot3                        -6.221e-01  1.809e-01  3.630e+05  -3.440 0.000582
+## AOIneutral                 -5.825e-01  2.571e-02  3.630e+05 -22.662  &lt; 2e-16
+## AOIthreat                  -6.885e-01  2.571e-02  3.630e+05 -26.782  &lt; 2e-16
+## AOIdysphoric               -2.416e-01  2.571e-02  3.630e+05  -9.397  &lt; 2e-16
+## TargetHTA                   2.409e-01  3.125e-02  2.925e+02   7.709 1.99e-13
+## ot1:AOIneutral             -7.668e-01  2.558e-01  3.630e+05  -2.998 0.002717
+## ot1:AOIthreat              -5.961e-01  2.558e-01  3.630e+05  -2.330 0.019785
+## ot1:AOIdysphoric           -8.714e-01  2.558e-01  3.630e+05  -3.407 0.000657
+## ot2:AOIneutral             -1.364e-01  2.558e-01  3.630e+05  -0.533 0.593841
+## ot2:AOIthreat              -5.235e-01  2.558e-01  3.630e+05  -2.047 0.040671
+## ot2:AOIdysphoric           -3.577e-01  2.558e-01  3.630e+05  -1.399 0.161952
+## ot3:AOIneutral              6.744e-01  2.558e-01  3.630e+05   2.637 0.008368
+## ot3:AOIthreat               7.251e-01  2.558e-01  3.630e+05   2.835 0.004583
+## ot3:AOIdysphoric            1.085e+00  2.558e-01  3.630e+05   4.240 2.23e-05
+## ot1:TargetHTA               4.339e-01  2.516e-01  3.630e+05   1.725 0.084568
+## ot2:TargetHTA              -2.218e-01  2.516e-01  3.630e+05  -0.882 0.377977
+## ot3:TargetHTA               1.552e-02  2.516e-01  3.630e+05   0.062 0.950818
+## AOIneutral:TargetHTA       -2.161e-01  3.576e-02  3.630e+05  -6.044 1.50e-09
+## AOIthreat:TargetHTA        -2.851e-01  3.576e-02  3.630e+05  -7.975 1.53e-15
+## AOIdysphoric:TargetHTA     -3.020e-01  3.576e-02  3.630e+05  -8.447  &lt; 2e-16
+## ot1:AOIneutral:TargetHTA   -1.334e+00  3.558e-01  3.630e+05  -3.749 0.000177
+## ot1:AOIthreat:TargetHTA    -4.050e-01  3.558e-01  3.630e+05  -1.138 0.254956
+## ot1:AOIdysphoric:TargetHTA -1.289e-01  3.558e-01  3.630e+05  -0.362 0.717175
+## ot2:AOIneutral:TargetHTA    4.324e-03  3.558e-01  3.630e+05   0.012 0.990302
+## ot2:AOIthreat:TargetHTA     6.623e-01  3.558e-01  3.630e+05   1.862 0.062644
+## ot2:AOIdysphoric:TargetHTA -2.755e-01  3.558e-01  3.630e+05  -0.774 0.438671
+## ot3:AOIneutral:TargetHTA   -3.604e-01  3.558e-01  3.630e+05  -1.013 0.311025
+## ot3:AOIthreat:TargetHTA     6.035e-01  3.558e-01  3.630e+05   1.696 0.089805
+## ot3:AOIdysphoric:TargetHTA -9.104e-03  3.558e-01  3.630e+05  -0.026 0.979584
 ##                               
 ## (Intercept)                ***
 ## ot1                        ***
-## ot2                           
+## ot2                        .  
 ## ot3                        ***
 ## AOIneutral                 ***
 ## AOIthreat                  ***
@@ -1367,7 +1853,7 @@ print(&quot;Time 1&quot;)</code></pre>
 ## ot3:AOIneutral             ** 
 ## ot3:AOIthreat              ** 
 ## ot3:AOIdysphoric           ***
-## ot1:TargetHTA                 
+## ot1:TargetHTA              .  
 ## ot2:TargetHTA                 
 ## ot3:TargetHTA                 
 ## AOIneutral:TargetHTA       ***
@@ -1377,11 +1863,116 @@ print(&quot;Time 1&quot;)</code></pre>
 ## ot1:AOIthreat:TargetHTA       
 ## ot1:AOIdysphoric:TargetHTA    
 ## ot2:AOIneutral:TargetHTA      
-## ot2:AOIthreat:TargetHTA    *  
+## ot2:AOIthreat:TargetHTA    .  
 ## ot2:AOIdysphoric:TargetHTA    
 ## ot3:AOIneutral:TargetHTA      
-## ot3:AOIthreat:TargetHTA    *  
+## ot3:AOIthreat:TargetHTA    .  
 ## ot3:AOIdysphoric:TargetHTA    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## [[2]][[5]]
+## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
+## lmerModLmerTest]
+## Formula: 
+## Elog ~ (ot1 + ot2 + ot3 + ot4) * AOI * Target + (1 | participant_phone)
+##    Data: dt
+## 
+## REML criterion at convergence: 2001481
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -0.8922 -0.6594 -0.5607  0.6296  2.1437 
+## 
+## Random effects:
+##  Groups            Name        Variance  Std.Dev.
+##  participant_phone (Intercept)  0.006995 0.08364 
+##  Residual                      14.489415 3.80650 
+## Number of obs: 363132, groups:  participant_phone, 86
+## 
+## Fixed effects:
+##                              Estimate Std. Error         df t value Pr(&gt;|t|)
+## (Intercept)                -1.814e+00  2.253e-02  2.834e+02 -80.508  &lt; 2e-16
+## ot1                         6.470e-01  1.809e-01  3.630e+05   3.577 0.000347
+## ot2                         3.541e-01  1.809e-01  3.630e+05   1.958 0.050266
+## ot3                        -6.221e-01  1.809e-01  3.630e+05  -3.440 0.000582
+## ot4                         1.670e-01  1.809e-01  3.630e+05   0.923 0.355783
+## AOIneutral                 -5.825e-01  2.570e-02  3.630e+05 -22.663  &lt; 2e-16
+## AOIthreat                  -6.885e-01  2.570e-02  3.630e+05 -26.783  &lt; 2e-16
+## AOIdysphoric               -2.416e-01  2.570e-02  3.630e+05  -9.397  &lt; 2e-16
+## TargetHTA                   2.409e-01  3.125e-02  2.925e+02   7.709 1.99e-13
+## ot1:AOIneutral             -7.668e-01  2.558e-01  3.630e+05  -2.998 0.002716
+## ot1:AOIthreat              -5.961e-01  2.558e-01  3.630e+05  -2.331 0.019780
+## ot1:AOIdysphoric           -8.714e-01  2.558e-01  3.630e+05  -3.407 0.000657
+## ot2:AOIneutral             -1.364e-01  2.558e-01  3.630e+05  -0.533 0.593826
+## ot2:AOIthreat              -5.235e-01  2.558e-01  3.630e+05  -2.047 0.040663
+## ot2:AOIdysphoric           -3.577e-01  2.558e-01  3.630e+05  -1.399 0.161935
+## ot3:AOIneutral              6.744e-01  2.558e-01  3.630e+05   2.637 0.008365
+## ot3:AOIthreat               7.251e-01  2.558e-01  3.630e+05   2.835 0.004582
+## ot3:AOIdysphoric            1.085e+00  2.558e-01  3.630e+05   4.240 2.23e-05
+## ot4:AOIneutral             -9.776e-01  2.558e-01  3.630e+05  -3.822 0.000132
+## ot4:AOIthreat              -8.322e-02  2.558e-01  3.630e+05  -0.325 0.744898
+## ot4:AOIdysphoric            1.888e-01  2.558e-01  3.630e+05   0.738 0.460378
+## ot1:TargetHTA               4.339e-01  2.515e-01  3.630e+05   1.725 0.084555
+## ot2:TargetHTA              -2.218e-01  2.515e-01  3.630e+05  -0.882 0.377958
+## ot3:TargetHTA               1.552e-02  2.515e-01  3.630e+05   0.062 0.950816
+## ot4:TargetHTA              -3.809e-01  2.515e-01  3.630e+05  -1.514 0.129995
+## AOIneutral:TargetHTA       -2.161e-01  3.575e-02  3.630e+05  -6.044 1.50e-09
+## AOIthreat:TargetHTA        -2.851e-01  3.575e-02  3.630e+05  -7.975 1.53e-15
+## AOIdysphoric:TargetHTA     -3.020e-01  3.575e-02  3.630e+05  -8.448  &lt; 2e-16
+## ot1:AOIneutral:TargetHTA   -1.334e+00  3.557e-01  3.630e+05  -3.750 0.000177
+## ot1:AOIthreat:TargetHTA    -4.050e-01  3.557e-01  3.630e+05  -1.138 0.254937
+## ot1:AOIdysphoric:TargetHTA -1.289e-01  3.557e-01  3.630e+05  -0.362 0.717164
+## ot2:AOIneutral:TargetHTA    4.324e-03  3.557e-01  3.630e+05   0.012 0.990301
+## ot2:AOIthreat:TargetHTA     6.623e-01  3.557e-01  3.630e+05   1.862 0.062633
+## ot2:AOIdysphoric:TargetHTA -2.755e-01  3.557e-01  3.630e+05  -0.774 0.438652
+## ot3:AOIneutral:TargetHTA   -3.604e-01  3.557e-01  3.630e+05  -1.013 0.311005
+## ot3:AOIthreat:TargetHTA     6.035e-01  3.557e-01  3.630e+05   1.696 0.089792
+## ot3:AOIdysphoric:TargetHTA -9.104e-03  3.557e-01  3.630e+05  -0.026 0.979583
+## ot4:AOIneutral:TargetHTA    8.457e-01  3.557e-01  3.630e+05   2.377 0.017436
+## ot4:AOIthreat:TargetHTA     3.510e-01  3.557e-01  3.630e+05   0.987 0.323754
+## ot4:AOIdysphoric:TargetHTA  4.862e-01  3.557e-01  3.630e+05   1.367 0.171671
+##                               
+## (Intercept)                ***
+## ot1                        ***
+## ot2                        .  
+## ot3                        ***
+## ot4                           
+## AOIneutral                 ***
+## AOIthreat                  ***
+## AOIdysphoric               ***
+## TargetHTA                  ***
+## ot1:AOIneutral             ** 
+## ot1:AOIthreat              *  
+## ot1:AOIdysphoric           ***
+## ot2:AOIneutral                
+## ot2:AOIthreat              *  
+## ot2:AOIdysphoric              
+## ot3:AOIneutral             ** 
+## ot3:AOIthreat              ** 
+## ot3:AOIdysphoric           ***
+## ot4:AOIneutral             ***
+## ot4:AOIthreat                 
+## ot4:AOIdysphoric              
+## ot1:TargetHTA              .  
+## ot2:TargetHTA                 
+## ot3:TargetHTA                 
+## ot4:TargetHTA                 
+## AOIneutral:TargetHTA       ***
+## AOIthreat:TargetHTA        ***
+## AOIdysphoric:TargetHTA     ***
+## ot1:AOIneutral:TargetHTA   ***
+## ot1:AOIthreat:TargetHTA       
+## ot1:AOIdysphoric:TargetHTA    
+## ot2:AOIneutral:TargetHTA      
+## ot2:AOIthreat:TargetHTA    .  
+## ot2:AOIdysphoric:TargetHTA    
+## ot3:AOIneutral:TargetHTA      
+## ot3:AOIthreat:TargetHTA    .  
+## ot3:AOIdysphoric:TargetHTA    
+## ot4:AOIneutral:TargetHTA   *  
+## ot4:AOIthreat:TargetHTA       
+## ot4:AOIdysphoric:TargetHTA    
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
@@ -1399,44 +1990,44 @@ print(&quot;Time 1&quot;)</code></pre>
 ## Formula: Elog ~ (ot1 + ot2) * AOI * Target + (1 | participant_phone)
 ##    Data: dt
 ## 
-## REML criterion at convergence: 2062164
+## REML criterion at convergence: 2001550
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -0.8862 -0.6595 -0.5616  0.6299  2.1462 
+## -0.8960 -0.6596 -0.5617  0.6305  2.1398 
 ## 
 ## Random effects:
 ##  Groups            Name        Variance  Std.Dev.
-##  participant_phone (Intercept)  0.007142 0.08451 
-##  Residual                      14.491128 3.80672 
-## Number of obs: 374136, groups:  participant_phone, 86
+##  participant_phone (Intercept)  0.006994 0.08363 
+##  Residual                      14.492582 3.80691 
+## Number of obs: 363132, groups:  participant_phone, 86
 ## 
 ## Fixed effects:
 ##                             Estimate Std. Error         df t value Pr(&gt;|t|)    
-## (Intercept)               -2.057e+00  2.239e-02  2.762e+02 -91.855  &lt; 2e-16 ***
-## ot1                       -2.427e-01  1.809e-01  3.740e+05  -1.342 0.179589    
-## ot2                       -1.365e-02  1.809e-01  3.740e+05  -0.075 0.939825    
-## AOIneutral                -3.350e-01  2.533e-02  3.740e+05 -13.227  &lt; 2e-16 ***
-## AOIthreat                 -4.499e-01  2.533e-02  3.740e+05 -17.764  &lt; 2e-16 ***
-## AOIpositive                2.438e-01  2.533e-02  3.740e+05   9.627  &lt; 2e-16 ***
-## TargetHTA                 -5.504e-02  3.106e-02  2.850e+02  -1.772 0.077463 .  
-## ot1:AOIneutral             2.022e-01  2.558e-01  3.740e+05   0.790 0.429261    
-## ot1:AOIthreat              2.131e-01  2.558e-01  3.740e+05   0.833 0.404839    
-## ot1:AOIpositive            8.718e-01  2.558e-01  3.740e+05   3.408 0.000654 ***
-## ot2:AOIneutral             3.185e-01  2.558e-01  3.740e+05   1.245 0.213064    
-## ot2:AOIthreat             -2.437e-01  2.558e-01  3.740e+05  -0.953 0.340789    
-## ot2:AOIpositive            2.846e-01  2.558e-01  3.740e+05   1.113 0.265774    
-## ot1:TargetHTA              3.922e-01  2.516e-01  3.740e+05   1.559 0.119029    
-## ot2:TargetHTA             -3.716e-01  2.516e-01  3.740e+05  -1.477 0.139654    
-## AOIneutral:TargetHTA       6.742e-02  3.523e-02  3.740e+05   1.914 0.055637 .  
-## AOIthreat:TargetHTA        2.279e-02  3.523e-02  3.740e+05   0.647 0.517596    
-## AOIpositive:TargetHTA      2.956e-01  3.523e-02  3.740e+05   8.391  &lt; 2e-16 ***
-## ot1:AOIneutral:TargetHTA  -1.467e+00  3.558e-01  3.740e+05  -4.123 3.74e-05 ***
-## ot1:AOIthreat:TargetHTA   -1.643e-01  3.558e-01  3.740e+05  -0.462 0.644252    
-## ot1:AOIpositive:TargetHTA  1.326e-02  3.558e-01  3.740e+05   0.037 0.970259    
-## ot2:AOIneutral:TargetHTA   7.866e-03  3.558e-01  3.740e+05   0.022 0.982360    
-## ot2:AOIthreat:TargetHTA    1.021e+00  3.558e-01  3.740e+05   2.869 0.004116 ** 
-## ot2:AOIpositive:TargetHTA  1.076e-01  3.558e-01  3.740e+05   0.303 0.762223    
+## (Intercept)               -2.055e+00  2.253e-02  2.835e+02 -91.226  &lt; 2e-16 ***
+## ot1                       -2.244e-01  1.809e-01  3.630e+05  -1.241 0.214731    
+## ot2                       -3.657e-03  1.809e-01  3.630e+05  -0.020 0.983870    
+## AOIneutral                -3.410e-01  2.571e-02  3.630e+05 -13.264  &lt; 2e-16 ***
+## AOIthreat                 -4.469e-01  2.571e-02  3.630e+05 -17.384  &lt; 2e-16 ***
+## AOIpositive                2.416e-01  2.571e-02  3.630e+05   9.396  &lt; 2e-16 ***
+## TargetHTA                 -6.109e-02  3.125e-02  2.925e+02  -1.955 0.051584 .  
+## ot1:AOIneutral             1.045e-01  2.558e-01  3.630e+05   0.409 0.682768    
+## ot1:AOIthreat              2.753e-01  2.558e-01  3.630e+05   1.076 0.281780    
+## ot1:AOIpositive            8.714e-01  2.558e-01  3.630e+05   3.407 0.000658 ***
+## ot2:AOIneutral             2.213e-01  2.558e-01  3.630e+05   0.865 0.386929    
+## ot2:AOIthreat             -1.658e-01  2.558e-01  3.630e+05  -0.648 0.516796    
+## ot2:AOIpositive            3.577e-01  2.558e-01  3.630e+05   1.398 0.161981    
+## ot1:TargetHTA              3.050e-01  2.516e-01  3.630e+05   1.212 0.225354    
+## ot2:TargetHTA             -4.973e-01  2.516e-01  3.630e+05  -1.977 0.048074 *  
+## AOIneutral:TargetHTA       8.592e-02  3.576e-02  3.630e+05   2.403 0.016262 *  
+## AOIthreat:TargetHTA        1.690e-02  3.576e-02  3.630e+05   0.473 0.636558    
+## AOIpositive:TargetHTA      3.020e-01  3.576e-02  3.630e+05   8.447  &lt; 2e-16 ***
+## ot1:AOIneutral:TargetHTA  -1.205e+00  3.558e-01  3.630e+05  -3.387 0.000707 ***
+## ot1:AOIthreat:TargetHTA   -2.761e-01  3.558e-01  3.630e+05  -0.776 0.437688    
+## ot1:AOIpositive:TargetHTA  1.289e-01  3.558e-01  3.630e+05   0.362 0.717193    
+## ot2:AOIneutral:TargetHTA   2.798e-01  3.558e-01  3.630e+05   0.787 0.431550    
+## ot2:AOIthreat:TargetHTA    9.378e-01  3.558e-01  3.630e+05   2.636 0.008390 ** 
+## ot2:AOIpositive:TargetHTA  2.755e-01  3.558e-01  3.630e+05   0.774 0.438702    
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
@@ -1446,52 +2037,116 @@ print(&quot;Time 1&quot;)</code></pre>
 ## Formula: Elog ~ (ot1 + ot2 + ot3) * AOI * Target + (1 | participant_phone)
 ##    Data: dt
 ## 
-## REML criterion at convergence: 2062108
+## REML criterion at convergence: 2001505
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -0.8849 -0.6600 -0.5632  0.6285  2.1455 
+## -0.8850 -0.6591 -0.5634  0.6286  2.1467 
 ## 
 ## Random effects:
 ##  Groups            Name        Variance  Std.Dev.
-##  participant_phone (Intercept)  0.007142 0.08451 
-##  Residual                      14.488766 3.80641 
-## Number of obs: 374136, groups:  participant_phone, 86
+##  participant_phone (Intercept)  0.006995 0.08364 
+##  Residual                      14.490592 3.80665 
+## Number of obs: 363132, groups:  participant_phone, 86
 ## 
 ## Fixed effects:
 ##                             Estimate Std. Error         df t value Pr(&gt;|t|)    
-## (Intercept)               -2.057e+00  2.239e-02  2.761e+02 -91.859  &lt; 2e-16 ***
-## ot1                       -2.427e-01  1.808e-01  3.740e+05  -1.342 0.179554    
-## ot2                       -1.365e-02  1.808e-01  3.740e+05  -0.075 0.939820    
-## ot3                        4.052e-01  1.808e-01  3.740e+05   2.241 0.025059 *  
-## AOIneutral                -3.350e-01  2.532e-02  3.740e+05 -13.228  &lt; 2e-16 ***
-## AOIthreat                 -4.499e-01  2.532e-02  3.740e+05 -17.766  &lt; 2e-16 ***
-## AOIpositive                2.438e-01  2.532e-02  3.740e+05   9.628  &lt; 2e-16 ***
-## TargetHTA                 -5.504e-02  3.106e-02  2.850e+02  -1.772 0.077453 .  
-## ot1:AOIneutral             2.022e-01  2.558e-01  3.740e+05   0.791 0.429223    
-## ot1:AOIthreat              2.131e-01  2.558e-01  3.740e+05   0.833 0.404801    
-## ot1:AOIpositive            8.718e-01  2.558e-01  3.740e+05   3.409 0.000653 ***
-## ot2:AOIneutral             3.185e-01  2.558e-01  3.740e+05   1.245 0.213027    
-## ot2:AOIthreat             -2.437e-01  2.558e-01  3.740e+05  -0.953 0.340750    
-## ot2:AOIpositive            2.846e-01  2.558e-01  3.740e+05   1.113 0.265735    
-## ot3:AOIneutral            -2.827e-01  2.558e-01  3.740e+05  -1.105 0.268945    
-## ot3:AOIthreat             -3.916e-01  2.558e-01  3.740e+05  -1.531 0.125730    
-## ot3:AOIpositive           -1.085e+00  2.558e-01  3.740e+05  -4.240 2.23e-05 ***
-## ot1:TargetHTA              3.922e-01  2.515e-01  3.740e+05   1.559 0.118999    
-## ot2:TargetHTA             -3.716e-01  2.515e-01  3.740e+05  -1.477 0.139622    
-## ot3:TargetHTA              1.849e-01  2.515e-01  3.740e+05   0.735 0.462361    
-## AOIneutral:TargetHTA       6.742e-02  3.522e-02  3.740e+05   1.914 0.055617 .  
-## AOIthreat:TargetHTA        2.279e-02  3.522e-02  3.740e+05   0.647 0.517562    
-## AOIpositive:TargetHTA      2.956e-01  3.522e-02  3.740e+05   8.391  &lt; 2e-16 ***
-## ot1:AOIneutral:TargetHTA  -1.467e+00  3.557e-01  3.740e+05  -4.123 3.73e-05 ***
-## ot1:AOIthreat:TargetHTA   -1.643e-01  3.557e-01  3.740e+05  -0.462 0.644225    
-## ot1:AOIpositive:TargetHTA  1.326e-02  3.557e-01  3.740e+05   0.037 0.970257    
-## ot2:AOIneutral:TargetHTA   7.866e-03  3.557e-01  3.740e+05   0.022 0.982358    
-## ot2:AOIthreat:TargetHTA    1.021e+00  3.557e-01  3.740e+05   2.869 0.004113 ** 
-## ot2:AOIpositive:TargetHTA  1.076e-01  3.557e-01  3.740e+05   0.303 0.762204    
-## ot3:AOIneutral:TargetHTA  -6.345e-01  3.557e-01  3.740e+05  -1.784 0.074468 .  
-## ot3:AOIthreat:TargetHTA    5.608e-01  3.557e-01  3.740e+05   1.577 0.114908    
-## ot3:AOIpositive:TargetHTA -1.966e-01  3.557e-01  3.740e+05  -0.553 0.580492    
+## (Intercept)               -2.055e+00  2.253e-02  2.834e+02 -91.229  &lt; 2e-16 ***
+## ot1                       -2.244e-01  1.809e-01  3.630e+05  -1.241 0.214699    
+## ot2                       -3.657e-03  1.809e-01  3.630e+05  -0.020 0.983869    
+## ot3                        4.624e-01  1.809e-01  3.630e+05   2.557 0.010570 *  
+## AOIneutral                -3.410e-01  2.571e-02  3.630e+05 -13.265  &lt; 2e-16 ***
+## AOIthreat                 -4.469e-01  2.571e-02  3.630e+05 -17.385  &lt; 2e-16 ***
+## AOIpositive                2.416e-01  2.571e-02  3.630e+05   9.397  &lt; 2e-16 ***
+## TargetHTA                 -6.109e-02  3.125e-02  2.925e+02  -1.955 0.051578 .  
+## ot1:AOIneutral             1.045e-01  2.558e-01  3.630e+05   0.409 0.682748    
+## ot1:AOIthreat              2.753e-01  2.558e-01  3.630e+05   1.076 0.281747    
+## ot1:AOIpositive            8.714e-01  2.558e-01  3.630e+05   3.407 0.000657 ***
+## ot2:AOIneutral             2.213e-01  2.558e-01  3.630e+05   0.865 0.386896    
+## ot2:AOIthreat             -1.658e-01  2.558e-01  3.630e+05  -0.648 0.516767    
+## ot2:AOIpositive            3.577e-01  2.558e-01  3.630e+05   1.399 0.161952    
+## ot3:AOIneutral            -4.101e-01  2.558e-01  3.630e+05  -1.603 0.108888    
+## ot3:AOIthreat             -3.594e-01  2.558e-01  3.630e+05  -1.405 0.159985    
+## ot3:AOIpositive           -1.085e+00  2.558e-01  3.630e+05  -4.240 2.23e-05 ***
+## ot1:TargetHTA              3.050e-01  2.516e-01  3.630e+05   1.212 0.225323    
+## ot2:TargetHTA             -4.973e-01  2.516e-01  3.630e+05  -1.977 0.048059 *  
+## ot3:TargetHTA              6.412e-03  2.516e-01  3.630e+05   0.025 0.979665    
+## AOIneutral:TargetHTA       8.592e-02  3.576e-02  3.630e+05   2.403 0.016255 *  
+## AOIthreat:TargetHTA        1.690e-02  3.576e-02  3.630e+05   0.473 0.636535    
+## AOIpositive:TargetHTA      3.020e-01  3.576e-02  3.630e+05   8.447  &lt; 2e-16 ***
+## ot1:AOIneutral:TargetHTA  -1.205e+00  3.558e-01  3.630e+05  -3.387 0.000706 ***
+## ot1:AOIthreat:TargetHTA   -2.761e-01  3.558e-01  3.630e+05  -0.776 0.437657    
+## ot1:AOIpositive:TargetHTA  1.289e-01  3.558e-01  3.630e+05   0.362 0.717175    
+## ot2:AOIneutral:TargetHTA   2.798e-01  3.558e-01  3.630e+05   0.787 0.431519    
+## ot2:AOIthreat:TargetHTA    9.378e-01  3.558e-01  3.630e+05   2.636 0.008385 ** 
+## ot2:AOIpositive:TargetHTA  2.755e-01  3.558e-01  3.630e+05   0.774 0.438671    
+## ot3:AOIneutral:TargetHTA  -3.513e-01  3.558e-01  3.630e+05  -0.987 0.323406    
+## ot3:AOIthreat:TargetHTA    6.126e-01  3.558e-01  3.630e+05   1.722 0.085067 .  
+## ot3:AOIpositive:TargetHTA  9.104e-03  3.558e-01  3.630e+05   0.026 0.979584    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## [[3]][[5]]
+## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
+## lmerModLmerTest]
+## Formula: 
+## Elog ~ (ot1 + ot2 + ot3 + ot4) * AOI * Target + (1 | participant_phone)
+##    Data: dt
+## 
+## REML criterion at convergence: 2001481
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -0.8922 -0.6594 -0.5607  0.6296  2.1437 
+## 
+## Random effects:
+##  Groups            Name        Variance  Std.Dev.
+##  participant_phone (Intercept)  0.006995 0.08364 
+##  Residual                      14.489415 3.80650 
+## Number of obs: 363132, groups:  participant_phone, 86
+## 
+## Fixed effects:
+##                             Estimate Std. Error         df t value Pr(&gt;|t|)    
+## (Intercept)               -2.055e+00  2.253e-02  2.834e+02 -91.231  &lt; 2e-16 ***
+## ot1                       -2.244e-01  1.809e-01  3.630e+05  -1.241 0.214681    
+## ot2                       -3.657e-03  1.809e-01  3.630e+05  -0.020 0.983869    
+## ot3                        4.624e-01  1.809e-01  3.630e+05   2.557 0.010567 *  
+## ot4                        3.558e-01  1.809e-01  3.630e+05   1.967 0.049133 *  
+## AOIneutral                -3.410e-01  2.570e-02  3.630e+05 -13.265  &lt; 2e-16 ***
+## AOIthreat                 -4.469e-01  2.570e-02  3.630e+05 -17.386  &lt; 2e-16 ***
+## AOIpositive                2.416e-01  2.570e-02  3.630e+05   9.397  &lt; 2e-16 ***
+## TargetHTA                 -6.109e-02  3.125e-02  2.925e+02  -1.955 0.051574 .  
+## ot1:AOIneutral             1.045e-01  2.558e-01  3.630e+05   0.409 0.682736    
+## ot1:AOIthreat              2.753e-01  2.558e-01  3.630e+05   1.076 0.281727    
+## ot1:AOIpositive            8.714e-01  2.558e-01  3.630e+05   3.407 0.000657 ***
+## ot2:AOIneutral             2.213e-01  2.558e-01  3.630e+05   0.865 0.386877    
+## ot2:AOIthreat             -1.658e-01  2.558e-01  3.630e+05  -0.648 0.516750    
+## ot2:AOIpositive            3.577e-01  2.558e-01  3.630e+05   1.399 0.161935    
+## ot3:AOIneutral            -4.101e-01  2.558e-01  3.630e+05  -1.603 0.108874    
+## ot3:AOIthreat             -3.594e-01  2.558e-01  3.630e+05  -1.405 0.159969    
+## ot3:AOIpositive           -1.085e+00  2.558e-01  3.630e+05  -4.240 2.23e-05 ***
+## ot4:AOIneutral            -1.166e+00  2.558e-01  3.630e+05  -4.560 5.11e-06 ***
+## ot4:AOIthreat             -2.720e-01  2.558e-01  3.630e+05  -1.064 0.287511    
+## ot4:AOIpositive           -1.888e-01  2.558e-01  3.630e+05  -0.738 0.460378    
+## ot1:TargetHTA              3.050e-01  2.515e-01  3.630e+05   1.213 0.225304    
+## ot2:TargetHTA             -4.973e-01  2.515e-01  3.630e+05  -1.977 0.048050 *  
+## ot3:TargetHTA              6.412e-03  2.515e-01  3.630e+05   0.025 0.979665    
+## ot4:TargetHTA              1.054e-01  2.515e-01  3.630e+05   0.419 0.675286    
+## AOIneutral:TargetHTA       8.592e-02  3.575e-02  3.630e+05   2.403 0.016251 *  
+## AOIthreat:TargetHTA        1.690e-02  3.575e-02  3.630e+05   0.473 0.636521    
+## AOIpositive:TargetHTA      3.020e-01  3.575e-02  3.630e+05   8.448  &lt; 2e-16 ***
+## ot1:AOIneutral:TargetHTA  -1.205e+00  3.557e-01  3.630e+05  -3.387 0.000706 ***
+## ot1:AOIthreat:TargetHTA   -2.761e-01  3.557e-01  3.630e+05  -0.776 0.437638    
+## ot1:AOIpositive:TargetHTA  1.289e-01  3.557e-01  3.630e+05   0.362 0.717164    
+## ot2:AOIneutral:TargetHTA   2.798e-01  3.557e-01  3.630e+05   0.787 0.431500    
+## ot2:AOIthreat:TargetHTA    9.378e-01  3.557e-01  3.630e+05   2.636 0.008383 ** 
+## ot2:AOIpositive:TargetHTA  2.755e-01  3.557e-01  3.630e+05   0.774 0.438652    
+## ot3:AOIneutral:TargetHTA  -3.513e-01  3.557e-01  3.630e+05  -0.988 0.323386    
+## ot3:AOIthreat:TargetHTA    6.126e-01  3.557e-01  3.630e+05   1.722 0.085054 .  
+## ot3:AOIpositive:TargetHTA  9.104e-03  3.557e-01  3.630e+05   0.026 0.979583    
+## ot4:AOIneutral:TargetHTA   3.595e-01  3.557e-01  3.630e+05   1.011 0.312244    
+## ot4:AOIthreat:TargetHTA   -1.352e-01  3.557e-01  3.630e+05  -0.380 0.703883    
+## ot4:AOIpositive:TargetHTA -4.862e-01  3.557e-01  3.630e+05  -1.367 0.171671    
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
@@ -1509,44 +2164,44 @@ print(&quot;Time 1&quot;)</code></pre>
 ## Formula: Elog ~ (ot1 + ot2) * AOI * Target + (1 | participant_phone)
 ##    Data: dt
 ## 
-## REML criterion at convergence: 2062164
+## REML criterion at convergence: 2001550
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -0.8862 -0.6595 -0.5616  0.6299  2.1462 
+## -0.8960 -0.6596 -0.5617  0.6305  2.1398 
 ## 
 ## Random effects:
 ##  Groups            Name        Variance  Std.Dev.
-##  participant_phone (Intercept)  0.007142 0.08451 
-##  Residual                      14.491128 3.80672 
-## Number of obs: 374136, groups:  participant_phone, 86
+##  participant_phone (Intercept)  0.006994 0.08363 
+##  Residual                      14.492582 3.80691 
+## Number of obs: 363132, groups:  participant_phone, 86
 ## 
 ## Fixed effects:
 ##                              Estimate Std. Error         df  t value Pr(&gt;|t|)
-## (Intercept)                -2.507e+00  2.239e-02  2.762e+02 -111.946  &lt; 2e-16
-## ot1                        -2.966e-02  1.809e-01  3.740e+05   -0.164 0.869756
-## ot2                        -2.573e-01  1.809e-01  3.740e+05   -1.423 0.154829
-## AOIdysphoric                4.499e-01  2.533e-02  3.740e+05   17.764  &lt; 2e-16
-## AOIpositive                 6.937e-01  2.533e-02  3.740e+05   27.391  &lt; 2e-16
-## AOIneutral                  1.149e-01  2.533e-02  3.740e+05    4.538 5.69e-06
-## TargetHTA                  -3.225e-02  3.106e-02  2.850e+02   -1.038 0.300049
-## ot1:AOIdysphoric           -2.131e-01  2.558e-01  3.740e+05   -0.833 0.404839
-## ot1:AOIpositive             6.587e-01  2.558e-01  3.740e+05    2.575 0.010017
-## ot1:AOIneutral             -1.088e-02  2.558e-01  3.740e+05   -0.043 0.966058
-## ot2:AOIdysphoric            2.437e-01  2.558e-01  3.740e+05    0.953 0.340789
-## ot2:AOIpositive             5.283e-01  2.558e-01  3.740e+05    2.065 0.038881
-## ot2:AOIneutral              5.622e-01  2.558e-01  3.740e+05    2.198 0.027964
-## ot1:TargetHTA               2.279e-01  2.516e-01  3.740e+05    0.906 0.365023
-## ot2:TargetHTA               6.492e-01  2.516e-01  3.740e+05    2.580 0.009867
-## AOIdysphoric:TargetHTA     -2.279e-02  3.523e-02  3.740e+05   -0.647 0.517596
-## AOIpositive:TargetHTA       2.728e-01  3.523e-02  3.740e+05    7.744 9.69e-15
-## AOIneutral:TargetHTA        4.462e-02  3.523e-02  3.740e+05    1.267 0.205221
-## ot1:AOIdysphoric:TargetHTA  1.643e-01  3.558e-01  3.740e+05    0.462 0.644252
-## ot1:AOIpositive:TargetHTA   1.775e-01  3.558e-01  3.740e+05    0.499 0.617748
-## ot1:AOIneutral:TargetHTA   -1.303e+00  3.558e-01  3.740e+05   -3.661 0.000251
-## ot2:AOIdysphoric:TargetHTA -1.021e+00  3.558e-01  3.740e+05   -2.869 0.004116
-## ot2:AOIpositive:TargetHTA  -9.131e-01  3.558e-01  3.740e+05   -2.567 0.010271
-## ot2:AOIneutral:TargetHTA   -1.013e+00  3.558e-01  3.740e+05   -2.847 0.004413
+## (Intercept)                -2.502e+00  2.253e-02  2.835e+02 -111.064  &lt; 2e-16
+## ot1                         5.092e-02  1.809e-01  3.630e+05    0.281  0.77833
+## ot2                        -1.695e-01  1.809e-01  3.630e+05   -0.937  0.34874
+## AOIdysphoric                4.469e-01  2.571e-02  3.630e+05   17.384  &lt; 2e-16
+## AOIpositive                 6.885e-01  2.571e-02  3.630e+05   26.781  &lt; 2e-16
+## AOIneutral                  1.059e-01  2.571e-02  3.630e+05    4.120 3.78e-05
+## TargetHTA                  -4.419e-02  3.125e-02  2.925e+02   -1.414  0.15843
+## ot1:AOIdysphoric           -2.753e-01  2.558e-01  3.630e+05   -1.076  0.28178
+## ot1:AOIpositive             5.961e-01  2.558e-01  3.630e+05    2.330  0.01979
+## ot1:AOIneutral             -1.708e-01  2.558e-01  3.630e+05   -0.668  0.50436
+## ot2:AOIdysphoric            1.658e-01  2.558e-01  3.630e+05    0.648  0.51680
+## ot2:AOIpositive             5.235e-01  2.558e-01  3.630e+05    2.047  0.04068
+## ot2:AOIneutral              3.871e-01  2.558e-01  3.630e+05    1.513  0.13016
+## ot1:TargetHTA               2.889e-02  2.516e-01  3.630e+05    0.115  0.90857
+## ot2:TargetHTA               4.405e-01  2.516e-01  3.630e+05    1.751  0.07993
+## AOIdysphoric:TargetHTA     -1.690e-02  3.576e-02  3.630e+05   -0.473  0.63656
+## AOIpositive:TargetHTA       2.851e-01  3.576e-02  3.630e+05    7.974 1.54e-15
+## AOIneutral:TargetHTA        6.903e-02  3.576e-02  3.630e+05    1.930  0.05355
+## ot1:AOIdysphoric:TargetHTA  2.761e-01  3.558e-01  3.630e+05    0.776  0.43769
+## ot1:AOIpositive:TargetHTA   4.050e-01  3.558e-01  3.630e+05    1.138  0.25499
+## ot1:AOIneutral:TargetHTA   -9.289e-01  3.558e-01  3.630e+05   -2.611  0.00903
+## ot2:AOIdysphoric:TargetHTA -9.378e-01  3.558e-01  3.630e+05   -2.636  0.00839
+## ot2:AOIpositive:TargetHTA  -6.623e-01  3.558e-01  3.630e+05   -1.862  0.06266
+## ot2:AOIneutral:TargetHTA   -6.580e-01  3.558e-01  3.630e+05   -1.849  0.06440
 ##                               
 ## (Intercept)                ***
 ## ot1                           
@@ -1560,18 +2215,18 @@ print(&quot;Time 1&quot;)</code></pre>
 ## ot1:AOIneutral                
 ## ot2:AOIdysphoric              
 ## ot2:AOIpositive            *  
-## ot2:AOIneutral             *  
+## ot2:AOIneutral                
 ## ot1:TargetHTA                 
-## ot2:TargetHTA              ** 
+## ot2:TargetHTA              .  
 ## AOIdysphoric:TargetHTA        
 ## AOIpositive:TargetHTA      ***
-## AOIneutral:TargetHTA          
+## AOIneutral:TargetHTA       .  
 ## ot1:AOIdysphoric:TargetHTA    
 ## ot1:AOIpositive:TargetHTA     
-## ot1:AOIneutral:TargetHTA   ***
+## ot1:AOIneutral:TargetHTA   ** 
 ## ot2:AOIdysphoric:TargetHTA ** 
-## ot2:AOIpositive:TargetHTA  *  
-## ot2:AOIneutral:TargetHTA   ** 
+## ot2:AOIpositive:TargetHTA  .  
+## ot2:AOIneutral:TargetHTA   .  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
@@ -1581,52 +2236,52 @@ print(&quot;Time 1&quot;)</code></pre>
 ## Formula: Elog ~ (ot1 + ot2 + ot3) * AOI * Target + (1 | participant_phone)
 ##    Data: dt
 ## 
-## REML criterion at convergence: 2062108
+## REML criterion at convergence: 2001505
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -0.8849 -0.6600 -0.5632  0.6285  2.1455 
+## -0.8850 -0.6591 -0.5634  0.6286  2.1467 
 ## 
 ## Random effects:
 ##  Groups            Name        Variance  Std.Dev.
-##  participant_phone (Intercept)  0.007142 0.08451 
-##  Residual                      14.488766 3.80641 
-## Number of obs: 374136, groups:  participant_phone, 86
+##  participant_phone (Intercept)  0.006995 0.08364 
+##  Residual                      14.490592 3.80665 
+## Number of obs: 363132, groups:  participant_phone, 86
 ## 
 ## Fixed effects:
 ##                              Estimate Std. Error         df  t value Pr(&gt;|t|)
-## (Intercept)                -2.507e+00  2.239e-02  2.761e+02 -111.950  &lt; 2e-16
-## ot1                        -2.966e-02  1.809e-01  3.740e+05   -0.164 0.869746
-## ot2                        -2.573e-01  1.809e-01  3.740e+05   -1.423 0.154796
-## ot3                         1.358e-02  1.809e-01  3.740e+05    0.075 0.940122
-## AOIdysphoric                4.499e-01  2.532e-02  3.740e+05   17.766  &lt; 2e-16
-## AOIpositive                 6.937e-01  2.532e-02  3.740e+05   27.394  &lt; 2e-16
-## AOIneutral                  1.149e-01  2.532e-02  3.740e+05    4.538 5.68e-06
-## TargetHTA                  -3.225e-02  3.106e-02  2.850e+02   -1.038 0.300034
-## ot1:AOIdysphoric           -2.131e-01  2.558e-01  3.740e+05   -0.833 0.404801
-## ot1:AOIpositive             6.587e-01  2.558e-01  3.740e+05    2.575 0.010011
-## ot1:AOIneutral             -1.088e-02  2.558e-01  3.740e+05   -0.043 0.966055
-## ot2:AOIdysphoric            2.437e-01  2.558e-01  3.740e+05    0.953 0.340750
-## ot2:AOIpositive             5.283e-01  2.558e-01  3.740e+05    2.066 0.038865
-## ot2:AOIneutral              5.622e-01  2.558e-01  3.740e+05    2.198 0.027952
-## ot3:AOIdysphoric            3.916e-01  2.558e-01  3.740e+05    1.531 0.125730
-## ot3:AOIpositive            -6.929e-01  2.558e-01  3.740e+05   -2.709 0.006745
-## ot3:AOIneutral              1.089e-01  2.558e-01  3.740e+05    0.426 0.670352
-## ot1:TargetHTA               2.279e-01  2.515e-01  3.740e+05    0.906 0.364983
-## ot2:TargetHTA               6.492e-01  2.515e-01  3.740e+05    2.581 0.009861
-## ot3:TargetHTA               7.457e-01  2.515e-01  3.740e+05    2.964 0.003032
-## AOIdysphoric:TargetHTA     -2.279e-02  3.522e-02  3.740e+05   -0.647 0.517562
-## AOIpositive:TargetHTA       2.728e-01  3.522e-02  3.740e+05    7.744 9.64e-15
-## AOIneutral:TargetHTA        4.462e-02  3.522e-02  3.740e+05    1.267 0.205184
-## ot1:AOIdysphoric:TargetHTA  1.643e-01  3.557e-01  3.740e+05    0.462 0.644225
-## ot1:AOIpositive:TargetHTA   1.775e-01  3.557e-01  3.740e+05    0.499 0.617719
-## ot1:AOIneutral:TargetHTA   -1.303e+00  3.557e-01  3.740e+05   -3.662 0.000251
-## ot2:AOIdysphoric:TargetHTA -1.021e+00  3.557e-01  3.740e+05   -2.869 0.004113
-## ot2:AOIpositive:TargetHTA  -9.131e-01  3.557e-01  3.740e+05   -2.567 0.010265
-## ot2:AOIneutral:TargetHTA   -1.013e+00  3.557e-01  3.740e+05   -2.847 0.004410
-## ot3:AOIdysphoric:TargetHTA -5.608e-01  3.557e-01  3.740e+05   -1.577 0.114908
-## ot3:AOIpositive:TargetHTA  -7.574e-01  3.557e-01  3.740e+05   -2.129 0.033240
-## ot3:AOIneutral:TargetHTA   -1.195e+00  3.557e-01  3.740e+05   -3.360 0.000779
+## (Intercept)                -2.502e+00  2.253e-02  2.834e+02 -111.067  &lt; 2e-16
+## ot1                         5.092e-02  1.809e-01  3.630e+05    0.282  0.77831
+## ot2                        -1.695e-01  1.809e-01  3.630e+05   -0.937  0.34870
+## ot3                         1.030e-01  1.809e-01  3.630e+05    0.569  0.56903
+## AOIdysphoric                4.469e-01  2.571e-02  3.630e+05   17.385  &lt; 2e-16
+## AOIpositive                 6.885e-01  2.571e-02  3.630e+05   26.782  &lt; 2e-16
+## AOIneutral                  1.059e-01  2.571e-02  3.630e+05    4.121 3.78e-05
+## TargetHTA                  -4.419e-02  3.125e-02  2.925e+02   -1.414  0.15841
+## ot1:AOIdysphoric           -2.753e-01  2.558e-01  3.630e+05   -1.076  0.28175
+## ot1:AOIpositive             5.961e-01  2.558e-01  3.630e+05    2.330  0.01978
+## ot1:AOIneutral             -1.708e-01  2.558e-01  3.630e+05   -0.668  0.50433
+## ot2:AOIdysphoric            1.658e-01  2.558e-01  3.630e+05    0.648  0.51677
+## ot2:AOIpositive             5.235e-01  2.558e-01  3.630e+05    2.047  0.04067
+## ot2:AOIneutral              3.871e-01  2.558e-01  3.630e+05    1.514  0.13013
+## ot3:AOIdysphoric            3.594e-01  2.558e-01  3.630e+05    1.405  0.15999
+## ot3:AOIpositive            -7.251e-01  2.558e-01  3.630e+05   -2.835  0.00458
+## ot3:AOIneutral             -5.067e-02  2.558e-01  3.630e+05   -0.198  0.84297
+## ot1:TargetHTA               2.889e-02  2.516e-01  3.630e+05    0.115  0.90857
+## ot2:TargetHTA               4.405e-01  2.516e-01  3.630e+05    1.751  0.07991
+## ot3:TargetHTA               6.190e-01  2.516e-01  3.630e+05    2.461  0.01386
+## AOIdysphoric:TargetHTA     -1.690e-02  3.575e-02  3.630e+05   -0.473  0.63654
+## AOIpositive:TargetHTA       2.851e-01  3.575e-02  3.630e+05    7.975 1.53e-15
+## AOIneutral:TargetHTA        6.903e-02  3.575e-02  3.630e+05    1.931  0.05353
+## ot1:AOIdysphoric:TargetHTA  2.761e-01  3.558e-01  3.630e+05    0.776  0.43766
+## ot1:AOIpositive:TargetHTA   4.050e-01  3.558e-01  3.630e+05    1.138  0.25496
+## ot1:AOIneutral:TargetHTA   -9.289e-01  3.558e-01  3.630e+05   -2.611  0.00903
+## ot2:AOIdysphoric:TargetHTA -9.378e-01  3.558e-01  3.630e+05   -2.636  0.00839
+## ot2:AOIpositive:TargetHTA  -6.623e-01  3.558e-01  3.630e+05   -1.862  0.06264
+## ot2:AOIneutral:TargetHTA   -6.580e-01  3.558e-01  3.630e+05   -1.850  0.06438
+## ot3:AOIdysphoric:TargetHTA -6.126e-01  3.558e-01  3.630e+05   -1.722  0.08507
+## ot3:AOIpositive:TargetHTA  -6.035e-01  3.558e-01  3.630e+05   -1.696  0.08981
+## ot3:AOIneutral:TargetHTA   -9.639e-01  3.558e-01  3.630e+05   -2.710  0.00674
 ##                               
 ## (Intercept)                ***
 ## ot1                           
@@ -1641,25 +2296,130 @@ print(&quot;Time 1&quot;)</code></pre>
 ## ot1:AOIneutral                
 ## ot2:AOIdysphoric              
 ## ot2:AOIpositive            *  
-## ot2:AOIneutral             *  
+## ot2:AOIneutral                
 ## ot3:AOIdysphoric              
 ## ot3:AOIpositive            ** 
 ## ot3:AOIneutral                
 ## ot1:TargetHTA                 
-## ot2:TargetHTA              ** 
-## ot3:TargetHTA              ** 
+## ot2:TargetHTA              .  
+## ot3:TargetHTA              *  
 ## AOIdysphoric:TargetHTA        
 ## AOIpositive:TargetHTA      ***
-## AOIneutral:TargetHTA          
+## AOIneutral:TargetHTA       .  
 ## ot1:AOIdysphoric:TargetHTA    
 ## ot1:AOIpositive:TargetHTA     
-## ot1:AOIneutral:TargetHTA   ***
+## ot1:AOIneutral:TargetHTA   ** 
 ## ot2:AOIdysphoric:TargetHTA ** 
-## ot2:AOIpositive:TargetHTA  *  
-## ot2:AOIneutral:TargetHTA   ** 
-## ot3:AOIdysphoric:TargetHTA    
-## ot3:AOIpositive:TargetHTA  *  
-## ot3:AOIneutral:TargetHTA   ***
+## ot2:AOIpositive:TargetHTA  .  
+## ot2:AOIneutral:TargetHTA   .  
+## ot3:AOIdysphoric:TargetHTA .  
+## ot3:AOIpositive:TargetHTA  .  
+## ot3:AOIneutral:TargetHTA   ** 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## [[4]][[5]]
+## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
+## lmerModLmerTest]
+## Formula: 
+## Elog ~ (ot1 + ot2 + ot3 + ot4) * AOI * Target + (1 | participant_phone)
+##    Data: dt
+## 
+## REML criterion at convergence: 2001481
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -0.8922 -0.6594 -0.5607  0.6296  2.1437 
+## 
+## Random effects:
+##  Groups            Name        Variance  Std.Dev.
+##  participant_phone (Intercept)  0.006995 0.08364 
+##  Residual                      14.489415 3.80650 
+## Number of obs: 363132, groups:  participant_phone, 86
+## 
+## Fixed effects:
+##                              Estimate Std. Error         df  t value Pr(&gt;|t|)
+## (Intercept)                -2.502e+00  2.253e-02  2.834e+02 -111.069  &lt; 2e-16
+## ot1                         5.092e-02  1.809e-01  3.630e+05    0.282 0.778304
+## ot2                        -1.695e-01  1.809e-01  3.630e+05   -0.937 0.348685
+## ot3                         1.030e-01  1.809e-01  3.630e+05    0.569 0.569019
+## ot4                         8.379e-02  1.809e-01  3.630e+05    0.463 0.643161
+## AOIdysphoric                4.469e-01  2.571e-02  3.630e+05   17.386  &lt; 2e-16
+## AOIpositive                 6.885e-01  2.571e-02  3.630e+05   26.783  &lt; 2e-16
+## AOIneutral                  1.059e-01  2.571e-02  3.630e+05    4.121 3.78e-05
+## TargetHTA                  -4.419e-02  3.125e-02  2.925e+02   -1.414 0.158408
+## ot1:AOIdysphoric           -2.753e-01  2.558e-01  3.630e+05   -1.076 0.281727
+## ot1:AOIpositive             5.961e-01  2.558e-01  3.630e+05    2.331 0.019780
+## ot1:AOIneutral             -1.708e-01  2.558e-01  3.630e+05   -0.668 0.504316
+## ot2:AOIdysphoric            1.658e-01  2.558e-01  3.630e+05    0.648 0.516750
+## ot2:AOIpositive             5.235e-01  2.558e-01  3.630e+05    2.047 0.040663
+## ot2:AOIneutral              3.871e-01  2.558e-01  3.630e+05    1.514 0.130113
+## ot3:AOIdysphoric            3.594e-01  2.558e-01  3.630e+05    1.405 0.159969
+## ot3:AOIpositive            -7.251e-01  2.558e-01  3.630e+05   -2.835 0.004582
+## ot3:AOIneutral             -5.067e-02  2.558e-01  3.630e+05   -0.198 0.842967
+## ot4:AOIdysphoric            2.720e-01  2.558e-01  3.630e+05    1.064 0.287511
+## ot4:AOIpositive             8.322e-02  2.558e-01  3.630e+05    0.325 0.744898
+## ot4:AOIneutral             -8.944e-01  2.558e-01  3.630e+05   -3.497 0.000471
+## ot1:TargetHTA               2.889e-02  2.515e-01  3.630e+05    0.115 0.908563
+## ot2:TargetHTA               4.405e-01  2.515e-01  3.630e+05    1.751 0.079894
+## ot3:TargetHTA               6.190e-01  2.515e-01  3.630e+05    2.461 0.013860
+## ot4:TargetHTA              -2.984e-02  2.515e-01  3.630e+05   -0.119 0.905580
+## AOIdysphoric:TargetHTA     -1.690e-02  3.575e-02  3.630e+05   -0.473 0.636521
+## AOIpositive:TargetHTA       2.851e-01  3.575e-02  3.630e+05    7.975 1.53e-15
+## AOIneutral:TargetHTA        6.903e-02  3.575e-02  3.630e+05    1.931 0.053524
+## ot1:AOIdysphoric:TargetHTA  2.761e-01  3.557e-01  3.630e+05    0.776 0.437638
+## ot1:AOIpositive:TargetHTA   4.050e-01  3.557e-01  3.630e+05    1.138 0.254937
+## ot1:AOIneutral:TargetHTA   -9.289e-01  3.557e-01  3.630e+05   -2.611 0.009024
+## ot2:AOIdysphoric:TargetHTA -9.378e-01  3.557e-01  3.630e+05   -2.636 0.008383
+## ot2:AOIpositive:TargetHTA  -6.623e-01  3.557e-01  3.630e+05   -1.862 0.062633
+## ot2:AOIneutral:TargetHTA   -6.580e-01  3.557e-01  3.630e+05   -1.850 0.064367
+## ot3:AOIdysphoric:TargetHTA -6.126e-01  3.557e-01  3.630e+05   -1.722 0.085054
+## ot3:AOIpositive:TargetHTA  -6.035e-01  3.557e-01  3.630e+05   -1.696 0.089792
+## ot3:AOIneutral:TargetHTA   -9.639e-01  3.557e-01  3.630e+05   -2.710 0.006736
+## ot4:AOIdysphoric:TargetHTA  1.352e-01  3.557e-01  3.630e+05    0.380 0.703883
+## ot4:AOIpositive:TargetHTA  -3.510e-01  3.557e-01  3.630e+05   -0.987 0.323754
+## ot4:AOIneutral:TargetHTA    4.947e-01  3.557e-01  3.630e+05    1.391 0.164345
+##                               
+## (Intercept)                ***
+## ot1                           
+## ot2                           
+## ot3                           
+## ot4                           
+## AOIdysphoric               ***
+## AOIpositive                ***
+## AOIneutral                 ***
+## TargetHTA                     
+## ot1:AOIdysphoric              
+## ot1:AOIpositive            *  
+## ot1:AOIneutral                
+## ot2:AOIdysphoric              
+## ot2:AOIpositive            *  
+## ot2:AOIneutral                
+## ot3:AOIdysphoric              
+## ot3:AOIpositive            ** 
+## ot3:AOIneutral                
+## ot4:AOIdysphoric              
+## ot4:AOIpositive               
+## ot4:AOIneutral             ***
+## ot1:TargetHTA                 
+## ot2:TargetHTA              .  
+## ot3:TargetHTA              *  
+## ot4:TargetHTA                 
+## AOIdysphoric:TargetHTA        
+## AOIpositive:TargetHTA      ***
+## AOIneutral:TargetHTA       .  
+## ot1:AOIdysphoric:TargetHTA    
+## ot1:AOIpositive:TargetHTA     
+## ot1:AOIneutral:TargetHTA   ** 
+## ot2:AOIdysphoric:TargetHTA ** 
+## ot2:AOIpositive:TargetHTA  .  
+## ot2:AOIneutral:TargetHTA   .  
+## ot3:AOIdysphoric:TargetHTA .  
+## ot3:AOIpositive:TargetHTA  .  
+## ot3:AOIneutral:TargetHTA   ** 
+## ot4:AOIdysphoric:TargetHTA    
+## ot4:AOIpositive:TargetHTA     
+## ot4:AOIneutral:TargetHTA      
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <pre class="r"><code>print(&quot;Time 3&quot;)</code></pre>
@@ -1678,47 +2438,47 @@ print(&quot;Time 1&quot;)</code></pre>
 ## Formula: Elog ~ (ot1 + ot2) * AOI * Target + (1 | participant_phone)
 ##    Data: dt
 ## 
-## REML criterion at convergence: 2421073
+## REML criterion at convergence: 2481710
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -0.9356 -0.6382 -0.5591  0.6292  2.1690 
+## -0.9347 -0.6399 -0.5587  0.6292  2.1698 
 ## 
 ## Random effects:
 ##  Groups            Name        Variance  Std.Dev.
-##  participant_phone (Intercept)  0.008318 0.0912  
-##  Residual                      14.327517 3.7852  
-## Number of obs: 440160, groups:  participant_phone, 86
+##  participant_phone (Intercept)  0.008323 0.09123 
+##  Residual                      14.331097 3.78564 
+## Number of obs: 451164, groups:  participant_phone, 86
 ## 
 ## Fixed effects:
 ##                              Estimate Std. Error         df  t value Pr(&gt;|t|)
-## (Intercept)                -2.291e+00  2.190e-02  2.332e+02 -104.606  &lt; 2e-16
-## ot1                        -3.487e-01  1.798e-01  4.401e+05   -1.939 0.052484
-## ot2                        -1.166e-01  1.798e-01  4.401e+05   -0.648 0.516825
-## AOIthreat                  -2.129e-01  2.322e-02  4.401e+05   -9.169  &lt; 2e-16
-## AOIdysphoric                4.024e-03  2.322e-02  4.401e+05    0.173 0.862407
-## AOIpositive                 7.138e-01  2.322e-02  4.401e+05   30.742  &lt; 2e-16
-## TargetHTA                  -1.459e-01  3.035e-02  2.409e+02   -4.808 2.69e-06
-## ot1:AOIthreat               1.432e+00  2.543e-01  4.401e+05    5.629 1.81e-08
-## ot1:AOIdysphoric           -2.957e-01  2.543e-01  4.401e+05   -1.163 0.244962
-## ot1:AOIpositive             6.022e-01  2.543e-01  4.401e+05    2.368 0.017889
-## ot2:AOIthreat               8.966e-01  2.543e-01  4.401e+05    3.525 0.000423
-## ot2:AOIdysphoric            4.011e-01  2.543e-01  4.401e+05    1.577 0.114774
-## ot2:AOIpositive            -9.319e-01  2.543e-01  4.401e+05   -3.664 0.000248
-## ot1:TargetHTA               1.426e+00  2.501e-01  4.401e+05    5.700 1.20e-08
-## ot2:TargetHTA               4.271e-01  2.501e-01  4.401e+05    1.707 0.087766
-## AOIthreat:TargetHTA         6.578e-02  3.229e-02  4.401e+05    2.037 0.041668
-## AOIdysphoric:TargetHTA      3.214e-01  3.229e-02  4.401e+05    9.953  &lt; 2e-16
-## AOIpositive:TargetHTA       2.845e-01  3.229e-02  4.401e+05    8.811  &lt; 2e-16
-## ot1:AOIthreat:TargetHTA    -3.297e+00  3.537e-01  4.401e+05   -9.320  &lt; 2e-16
-## ot1:AOIdysphoric:TargetHTA -1.686e-01  3.537e-01  4.401e+05   -0.477 0.633651
-## ot1:AOIpositive:TargetHTA  -2.242e+00  3.537e-01  4.401e+05   -6.338 2.33e-10
-## ot2:AOIthreat:TargetHTA    -1.882e-01  3.537e-01  4.401e+05   -0.532 0.594716
-## ot2:AOIdysphoric:TargetHTA -1.170e+00  3.537e-01  4.401e+05   -3.308 0.000940
-## ot2:AOIpositive:TargetHTA  -2.299e-01  3.537e-01  4.401e+05   -0.650 0.515680
+## (Intercept)                -2.290e+00  2.175e-02  2.299e+02 -105.254  &lt; 2e-16
+## ot1                        -3.611e-01  1.799e-01  4.511e+05   -2.008 0.044659
+## ot2                        -1.106e-01  1.799e-01  4.511e+05   -0.615 0.538500
+## AOIthreat                  -2.179e-01  2.294e-02  4.511e+05   -9.502  &lt; 2e-16
+## AOIdysphoric                8.284e-03  2.294e-02  4.511e+05    0.361 0.717941
+## AOIpositive                 7.067e-01  2.294e-02  4.511e+05   30.814  &lt; 2e-16
+## TargetHTA                  -1.531e-01  3.014e-02  2.375e+02   -5.078 7.70e-07
+## ot1:AOIthreat               1.474e+00  2.544e-01  4.511e+05    5.795 6.82e-09
+## ot1:AOIdysphoric           -3.653e-01  2.544e-01  4.511e+05   -1.436 0.150936
+## ot1:AOIpositive             7.123e-01  2.544e-01  4.511e+05    2.800 0.005105
+## ot2:AOIthreat               8.576e-01  2.544e-01  4.511e+05    3.372 0.000748
+## ot2:AOIdysphoric            4.502e-01  2.544e-01  4.511e+05    1.770 0.076734
+## ot2:AOIpositive            -9.836e-01  2.544e-01  4.511e+05   -3.867 0.000110
+## ot1:TargetHTA               1.508e+00  2.502e-01  4.511e+05    6.030 1.64e-09
+## ot2:TargetHTA               3.657e-01  2.502e-01  4.511e+05    1.462 0.143813
+## AOIthreat:TargetHTA         8.226e-02  3.190e-02  4.511e+05    2.579 0.009920
+## AOIdysphoric:TargetHTA      3.261e-01  3.190e-02  4.511e+05   10.224  &lt; 2e-16
+## AOIpositive:TargetHTA       2.942e-01  3.190e-02  4.511e+05    9.224  &lt; 2e-16
+## ot1:AOIthreat:TargetHTA    -3.486e+00  3.538e-01  4.511e+05   -9.853  &lt; 2e-16
+## ot1:AOIdysphoric:TargetHTA -2.506e-01  3.538e-01  4.511e+05   -0.708 0.478764
+## ot1:AOIpositive:TargetHTA  -2.343e+00  3.538e-01  4.511e+05   -6.624 3.50e-11
+## ot2:AOIthreat:TargetHTA    -9.852e-02  3.538e-01  4.511e+05   -0.278 0.780647
+## ot2:AOIdysphoric:TargetHTA -1.008e+00  3.538e-01  4.511e+05   -2.849 0.004380
+## ot2:AOIpositive:TargetHTA  -1.939e-01  3.538e-01  4.511e+05   -0.548 0.583649
 ##                               
 ## (Intercept)                ***
-## ot1                        .  
+## ot1                        *  
 ## ot2                           
 ## AOIthreat                  ***
 ## AOIdysphoric                  
@@ -1726,20 +2486,20 @@ print(&quot;Time 1&quot;)</code></pre>
 ## TargetHTA                  ***
 ## ot1:AOIthreat              ***
 ## ot1:AOIdysphoric              
-## ot1:AOIpositive            *  
+## ot1:AOIpositive            ** 
 ## ot2:AOIthreat              ***
-## ot2:AOIdysphoric              
+## ot2:AOIdysphoric           .  
 ## ot2:AOIpositive            ***
 ## ot1:TargetHTA              ***
-## ot2:TargetHTA              .  
-## AOIthreat:TargetHTA        *  
+## ot2:TargetHTA                 
+## AOIthreat:TargetHTA        ** 
 ## AOIdysphoric:TargetHTA     ***
 ## AOIpositive:TargetHTA      ***
 ## ot1:AOIthreat:TargetHTA    ***
 ## ot1:AOIdysphoric:TargetHTA    
 ## ot1:AOIpositive:TargetHTA  ***
 ## ot2:AOIthreat:TargetHTA       
-## ot2:AOIdysphoric:TargetHTA ***
+## ot2:AOIdysphoric:TargetHTA ** 
 ## ot2:AOIpositive:TargetHTA     
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
@@ -1750,55 +2510,55 @@ print(&quot;Time 1&quot;)</code></pre>
 ## Formula: Elog ~ (ot1 + ot2 + ot3) * AOI * Target + (1 | participant_phone)
 ##    Data: dt
 ## 
-## REML criterion at convergence: 2421042
+## REML criterion at convergence: 2481680
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -0.9354 -0.6398 -0.5565  0.6330  2.1664 
+## -0.9342 -0.6403 -0.5561  0.6329  2.1650 
 ## 
 ## Random effects:
 ##  Groups            Name        Variance  Std.Dev.
-##  participant_phone (Intercept)  0.008318 0.0912  
-##  Residual                      14.326331 3.7850  
-## Number of obs: 440160, groups:  participant_phone, 86
+##  participant_phone (Intercept)  0.008323 0.09123 
+##  Residual                      14.329976 3.78550 
+## Number of obs: 451164, groups:  participant_phone, 86
 ## 
 ## Fixed effects:
 ##                              Estimate Std. Error         df  t value Pr(&gt;|t|)
-## (Intercept)                -2.291e+00  2.190e-02  2.332e+02 -104.608  &lt; 2e-16
-## ot1                        -3.487e-01  1.798e-01  4.400e+05   -1.939 0.052475
-## ot2                        -1.166e-01  1.798e-01  4.400e+05   -0.648 0.516807
-## ot3                        -6.428e-01  1.798e-01  4.400e+05   -3.574 0.000351
-## AOIthreat                  -2.129e-01  2.322e-02  4.400e+05   -9.169  &lt; 2e-16
-## AOIdysphoric                4.024e-03  2.322e-02  4.400e+05    0.173 0.862401
-## AOIpositive                 7.138e-01  2.322e-02  4.400e+05   30.744  &lt; 2e-16
-## TargetHTA                  -1.459e-01  3.035e-02  2.408e+02   -4.808 2.69e-06
-## ot1:AOIthreat               1.432e+00  2.543e-01  4.400e+05    5.630 1.81e-08
-## ot1:AOIdysphoric           -2.957e-01  2.543e-01  4.400e+05   -1.163 0.244943
-## ot1:AOIpositive             6.022e-01  2.543e-01  4.400e+05    2.368 0.017885
-## ot2:AOIthreat               8.966e-01  2.543e-01  4.400e+05    3.525 0.000423
-## ot2:AOIdysphoric            4.011e-01  2.543e-01  4.400e+05    1.577 0.114759
-## ot2:AOIpositive            -9.319e-01  2.543e-01  4.400e+05   -3.664 0.000248
-## ot3:AOIthreat               7.467e-01  2.543e-01  4.400e+05    2.936 0.003322
-## ot3:AOIdysphoric            1.219e+00  2.543e-01  4.400e+05    4.795 1.63e-06
-## ot3:AOIpositive             7.782e-01  2.543e-01  4.400e+05    3.060 0.002214
-## ot1:TargetHTA               1.426e+00  2.501e-01  4.400e+05    5.701 1.19e-08
-## ot2:TargetHTA               4.271e-01  2.501e-01  4.400e+05    1.707 0.087753
-## ot3:TargetHTA               9.661e-01  2.501e-01  4.400e+05    3.862 0.000112
-## AOIthreat:TargetHTA         6.578e-02  3.229e-02  4.400e+05    2.037 0.041660
-## AOIdysphoric:TargetHTA      3.214e-01  3.229e-02  4.400e+05    9.954  &lt; 2e-16
-## AOIpositive:TargetHTA       2.845e-01  3.229e-02  4.400e+05    8.811  &lt; 2e-16
-## ot1:AOIthreat:TargetHTA    -3.297e+00  3.537e-01  4.400e+05   -9.321  &lt; 2e-16
-## ot1:AOIdysphoric:TargetHTA -1.686e-01  3.537e-01  4.400e+05   -0.477 0.633637
-## ot1:AOIpositive:TargetHTA  -2.242e+00  3.537e-01  4.400e+05   -6.338 2.33e-10
-## ot2:AOIthreat:TargetHTA    -1.882e-01  3.537e-01  4.400e+05   -0.532 0.594701
-## ot2:AOIdysphoric:TargetHTA -1.170e+00  3.537e-01  4.400e+05   -3.308 0.000939
-## ot2:AOIpositive:TargetHTA  -2.299e-01  3.537e-01  4.400e+05   -0.650 0.515662
-## ot3:AOIthreat:TargetHTA    -1.609e+00  3.537e-01  4.400e+05   -4.549 5.39e-06
-## ot3:AOIdysphoric:TargetHTA -1.947e+00  3.537e-01  4.400e+05   -5.505 3.70e-08
-## ot3:AOIpositive:TargetHTA  -8.574e-01  3.537e-01  4.400e+05   -2.424 0.015362
+## (Intercept)                -2.290e+00  2.175e-02  2.299e+02 -105.255  &lt; 2e-16
+## ot1                        -3.611e-01  1.799e-01  4.510e+05   -2.008 0.044650
+## ot2                        -1.106e-01  1.799e-01  4.510e+05   -0.615 0.538485
+## ot3                        -6.041e-01  1.799e-01  4.510e+05   -3.359 0.000783
+## AOIthreat                  -2.179e-01  2.293e-02  4.510e+05   -9.502  &lt; 2e-16
+## AOIdysphoric                8.284e-03  2.293e-02  4.510e+05    0.361 0.717930
+## AOIpositive                 7.067e-01  2.293e-02  4.510e+05   30.815  &lt; 2e-16
+## TargetHTA                  -1.531e-01  3.014e-02  2.374e+02   -5.078 7.70e-07
+## ot1:AOIthreat               1.474e+00  2.544e-01  4.510e+05    5.796 6.81e-09
+## ot1:AOIdysphoric           -3.653e-01  2.544e-01  4.510e+05   -1.436 0.150920
+## ot1:AOIpositive             7.123e-01  2.544e-01  4.510e+05    2.800 0.005103
+## ot2:AOIthreat               8.576e-01  2.544e-01  4.510e+05    3.372 0.000747
+## ot2:AOIdysphoric            4.502e-01  2.544e-01  4.510e+05    1.770 0.076723
+## ot2:AOIpositive            -9.836e-01  2.544e-01  4.510e+05   -3.867 0.000110
+## ot3:AOIthreat               7.898e-01  2.544e-01  4.510e+05    3.105 0.001901
+## ot3:AOIdysphoric            1.090e+00  2.544e-01  4.510e+05    4.287 1.81e-05
+## ot3:AOIpositive             7.056e-01  2.544e-01  4.510e+05    2.774 0.005539
+## ot1:TargetHTA               1.508e+00  2.502e-01  4.510e+05    6.030 1.64e-09
+## ot2:TargetHTA               3.657e-01  2.502e-01  4.510e+05    1.462 0.143798
+## ot3:TargetHTA               9.841e-01  2.502e-01  4.510e+05    3.934 8.35e-05
+## AOIthreat:TargetHTA         8.226e-02  3.190e-02  4.510e+05    2.579 0.009917
+## AOIdysphoric:TargetHTA      3.261e-01  3.190e-02  4.510e+05   10.224  &lt; 2e-16
+## AOIpositive:TargetHTA       2.942e-01  3.190e-02  4.510e+05    9.224  &lt; 2e-16
+## ot1:AOIthreat:TargetHTA    -3.486e+00  3.538e-01  4.510e+05   -9.853  &lt; 2e-16
+## ot1:AOIdysphoric:TargetHTA -2.506e-01  3.538e-01  4.510e+05   -0.708 0.478746
+## ot1:AOIpositive:TargetHTA  -2.343e+00  3.538e-01  4.510e+05   -6.624 3.50e-11
+## ot2:AOIthreat:TargetHTA    -9.852e-02  3.538e-01  4.510e+05   -0.278 0.780639
+## ot2:AOIdysphoric:TargetHTA -1.008e+00  3.538e-01  4.510e+05   -2.850 0.004379
+## ot2:AOIpositive:TargetHTA  -1.939e-01  3.538e-01  4.510e+05   -0.548 0.583634
+## ot3:AOIthreat:TargetHTA    -1.586e+00  3.538e-01  4.510e+05   -4.484 7.34e-06
+## ot3:AOIdysphoric:TargetHTA -2.044e+00  3.538e-01  4.510e+05   -5.778 7.56e-09
+## ot3:AOIpositive:TargetHTA  -8.448e-01  3.538e-01  4.510e+05   -2.388 0.016950
 ##                               
 ## (Intercept)                ***
-## ot1                        .  
+## ot1                        *  
 ## ot2                           
 ## ot3                        ***
 ## AOIthreat                  ***
@@ -1807,28 +2567,133 @@ print(&quot;Time 1&quot;)</code></pre>
 ## TargetHTA                  ***
 ## ot1:AOIthreat              ***
 ## ot1:AOIdysphoric              
-## ot1:AOIpositive            *  
+## ot1:AOIpositive            ** 
 ## ot2:AOIthreat              ***
-## ot2:AOIdysphoric              
+## ot2:AOIdysphoric           .  
 ## ot2:AOIpositive            ***
 ## ot3:AOIthreat              ** 
 ## ot3:AOIdysphoric           ***
 ## ot3:AOIpositive            ** 
 ## ot1:TargetHTA              ***
-## ot2:TargetHTA              .  
+## ot2:TargetHTA                 
 ## ot3:TargetHTA              ***
-## AOIthreat:TargetHTA        *  
+## AOIthreat:TargetHTA        ** 
 ## AOIdysphoric:TargetHTA     ***
 ## AOIpositive:TargetHTA      ***
 ## ot1:AOIthreat:TargetHTA    ***
 ## ot1:AOIdysphoric:TargetHTA    
 ## ot1:AOIpositive:TargetHTA  ***
 ## ot2:AOIthreat:TargetHTA       
-## ot2:AOIdysphoric:TargetHTA ***
+## ot2:AOIdysphoric:TargetHTA ** 
 ## ot2:AOIpositive:TargetHTA     
 ## ot3:AOIthreat:TargetHTA    ***
 ## ot3:AOIdysphoric:TargetHTA ***
 ## ot3:AOIpositive:TargetHTA  *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## [[1]][[5]]
+## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
+## lmerModLmerTest]
+## Formula: 
+## Elog ~ (ot1 + ot2 + ot3 + ot4) * AOI * Target + (1 | participant_phone)
+##    Data: dt
+## 
+## REML criterion at convergence: 2481657
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -0.9316 -0.6404 -0.5585  0.6311  2.1651 
+## 
+## Random effects:
+##  Groups            Name        Variance  Std.Dev.
+##  participant_phone (Intercept)  0.008323 0.09123 
+##  Residual                      14.329095 3.78538 
+## Number of obs: 451164, groups:  participant_phone, 86
+## 
+## Fixed effects:
+##                              Estimate Std. Error         df  t value Pr(&gt;|t|)
+## (Intercept)                -2.290e+00  2.175e-02  2.299e+02 -105.257  &lt; 2e-16
+## ot1                        -3.611e-01  1.798e-01  4.510e+05   -2.008 0.044644
+## ot2                        -1.106e-01  1.798e-01  4.510e+05   -0.615 0.538472
+## ot3                        -6.041e-01  1.798e-01  4.510e+05   -3.359 0.000783
+## ot4                        -9.188e-03  1.798e-01  4.510e+05   -0.051 0.959257
+## AOIthreat                  -2.179e-01  2.293e-02  4.510e+05   -9.502  &lt; 2e-16
+## AOIdysphoric                8.284e-03  2.293e-02  4.510e+05    0.361 0.717922
+## AOIpositive                 7.067e-01  2.293e-02  4.510e+05   30.816  &lt; 2e-16
+## TargetHTA                  -1.531e-01  3.014e-02  2.374e+02   -5.078 7.70e-07
+## ot1:AOIthreat               1.474e+00  2.543e-01  4.510e+05    5.796 6.81e-09
+## ot1:AOIdysphoric           -3.653e-01  2.543e-01  4.510e+05   -1.436 0.150907
+## ot1:AOIpositive             7.123e-01  2.543e-01  4.510e+05    2.801 0.005101
+## ot2:AOIthreat               8.576e-01  2.543e-01  4.510e+05    3.372 0.000747
+## ot2:AOIdysphoric            4.502e-01  2.543e-01  4.510e+05    1.770 0.076713
+## ot2:AOIpositive            -9.836e-01  2.543e-01  4.510e+05   -3.867 0.000110
+## ot3:AOIthreat               7.898e-01  2.543e-01  4.510e+05    3.105 0.001900
+## ot3:AOIdysphoric            1.090e+00  2.543e-01  4.510e+05    4.287 1.81e-05
+## ot3:AOIpositive             7.056e-01  2.543e-01  4.510e+05    2.774 0.005537
+## ot4:AOIthreat               4.185e-02  2.543e-01  4.510e+05    0.165 0.869299
+## ot4:AOIdysphoric            4.314e-02  2.543e-01  4.510e+05    0.170 0.865319
+## ot4:AOIpositive            -8.866e-02  2.543e-01  4.510e+05   -0.349 0.727415
+## ot1:TargetHTA               1.508e+00  2.502e-01  4.510e+05    6.030 1.64e-09
+## ot2:TargetHTA               3.657e-01  2.502e-01  4.510e+05    1.462 0.143785
+## ot3:TargetHTA               9.841e-01  2.502e-01  4.510e+05    3.934 8.35e-05
+## ot4:TargetHTA               5.292e-01  2.502e-01  4.510e+05    2.116 0.034387
+## AOIthreat:TargetHTA         8.226e-02  3.190e-02  4.510e+05    2.579 0.009915
+## AOIdysphoric:TargetHTA      3.261e-01  3.190e-02  4.510e+05   10.224  &lt; 2e-16
+## AOIpositive:TargetHTA       2.942e-01  3.190e-02  4.510e+05    9.225  &lt; 2e-16
+## ot1:AOIthreat:TargetHTA    -3.486e+00  3.538e-01  4.510e+05   -9.854  &lt; 2e-16
+## ot1:AOIdysphoric:TargetHTA -2.506e-01  3.538e-01  4.510e+05   -0.708 0.478733
+## ot1:AOIpositive:TargetHTA  -2.343e+00  3.538e-01  4.510e+05   -6.624 3.49e-11
+## ot2:AOIthreat:TargetHTA    -9.852e-02  3.538e-01  4.510e+05   -0.278 0.780632
+## ot2:AOIdysphoric:TargetHTA -1.008e+00  3.538e-01  4.510e+05   -2.850 0.004378
+## ot2:AOIpositive:TargetHTA  -1.939e-01  3.538e-01  4.510e+05   -0.548 0.583623
+## ot3:AOIthreat:TargetHTA    -1.586e+00  3.538e-01  4.510e+05   -4.484 7.34e-06
+## ot3:AOIdysphoric:TargetHTA -2.044e+00  3.538e-01  4.510e+05   -5.778 7.55e-09
+## ot3:AOIpositive:TargetHTA  -8.448e-01  3.538e-01  4.510e+05   -2.388 0.016947
+## ot4:AOIthreat:TargetHTA    -1.115e+00  3.538e-01  4.510e+05   -3.153 0.001619
+## ot4:AOIdysphoric:TargetHTA  6.452e-02  3.538e-01  4.510e+05    0.182 0.855293
+## ot4:AOIpositive:TargetHTA  -7.454e-01  3.538e-01  4.510e+05   -2.107 0.035104
+##                               
+## (Intercept)                ***
+## ot1                        *  
+## ot2                           
+## ot3                        ***
+## ot4                           
+## AOIthreat                  ***
+## AOIdysphoric                  
+## AOIpositive                ***
+## TargetHTA                  ***
+## ot1:AOIthreat              ***
+## ot1:AOIdysphoric              
+## ot1:AOIpositive            ** 
+## ot2:AOIthreat              ***
+## ot2:AOIdysphoric           .  
+## ot2:AOIpositive            ***
+## ot3:AOIthreat              ** 
+## ot3:AOIdysphoric           ***
+## ot3:AOIpositive            ** 
+## ot4:AOIthreat                 
+## ot4:AOIdysphoric              
+## ot4:AOIpositive               
+## ot1:TargetHTA              ***
+## ot2:TargetHTA                 
+## ot3:TargetHTA              ***
+## ot4:TargetHTA              *  
+## AOIthreat:TargetHTA        ** 
+## AOIdysphoric:TargetHTA     ***
+## AOIpositive:TargetHTA      ***
+## ot1:AOIthreat:TargetHTA    ***
+## ot1:AOIdysphoric:TargetHTA    
+## ot1:AOIpositive:TargetHTA  ***
+## ot2:AOIthreat:TargetHTA       
+## ot2:AOIdysphoric:TargetHTA ** 
+## ot2:AOIpositive:TargetHTA     
+## ot3:AOIthreat:TargetHTA    ***
+## ot3:AOIdysphoric:TargetHTA ***
+## ot3:AOIpositive:TargetHTA  *  
+## ot4:AOIthreat:TargetHTA    ** 
+## ot4:AOIdysphoric:TargetHTA    
+## ot4:AOIpositive:TargetHTA  *  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
@@ -1846,59 +2711,59 @@ print(&quot;Time 1&quot;)</code></pre>
 ## Formula: Elog ~ (ot1 + ot2) * AOI * Target + (1 | participant_phone)
 ##    Data: dt
 ## 
-## REML criterion at convergence: 2421073
+## REML criterion at convergence: 2481710
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -0.9356 -0.6382 -0.5591  0.6292  2.1690 
+## -0.9347 -0.6399 -0.5587  0.6292  2.1698 
 ## 
 ## Random effects:
 ##  Groups            Name        Variance  Std.Dev.
-##  participant_phone (Intercept)  0.008318 0.0912  
-##  Residual                      14.327517 3.7852  
-## Number of obs: 440160, groups:  participant_phone, 86
+##  participant_phone (Intercept)  0.008323 0.09123 
+##  Residual                      14.331097 3.78564 
+## Number of obs: 451164, groups:  participant_phone, 86
 ## 
 ## Fixed effects:
 ##                              Estimate Std. Error         df t value Pr(&gt;|t|)
-## (Intercept)                -1.577e+00  2.190e-02  2.332e+02 -72.015  &lt; 2e-16
-## ot1                         2.535e-01  1.798e-01  4.401e+05   1.410 0.158663
-## ot2                        -1.048e+00  1.798e-01  4.401e+05  -5.830 5.55e-09
-## AOIneutral                 -7.137e-01  2.322e-02  4.401e+05 -30.742  &lt; 2e-16
-## AOIthreat                  -9.266e-01  2.322e-02  4.401e+05 -39.911  &lt; 2e-16
-## AOIdysphoric               -7.097e-01  2.322e-02  4.401e+05 -30.569  &lt; 2e-16
-## TargetHTA                   1.386e-01  3.035e-02  2.409e+02   4.568 7.88e-06
-## ot1:AOIneutral             -6.022e-01  2.543e-01  4.401e+05  -2.368 0.017889
-## ot1:AOIthreat               8.295e-01  2.543e-01  4.401e+05   3.262 0.001108
-## ot1:AOIdysphoric           -8.979e-01  2.543e-01  4.401e+05  -3.531 0.000415
-## ot2:AOIneutral              9.319e-01  2.543e-01  4.401e+05   3.664 0.000248
-## ot2:AOIthreat               1.828e+00  2.543e-01  4.401e+05   7.189 6.53e-13
-## ot2:AOIdysphoric            1.333e+00  2.543e-01  4.401e+05   5.241 1.60e-07
-## ot1:TargetHTA              -8.162e-01  2.501e-01  4.401e+05  -3.263 0.001103
-## ot2:TargetHTA               1.971e-01  2.501e-01  4.401e+05   0.788 0.430675
-## AOIneutral:TargetHTA       -2.845e-01  3.229e-02  4.401e+05  -8.811  &lt; 2e-16
-## AOIthreat:TargetHTA        -2.187e-01  3.229e-02  4.401e+05  -6.774 1.26e-11
-## AOIdysphoric:TargetHTA      3.691e-02  3.229e-02  4.401e+05   1.143 0.253103
-## ot1:AOIneutral:TargetHTA    2.242e+00  3.538e-01  4.401e+05   6.338 2.33e-10
-## ot1:AOIthreat:TargetHTA    -1.055e+00  3.538e-01  4.401e+05  -2.982 0.002861
-## ot1:AOIdysphoric:TargetHTA  2.073e+00  3.538e-01  4.401e+05   5.861 4.59e-09
-## ot2:AOIneutral:TargetHTA    2.299e-01  3.538e-01  4.401e+05   0.650 0.515680
-## ot2:AOIthreat:TargetHTA     4.174e-02  3.538e-01  4.401e+05   0.118 0.906064
-## ot2:AOIdysphoric:TargetHTA -9.402e-01  3.538e-01  4.401e+05  -2.658 0.007862
+## (Intercept)                -1.583e+00  2.175e-02  2.299e+02 -72.766  &lt; 2e-16
+## ot1                         3.512e-01  1.799e-01  4.511e+05   1.952 0.050883
+## ot2                        -1.094e+00  1.799e-01  4.511e+05  -6.084 1.18e-09
+## AOIneutral                 -7.067e-01  2.294e-02  4.511e+05 -30.814  &lt; 2e-16
+## AOIthreat                  -9.246e-01  2.294e-02  4.511e+05 -40.315  &lt; 2e-16
+## AOIdysphoric               -6.984e-01  2.294e-02  4.511e+05 -30.452  &lt; 2e-16
+## TargetHTA                   1.412e-01  3.014e-02  2.375e+02   4.684 4.73e-06
+## ot1:AOIneutral             -7.123e-01  2.544e-01  4.511e+05  -2.800 0.005105
+## ot1:AOIthreat               7.618e-01  2.544e-01  4.511e+05   2.995 0.002745
+## ot1:AOIdysphoric           -1.078e+00  2.544e-01  4.511e+05  -4.237 2.27e-05
+## ot2:AOIneutral              9.836e-01  2.544e-01  4.511e+05   3.867 0.000110
+## ot2:AOIthreat               1.841e+00  2.544e-01  4.511e+05   7.238 4.55e-13
+## ot2:AOIdysphoric            1.434e+00  2.544e-01  4.511e+05   5.637 1.73e-08
+## ot1:TargetHTA              -8.351e-01  2.502e-01  4.511e+05  -3.338 0.000844
+## ot2:TargetHTA               1.718e-01  2.502e-01  4.511e+05   0.687 0.492296
+## AOIneutral:TargetHTA       -2.943e-01  3.190e-02  4.511e+05  -9.224  &lt; 2e-16
+## AOIthreat:TargetHTA        -2.120e-01  3.190e-02  4.511e+05  -6.645 3.03e-11
+## AOIdysphoric:TargetHTA      3.190e-02  3.190e-02  4.511e+05   1.000 0.317374
+## ot1:AOIneutral:TargetHTA    2.344e+00  3.538e-01  4.511e+05   6.624 3.50e-11
+## ot1:AOIthreat:TargetHTA    -1.142e+00  3.538e-01  4.511e+05  -3.229 0.001243
+## ot1:AOIdysphoric:TargetHTA  2.093e+00  3.538e-01  4.511e+05   5.916 3.31e-09
+## ot2:AOIneutral:TargetHTA    1.939e-01  3.538e-01  4.511e+05   0.548 0.583649
+## ot2:AOIthreat:TargetHTA     9.538e-02  3.538e-01  4.511e+05   0.270 0.787478
+## ot2:AOIdysphoric:TargetHTA -8.142e-01  3.538e-01  4.511e+05  -2.301 0.021373
 ##                               
 ## (Intercept)                ***
-## ot1                           
+## ot1                        .  
 ## ot2                        ***
 ## AOIneutral                 ***
 ## AOIthreat                  ***
 ## AOIdysphoric               ***
 ## TargetHTA                  ***
-## ot1:AOIneutral             *  
+## ot1:AOIneutral             ** 
 ## ot1:AOIthreat              ** 
 ## ot1:AOIdysphoric           ***
 ## ot2:AOIneutral             ***
 ## ot2:AOIthreat              ***
 ## ot2:AOIdysphoric           ***
-## ot1:TargetHTA              ** 
+## ot1:TargetHTA              ***
 ## ot2:TargetHTA                 
 ## AOIneutral:TargetHTA       ***
 ## AOIthreat:TargetHTA        ***
@@ -1908,7 +2773,7 @@ print(&quot;Time 1&quot;)</code></pre>
 ## ot1:AOIdysphoric:TargetHTA ***
 ## ot2:AOIneutral:TargetHTA      
 ## ot2:AOIthreat:TargetHTA       
-## ot2:AOIdysphoric:TargetHTA ** 
+## ot2:AOIdysphoric:TargetHTA *  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
@@ -1918,62 +2783,62 @@ print(&quot;Time 1&quot;)</code></pre>
 ## Formula: Elog ~ (ot1 + ot2 + ot3) * AOI * Target + (1 | participant_phone)
 ##    Data: dt
 ## 
-## REML criterion at convergence: 2421042
+## REML criterion at convergence: 2481680
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -0.9354 -0.6398 -0.5565  0.6330  2.1664 
+## -0.9342 -0.6403 -0.5561  0.6329  2.1650 
 ## 
 ## Random effects:
 ##  Groups            Name        Variance  Std.Dev.
-##  participant_phone (Intercept)  0.008318 0.0912  
-##  Residual                      14.326331 3.7850  
-## Number of obs: 440160, groups:  participant_phone, 86
+##  participant_phone (Intercept)  0.008323 0.09123 
+##  Residual                      14.329976 3.78550 
+## Number of obs: 451164, groups:  participant_phone, 86
 ## 
 ## Fixed effects:
 ##                              Estimate Std. Error         df t value Pr(&gt;|t|)
-## (Intercept)                -1.577e+00  2.190e-02  2.332e+02 -72.017  &lt; 2e-16
-## ot1                         2.535e-01  1.798e-01  4.400e+05   1.410 0.158646
-## ot2                        -1.048e+00  1.798e-01  4.400e+05  -5.830 5.54e-09
-## ot3                         1.354e-01  1.798e-01  4.400e+05   0.753 0.451435
-## AOIneutral                 -7.137e-01  2.322e-02  4.400e+05 -30.744  &lt; 2e-16
-## AOIthreat                  -9.266e-01  2.322e-02  4.400e+05 -39.913  &lt; 2e-16
-## AOIdysphoric               -7.097e-01  2.322e-02  4.400e+05 -30.570  &lt; 2e-16
-## TargetHTA                   1.386e-01  3.035e-02  2.408e+02   4.568 7.88e-06
-## ot1:AOIneutral             -6.022e-01  2.543e-01  4.400e+05  -2.368 0.017885
-## ot1:AOIthreat               8.295e-01  2.543e-01  4.400e+05   3.262 0.001107
-## ot1:AOIdysphoric           -8.979e-01  2.543e-01  4.400e+05  -3.531 0.000414
-## ot2:AOIneutral              9.319e-01  2.543e-01  4.400e+05   3.664 0.000248
-## ot2:AOIthreat               1.828e+00  2.543e-01  4.400e+05   7.190 6.51e-13
-## ot2:AOIdysphoric            1.333e+00  2.543e-01  4.400e+05   5.241 1.60e-07
-## ot3:AOIneutral             -7.782e-01  2.543e-01  4.400e+05  -3.060 0.002214
-## ot3:AOIthreat              -3.146e-02  2.543e-01  4.400e+05  -0.124 0.901560
-## ot3:AOIdysphoric            4.412e-01  2.543e-01  4.400e+05   1.735 0.082754
-## ot1:TargetHTA              -8.162e-01  2.501e-01  4.400e+05  -3.263 0.001103
-## ot2:TargetHTA               1.971e-01  2.501e-01  4.400e+05   0.788 0.430656
-## ot3:TargetHTA               1.087e-01  2.501e-01  4.400e+05   0.435 0.663858
-## AOIneutral:TargetHTA       -2.845e-01  3.229e-02  4.400e+05  -8.811  &lt; 2e-16
-## AOIthreat:TargetHTA        -2.187e-01  3.229e-02  4.400e+05  -6.774 1.25e-11
-## AOIdysphoric:TargetHTA      3.691e-02  3.229e-02  4.400e+05   1.143 0.253084
-## ot1:AOIneutral:TargetHTA    2.242e+00  3.537e-01  4.400e+05   6.338 2.33e-10
-## ot1:AOIthreat:TargetHTA    -1.055e+00  3.537e-01  4.400e+05  -2.982 0.002859
-## ot1:AOIdysphoric:TargetHTA  2.073e+00  3.537e-01  4.400e+05   5.862 4.59e-09
-## ot2:AOIneutral:TargetHTA    2.299e-01  3.537e-01  4.400e+05   0.650 0.515662
-## ot2:AOIthreat:TargetHTA     4.174e-02  3.537e-01  4.400e+05   0.118 0.906060
-## ot2:AOIdysphoric:TargetHTA -9.402e-01  3.537e-01  4.400e+05  -2.658 0.007860
-## ot3:AOIneutral:TargetHTA    8.574e-01  3.537e-01  4.400e+05   2.424 0.015362
-## ot3:AOIthreat:TargetHTA    -7.518e-01  3.537e-01  4.400e+05  -2.125 0.033550
-## ot3:AOIdysphoric:TargetHTA -1.090e+00  3.537e-01  4.400e+05  -3.081 0.002062
+## (Intercept)                -1.583e+00  2.175e-02  2.299e+02 -72.767  &lt; 2e-16
+## ot1                         3.512e-01  1.799e-01  4.510e+05   1.953 0.050874
+## ot2                        -1.094e+00  1.799e-01  4.510e+05  -6.084 1.17e-09
+## ot3                         1.015e-01  1.799e-01  4.510e+05   0.564 0.572572
+## AOIneutral                 -7.067e-01  2.293e-02  4.510e+05 -30.815  &lt; 2e-16
+## AOIthreat                  -9.246e-01  2.293e-02  4.510e+05 -40.317  &lt; 2e-16
+## AOIdysphoric               -6.984e-01  2.293e-02  4.510e+05 -30.454  &lt; 2e-16
+## TargetHTA                   1.412e-01  3.014e-02  2.374e+02   4.684 4.73e-06
+## ot1:AOIneutral             -7.123e-01  2.544e-01  4.510e+05  -2.800 0.005103
+## ot1:AOIthreat               7.618e-01  2.544e-01  4.510e+05   2.995 0.002744
+## ot1:AOIdysphoric           -1.078e+00  2.544e-01  4.510e+05  -4.237 2.27e-05
+## ot2:AOIneutral              9.836e-01  2.544e-01  4.510e+05   3.867 0.000110
+## ot2:AOIthreat               1.841e+00  2.544e-01  4.510e+05   7.239 4.54e-13
+## ot2:AOIdysphoric            1.434e+00  2.544e-01  4.510e+05   5.637 1.73e-08
+## ot3:AOIneutral             -7.056e-01  2.544e-01  4.510e+05  -2.774 0.005539
+## ot3:AOIthreat               8.428e-02  2.544e-01  4.510e+05   0.331 0.740371
+## ot3:AOIdysphoric            3.848e-01  2.544e-01  4.510e+05   1.513 0.130284
+## ot1:TargetHTA              -8.351e-01  2.502e-01  4.510e+05  -3.338 0.000844
+## ot2:TargetHTA               1.718e-01  2.502e-01  4.510e+05   0.687 0.492279
+## ot3:TargetHTA               1.394e-01  2.502e-01  4.510e+05   0.557 0.577409
+## AOIneutral:TargetHTA       -2.943e-01  3.190e-02  4.510e+05  -9.224  &lt; 2e-16
+## AOIthreat:TargetHTA        -2.120e-01  3.190e-02  4.510e+05  -6.646 3.02e-11
+## AOIdysphoric:TargetHTA      3.190e-02  3.190e-02  4.510e+05   1.000 0.317355
+## ot1:AOIneutral:TargetHTA    2.344e+00  3.538e-01  4.510e+05   6.624 3.50e-11
+## ot1:AOIthreat:TargetHTA    -1.142e+00  3.538e-01  4.510e+05  -3.229 0.001242
+## ot1:AOIdysphoric:TargetHTA  2.093e+00  3.538e-01  4.510e+05   5.916 3.30e-09
+## ot2:AOIneutral:TargetHTA    1.939e-01  3.538e-01  4.510e+05   0.548 0.583634
+## ot2:AOIthreat:TargetHTA     9.538e-02  3.538e-01  4.510e+05   0.270 0.787470
+## ot2:AOIdysphoric:TargetHTA -8.142e-01  3.538e-01  4.510e+05  -2.301 0.021368
+## ot3:AOIneutral:TargetHTA    8.448e-01  3.538e-01  4.510e+05   2.388 0.016950
+## ot3:AOIthreat:TargetHTA    -7.415e-01  3.538e-01  4.510e+05  -2.096 0.036100
+## ot3:AOIdysphoric:TargetHTA -1.199e+00  3.538e-01  4.510e+05  -3.390 0.000698
 ##                               
 ## (Intercept)                ***
-## ot1                           
+## ot1                        .  
 ## ot2                        ***
 ## ot3                           
 ## AOIneutral                 ***
 ## AOIthreat                  ***
 ## AOIdysphoric               ***
 ## TargetHTA                  ***
-## ot1:AOIneutral             *  
+## ot1:AOIneutral             ** 
 ## ot1:AOIthreat              ** 
 ## ot1:AOIdysphoric           ***
 ## ot2:AOIneutral             ***
@@ -1981,8 +2846,8 @@ print(&quot;Time 1&quot;)</code></pre>
 ## ot2:AOIdysphoric           ***
 ## ot3:AOIneutral             ** 
 ## ot3:AOIthreat                 
-## ot3:AOIdysphoric           .  
-## ot1:TargetHTA              ** 
+## ot3:AOIdysphoric              
+## ot1:TargetHTA              ***
 ## ot2:TargetHTA                 
 ## ot3:TargetHTA                 
 ## AOIneutral:TargetHTA       ***
@@ -1993,10 +2858,115 @@ print(&quot;Time 1&quot;)</code></pre>
 ## ot1:AOIdysphoric:TargetHTA ***
 ## ot2:AOIneutral:TargetHTA      
 ## ot2:AOIthreat:TargetHTA       
-## ot2:AOIdysphoric:TargetHTA ** 
+## ot2:AOIdysphoric:TargetHTA *  
 ## ot3:AOIneutral:TargetHTA   *  
 ## ot3:AOIthreat:TargetHTA    *  
-## ot3:AOIdysphoric:TargetHTA ** 
+## ot3:AOIdysphoric:TargetHTA ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## [[2]][[5]]
+## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
+## lmerModLmerTest]
+## Formula: 
+## Elog ~ (ot1 + ot2 + ot3 + ot4) * AOI * Target + (1 | participant_phone)
+##    Data: dt
+## 
+## REML criterion at convergence: 2481657
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -0.9316 -0.6404 -0.5585  0.6311  2.1651 
+## 
+## Random effects:
+##  Groups            Name        Variance  Std.Dev.
+##  participant_phone (Intercept)  0.008323 0.09123 
+##  Residual                      14.329095 3.78538 
+## Number of obs: 451164, groups:  participant_phone, 86
+## 
+## Fixed effects:
+##                              Estimate Std. Error         df t value Pr(&gt;|t|)
+## (Intercept)                -1.583e+00  2.175e-02  2.299e+02 -72.768  &lt; 2e-16
+## ot1                         3.512e-01  1.799e-01  4.510e+05   1.953 0.050867
+## ot2                        -1.094e+00  1.799e-01  4.510e+05  -6.084 1.17e-09
+## ot3                         1.015e-01  1.799e-01  4.510e+05   0.564 0.572560
+## ot4                        -9.784e-02  1.799e-01  4.510e+05  -0.544 0.586418
+## AOIneutral                 -7.067e-01  2.293e-02  4.510e+05 -30.816  &lt; 2e-16
+## AOIthreat                  -9.246e-01  2.293e-02  4.510e+05 -40.318  &lt; 2e-16
+## AOIdysphoric               -6.984e-01  2.293e-02  4.510e+05 -30.455  &lt; 2e-16
+## TargetHTA                   1.412e-01  3.014e-02  2.374e+02   4.684 4.73e-06
+## ot1:AOIneutral             -7.123e-01  2.543e-01  4.510e+05  -2.801 0.005101
+## ot1:AOIthreat               7.618e-01  2.543e-01  4.510e+05   2.995 0.002743
+## ot1:AOIdysphoric           -1.078e+00  2.543e-01  4.510e+05  -4.237 2.27e-05
+## ot2:AOIneutral              9.836e-01  2.543e-01  4.510e+05   3.867 0.000110
+## ot2:AOIthreat               1.841e+00  2.543e-01  4.510e+05   7.239 4.53e-13
+## ot2:AOIdysphoric            1.434e+00  2.543e-01  4.510e+05   5.637 1.73e-08
+## ot3:AOIneutral             -7.056e-01  2.543e-01  4.510e+05  -2.774 0.005537
+## ot3:AOIthreat               8.428e-02  2.543e-01  4.510e+05   0.331 0.740363
+## ot3:AOIdysphoric            3.848e-01  2.543e-01  4.510e+05   1.513 0.130273
+## ot4:AOIneutral              8.866e-02  2.543e-01  4.510e+05   0.349 0.727415
+## ot4:AOIthreat               1.305e-01  2.543e-01  4.510e+05   0.513 0.607871
+## ot4:AOIdysphoric            1.318e-01  2.543e-01  4.510e+05   0.518 0.604337
+## ot1:TargetHTA              -8.351e-01  2.501e-01  4.510e+05  -3.338 0.000843
+## ot2:TargetHTA               1.718e-01  2.501e-01  4.510e+05   0.687 0.492266
+## ot3:TargetHTA               1.394e-01  2.501e-01  4.510e+05   0.557 0.577398
+## ot4:TargetHTA              -2.162e-01  2.501e-01  4.510e+05  -0.864 0.387332
+## AOIneutral:TargetHTA       -2.943e-01  3.190e-02  4.510e+05  -9.225  &lt; 2e-16
+## AOIthreat:TargetHTA        -2.120e-01  3.190e-02  4.510e+05  -6.646 3.02e-11
+## AOIdysphoric:TargetHTA      3.190e-02  3.190e-02  4.510e+05   1.000 0.317340
+## ot1:AOIneutral:TargetHTA    2.344e+00  3.538e-01  4.510e+05   6.624 3.49e-11
+## ot1:AOIthreat:TargetHTA    -1.142e+00  3.538e-01  4.510e+05  -3.229 0.001242
+## ot1:AOIdysphoric:TargetHTA  2.093e+00  3.538e-01  4.510e+05   5.916 3.30e-09
+## ot2:AOIneutral:TargetHTA    1.939e-01  3.538e-01  4.510e+05   0.548 0.583623
+## ot2:AOIthreat:TargetHTA     9.538e-02  3.538e-01  4.510e+05   0.270 0.787464
+## ot2:AOIdysphoric:TargetHTA -8.142e-01  3.538e-01  4.510e+05  -2.301 0.021364
+## ot3:AOIneutral:TargetHTA    8.448e-01  3.538e-01  4.510e+05   2.388 0.016947
+## ot3:AOIthreat:TargetHTA    -7.415e-01  3.538e-01  4.510e+05  -2.096 0.036094
+## ot3:AOIdysphoric:TargetHTA -1.199e+00  3.538e-01  4.510e+05  -3.390 0.000698
+## ot4:AOIneutral:TargetHTA    7.454e-01  3.538e-01  4.510e+05   2.107 0.035104
+## ot4:AOIthreat:TargetHTA    -3.698e-01  3.538e-01  4.510e+05  -1.045 0.295863
+## ot4:AOIdysphoric:TargetHTA  8.100e-01  3.538e-01  4.510e+05   2.290 0.022049
+##                               
+## (Intercept)                ***
+## ot1                        .  
+## ot2                        ***
+## ot3                           
+## ot4                           
+## AOIneutral                 ***
+## AOIthreat                  ***
+## AOIdysphoric               ***
+## TargetHTA                  ***
+## ot1:AOIneutral             ** 
+## ot1:AOIthreat              ** 
+## ot1:AOIdysphoric           ***
+## ot2:AOIneutral             ***
+## ot2:AOIthreat              ***
+## ot2:AOIdysphoric           ***
+## ot3:AOIneutral             ** 
+## ot3:AOIthreat                 
+## ot3:AOIdysphoric              
+## ot4:AOIneutral                
+## ot4:AOIthreat                 
+## ot4:AOIdysphoric              
+## ot1:TargetHTA              ***
+## ot2:TargetHTA                 
+## ot3:TargetHTA                 
+## ot4:TargetHTA                 
+## AOIneutral:TargetHTA       ***
+## AOIthreat:TargetHTA        ***
+## AOIdysphoric:TargetHTA        
+## ot1:AOIneutral:TargetHTA   ***
+## ot1:AOIthreat:TargetHTA    ** 
+## ot1:AOIdysphoric:TargetHTA ***
+## ot2:AOIneutral:TargetHTA      
+## ot2:AOIthreat:TargetHTA       
+## ot2:AOIdysphoric:TargetHTA *  
+## ot3:AOIneutral:TargetHTA   *  
+## ot3:AOIthreat:TargetHTA    *  
+## ot3:AOIdysphoric:TargetHTA ***
+## ot4:AOIneutral:TargetHTA   *  
+## ot4:AOIthreat:TargetHTA       
+## ot4:AOIdysphoric:TargetHTA *  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
@@ -2014,48 +2984,48 @@ print(&quot;Time 1&quot;)</code></pre>
 ## Formula: Elog ~ (ot1 + ot2) * AOI * Target + (1 | participant_phone)
 ##    Data: dt
 ## 
-## REML criterion at convergence: 2421073
+## REML criterion at convergence: 2481710
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -0.9356 -0.6382 -0.5591  0.6292  2.1690 
+## -0.9347 -0.6399 -0.5587  0.6292  2.1698 
 ## 
 ## Random effects:
 ##  Groups            Name        Variance  Std.Dev.
-##  participant_phone (Intercept)  0.008318 0.0912  
-##  Residual                      14.327517 3.7852  
-## Number of obs: 440160, groups:  participant_phone, 86
+##  participant_phone (Intercept)  0.008323 0.09123 
+##  Residual                      14.331097 3.78564 
+## Number of obs: 451164, groups:  participant_phone, 86
 ## 
 ## Fixed effects:
 ##                             Estimate Std. Error         df  t value Pr(&gt;|t|)
-## (Intercept)               -2.287e+00  2.190e-02  2.332e+02 -104.423  &lt; 2e-16
-## ot1                       -6.444e-01  1.798e-01  4.401e+05   -3.583 0.000339
-## ot2                        2.845e-01  1.798e-01  4.401e+05    1.582 0.113627
-## AOIneutral                -4.024e-03  2.322e-02  4.401e+05   -0.173 0.862407
-## AOIthreat                 -2.169e-01  2.322e-02  4.401e+05   -9.342  &lt; 2e-16
-## AOIpositive                7.097e-01  2.322e-02  4.401e+05   30.569  &lt; 2e-16
-## TargetHTA                  1.755e-01  3.035e-02  2.409e+02    5.784 2.26e-08
-## ot1:AOIneutral             2.957e-01  2.543e-01  4.401e+05    1.163 0.244962
-## ot1:AOIthreat              1.727e+00  2.543e-01  4.401e+05    6.792 1.11e-11
-## ot1:AOIpositive            8.979e-01  2.543e-01  4.401e+05    3.531 0.000415
-## ot2:AOIneutral            -4.011e-01  2.543e-01  4.401e+05   -1.577 0.114774
-## ot2:AOIthreat              4.955e-01  2.543e-01  4.401e+05    1.948 0.051396
-## ot2:AOIpositive           -1.333e+00  2.543e-01  4.401e+05   -5.241 1.60e-07
-## ot1:TargetHTA              1.257e+00  2.501e-01  4.401e+05    5.026 5.00e-07
-## ot2:TargetHTA             -7.431e-01  2.501e-01  4.401e+05   -2.971 0.002970
-## AOIneutral:TargetHTA      -3.214e-01  3.229e-02  4.401e+05   -9.953  &lt; 2e-16
-## AOIthreat:TargetHTA       -2.556e-01  3.229e-02  4.401e+05   -7.917 2.45e-15
-## AOIpositive:TargetHTA     -3.691e-02  3.229e-02  4.401e+05   -1.143 0.253103
-## ot1:AOIneutral:TargetHTA   1.686e-01  3.537e-01  4.401e+05    0.477 0.633651
-## ot1:AOIthreat:TargetHTA   -3.128e+00  3.537e-01  4.401e+05   -8.844  &lt; 2e-16
-## ot1:AOIpositive:TargetHTA -2.073e+00  3.537e-01  4.401e+05   -5.861 4.59e-09
-## ot2:AOIneutral:TargetHTA   1.170e+00  3.537e-01  4.401e+05    3.308 0.000940
-## ot2:AOIthreat:TargetHTA    9.820e-01  3.537e-01  4.401e+05    2.776 0.005504
-## ot2:AOIpositive:TargetHTA  9.402e-01  3.537e-01  4.401e+05    2.658 0.007862
+## (Intercept)               -2.281e+00  2.175e-02  2.299e+02 -104.873  &lt; 2e-16
+## ot1                       -7.265e-01  1.799e-01  4.511e+05   -4.039 5.37e-05
+## ot2                        3.396e-01  1.799e-01  4.511e+05    1.888  0.05902
+## AOIneutral                -8.284e-03  2.294e-02  4.511e+05   -0.361  0.71794
+## AOIthreat                 -2.262e-01  2.294e-02  4.511e+05   -9.863  &lt; 2e-16
+## AOIpositive                6.984e-01  2.294e-02  4.511e+05   30.452  &lt; 2e-16
+## TargetHTA                  1.731e-01  3.014e-02  2.375e+02    5.742 2.84e-08
+## ot1:AOIneutral             3.653e-01  2.544e-01  4.511e+05    1.436  0.15094
+## ot1:AOIthreat              1.839e+00  2.544e-01  4.511e+05    7.232 4.78e-13
+## ot1:AOIpositive            1.078e+00  2.544e-01  4.511e+05    4.237 2.27e-05
+## ot2:AOIneutral            -4.502e-01  2.544e-01  4.511e+05   -1.770  0.07673
+## ot2:AOIthreat              4.074e-01  2.544e-01  4.511e+05    1.602  0.10926
+## ot2:AOIpositive           -1.434e+00  2.544e-01  4.511e+05   -5.637 1.73e-08
+## ot1:TargetHTA              1.258e+00  2.502e-01  4.511e+05    5.028 4.96e-07
+## ot2:TargetHTA             -6.424e-01  2.502e-01  4.511e+05   -2.568  0.01023
+## AOIneutral:TargetHTA      -3.261e-01  3.190e-02  4.511e+05  -10.224  &lt; 2e-16
+## AOIthreat:TargetHTA       -2.439e-01  3.190e-02  4.511e+05   -7.645 2.09e-14
+## AOIpositive:TargetHTA     -3.190e-02  3.190e-02  4.511e+05   -1.000  0.31737
+## ot1:AOIneutral:TargetHTA   2.506e-01  3.538e-01  4.511e+05    0.708  0.47876
+## ot1:AOIthreat:TargetHTA   -3.235e+00  3.538e-01  4.511e+05   -9.145  &lt; 2e-16
+## ot1:AOIpositive:TargetHTA -2.093e+00  3.538e-01  4.511e+05   -5.916 3.31e-09
+## ot2:AOIneutral:TargetHTA   1.008e+00  3.538e-01  4.511e+05    2.849  0.00438
+## ot2:AOIthreat:TargetHTA    9.096e-01  3.538e-01  4.511e+05    2.571  0.01014
+## ot2:AOIpositive:TargetHTA  8.142e-01  3.538e-01  4.511e+05    2.301  0.02137
 ##                              
 ## (Intercept)               ***
 ## ot1                       ***
-## ot2                          
+## ot2                       .  
 ## AOIneutral                   
 ## AOIthreat                 ***
 ## AOIpositive               ***
@@ -2063,20 +3033,20 @@ print(&quot;Time 1&quot;)</code></pre>
 ## ot1:AOIneutral               
 ## ot1:AOIthreat             ***
 ## ot1:AOIpositive           ***
-## ot2:AOIneutral               
-## ot2:AOIthreat             .  
+## ot2:AOIneutral            .  
+## ot2:AOIthreat                
 ## ot2:AOIpositive           ***
 ## ot1:TargetHTA             ***
-## ot2:TargetHTA             ** 
+## ot2:TargetHTA             *  
 ## AOIneutral:TargetHTA      ***
 ## AOIthreat:TargetHTA       ***
 ## AOIpositive:TargetHTA        
 ## ot1:AOIneutral:TargetHTA     
 ## ot1:AOIthreat:TargetHTA   ***
 ## ot1:AOIpositive:TargetHTA ***
-## ot2:AOIneutral:TargetHTA  ***
-## ot2:AOIthreat:TargetHTA   ** 
-## ot2:AOIpositive:TargetHTA ** 
+## ot2:AOIneutral:TargetHTA  ** 
+## ot2:AOIthreat:TargetHTA   *  
+## ot2:AOIpositive:TargetHTA *  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
@@ -2086,56 +3056,56 @@ print(&quot;Time 1&quot;)</code></pre>
 ## Formula: Elog ~ (ot1 + ot2 + ot3) * AOI * Target + (1 | participant_phone)
 ##    Data: dt
 ## 
-## REML criterion at convergence: 2421042
+## REML criterion at convergence: 2481680
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -0.9354 -0.6398 -0.5565  0.6330  2.1664 
+## -0.9342 -0.6403 -0.5561  0.6329  2.1650 
 ## 
 ## Random effects:
 ##  Groups            Name        Variance  Std.Dev.
-##  participant_phone (Intercept)  0.008318 0.0912  
-##  Residual                      14.326331 3.7850  
-## Number of obs: 440160, groups:  participant_phone, 86
+##  participant_phone (Intercept)  0.008323 0.09123 
+##  Residual                      14.329976 3.78550 
+## Number of obs: 451164, groups:  participant_phone, 86
 ## 
 ## Fixed effects:
 ##                             Estimate Std. Error         df  t value Pr(&gt;|t|)
-## (Intercept)               -2.287e+00  2.190e-02  2.332e+02 -104.424  &lt; 2e-16
-## ot1                       -6.444e-01  1.798e-01  4.400e+05   -3.584 0.000339
-## ot2                        2.845e-01  1.798e-01  4.400e+05    1.582 0.113612
-## ot3                        5.766e-01  1.798e-01  4.400e+05    3.207 0.001343
-## AOIneutral                -4.024e-03  2.322e-02  4.400e+05   -0.173 0.862401
-## AOIthreat                 -2.169e-01  2.322e-02  4.400e+05   -9.343  &lt; 2e-16
-## AOIpositive                7.097e-01  2.322e-02  4.400e+05   30.570  &lt; 2e-16
-## TargetHTA                  1.755e-01  3.035e-02  2.408e+02    5.784 2.26e-08
-## ot1:AOIneutral             2.957e-01  2.543e-01  4.400e+05    1.163 0.244943
-## ot1:AOIthreat              1.727e+00  2.543e-01  4.400e+05    6.792 1.10e-11
-## ot1:AOIpositive            8.979e-01  2.543e-01  4.400e+05    3.531 0.000414
-## ot2:AOIneutral            -4.011e-01  2.543e-01  4.400e+05   -1.577 0.114759
-## ot2:AOIthreat              4.955e-01  2.543e-01  4.400e+05    1.948 0.051386
-## ot2:AOIpositive           -1.333e+00  2.543e-01  4.400e+05   -5.241 1.60e-07
-## ot3:AOIneutral            -1.219e+00  2.543e-01  4.400e+05   -4.795 1.63e-06
-## ot3:AOIthreat             -4.727e-01  2.543e-01  4.400e+05   -1.859 0.063081
-## ot3:AOIpositive           -4.412e-01  2.543e-01  4.400e+05   -1.735 0.082754
-## ot1:TargetHTA              1.257e+00  2.501e-01  4.400e+05    5.027 5.00e-07
-## ot2:TargetHTA             -7.431e-01  2.501e-01  4.400e+05   -2.971 0.002969
-## ot3:TargetHTA             -9.812e-01  2.501e-01  4.400e+05   -3.923 8.75e-05
-## AOIneutral:TargetHTA      -3.214e-01  3.229e-02  4.400e+05   -9.954  &lt; 2e-16
-## AOIthreat:TargetHTA       -2.556e-01  3.229e-02  4.400e+05   -7.917 2.44e-15
-## AOIpositive:TargetHTA     -3.691e-02  3.229e-02  4.400e+05   -1.143 0.253084
-## ot1:AOIneutral:TargetHTA   1.686e-01  3.537e-01  4.400e+05    0.477 0.633637
-## ot1:AOIthreat:TargetHTA   -3.128e+00  3.537e-01  4.400e+05   -8.844  &lt; 2e-16
-## ot1:AOIpositive:TargetHTA -2.073e+00  3.537e-01  4.400e+05   -5.862 4.59e-09
-## ot2:AOIneutral:TargetHTA   1.170e+00  3.537e-01  4.400e+05    3.308 0.000939
-## ot2:AOIthreat:TargetHTA    9.820e-01  3.537e-01  4.400e+05    2.776 0.005502
-## ot2:AOIpositive:TargetHTA  9.402e-01  3.537e-01  4.400e+05    2.658 0.007860
-## ot3:AOIneutral:TargetHTA   1.947e+00  3.537e-01  4.400e+05    5.505 3.70e-08
-## ot3:AOIthreat:TargetHTA    3.381e-01  3.537e-01  4.400e+05    0.956 0.339225
-## ot3:AOIpositive:TargetHTA  1.090e+00  3.537e-01  4.400e+05    3.081 0.002062
+## (Intercept)               -2.281e+00  2.175e-02  2.299e+02 -104.874  &lt; 2e-16
+## ot1                       -7.265e-01  1.799e-01  4.510e+05   -4.039 5.37e-05
+## ot2                        3.396e-01  1.799e-01  4.510e+05    1.888 0.059014
+## ot3                        4.863e-01  1.799e-01  4.510e+05    2.704 0.006852
+## AOIneutral                -8.284e-03  2.293e-02  4.510e+05   -0.361 0.717930
+## AOIthreat                 -2.262e-01  2.293e-02  4.510e+05   -9.863  &lt; 2e-16
+## AOIpositive                6.984e-01  2.293e-02  4.510e+05   30.454  &lt; 2e-16
+## TargetHTA                  1.731e-01  3.014e-02  2.374e+02    5.743 2.84e-08
+## ot1:AOIneutral             3.653e-01  2.544e-01  4.510e+05    1.436 0.150920
+## ot1:AOIthreat              1.839e+00  2.544e-01  4.510e+05    7.232 4.77e-13
+## ot1:AOIpositive            1.078e+00  2.544e-01  4.510e+05    4.237 2.27e-05
+## ot2:AOIneutral            -4.502e-01  2.544e-01  4.510e+05   -1.770 0.076723
+## ot2:AOIthreat              4.074e-01  2.544e-01  4.510e+05    1.602 0.109243
+## ot2:AOIpositive           -1.434e+00  2.544e-01  4.510e+05   -5.637 1.73e-08
+## ot3:AOIneutral            -1.090e+00  2.544e-01  4.510e+05   -4.287 1.81e-05
+## ot3:AOIthreat             -3.005e-01  2.544e-01  4.510e+05   -1.182 0.237357
+## ot3:AOIpositive           -3.848e-01  2.544e-01  4.510e+05   -1.513 0.130284
+## ot1:TargetHTA              1.258e+00  2.502e-01  4.510e+05    5.028 4.95e-07
+## ot2:TargetHTA             -6.424e-01  2.502e-01  4.510e+05   -2.568 0.010228
+## ot3:TargetHTA             -1.060e+00  2.502e-01  4.510e+05   -4.237 2.26e-05
+## AOIneutral:TargetHTA      -3.261e-01  3.190e-02  4.510e+05  -10.224  &lt; 2e-16
+## AOIthreat:TargetHTA       -2.439e-01  3.190e-02  4.510e+05   -7.645 2.09e-14
+## AOIpositive:TargetHTA     -3.190e-02  3.190e-02  4.510e+05   -1.000 0.317355
+## ot1:AOIneutral:TargetHTA   2.506e-01  3.538e-01  4.510e+05    0.708 0.478746
+## ot1:AOIthreat:TargetHTA   -3.235e+00  3.538e-01  4.510e+05   -9.145  &lt; 2e-16
+## ot1:AOIpositive:TargetHTA -2.093e+00  3.538e-01  4.510e+05   -5.916 3.30e-09
+## ot2:AOIneutral:TargetHTA   1.008e+00  3.538e-01  4.510e+05    2.850 0.004379
+## ot2:AOIthreat:TargetHTA    9.096e-01  3.538e-01  4.510e+05    2.571 0.010140
+## ot2:AOIpositive:TargetHTA  8.142e-01  3.538e-01  4.510e+05    2.301 0.021368
+## ot3:AOIneutral:TargetHTA   2.044e+00  3.538e-01  4.510e+05    5.778 7.56e-09
+## ot3:AOIthreat:TargetHTA    4.580e-01  3.538e-01  4.510e+05    1.295 0.195485
+## ot3:AOIpositive:TargetHTA  1.199e+00  3.538e-01  4.510e+05    3.390 0.000698
 ##                              
 ## (Intercept)               ***
 ## ot1                       ***
-## ot2                          
+## ot2                       .  
 ## ot3                       ** 
 ## AOIneutral                   
 ## AOIthreat                 ***
@@ -2144,14 +3114,14 @@ print(&quot;Time 1&quot;)</code></pre>
 ## ot1:AOIneutral               
 ## ot1:AOIthreat             ***
 ## ot1:AOIpositive           ***
-## ot2:AOIneutral               
-## ot2:AOIthreat             .  
+## ot2:AOIneutral            .  
+## ot2:AOIthreat                
 ## ot2:AOIpositive           ***
 ## ot3:AOIneutral            ***
-## ot3:AOIthreat             .  
-## ot3:AOIpositive           .  
+## ot3:AOIthreat                
+## ot3:AOIpositive              
 ## ot1:TargetHTA             ***
-## ot2:TargetHTA             ** 
+## ot2:TargetHTA             *  
 ## ot3:TargetHTA             ***
 ## AOIneutral:TargetHTA      ***
 ## AOIthreat:TargetHTA       ***
@@ -2159,12 +3129,117 @@ print(&quot;Time 1&quot;)</code></pre>
 ## ot1:AOIneutral:TargetHTA     
 ## ot1:AOIthreat:TargetHTA   ***
 ## ot1:AOIpositive:TargetHTA ***
-## ot2:AOIneutral:TargetHTA  ***
-## ot2:AOIthreat:TargetHTA   ** 
-## ot2:AOIpositive:TargetHTA ** 
+## ot2:AOIneutral:TargetHTA  ** 
+## ot2:AOIthreat:TargetHTA   *  
+## ot2:AOIpositive:TargetHTA *  
 ## ot3:AOIneutral:TargetHTA  ***
 ## ot3:AOIthreat:TargetHTA      
-## ot3:AOIpositive:TargetHTA ** 
+## ot3:AOIpositive:TargetHTA ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## [[3]][[5]]
+## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
+## lmerModLmerTest]
+## Formula: 
+## Elog ~ (ot1 + ot2 + ot3 + ot4) * AOI * Target + (1 | participant_phone)
+##    Data: dt
+## 
+## REML criterion at convergence: 2481657
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -0.9316 -0.6404 -0.5585  0.6311  2.1651 
+## 
+## Random effects:
+##  Groups            Name        Variance  Std.Dev.
+##  participant_phone (Intercept)  0.008323 0.09123 
+##  Residual                      14.329095 3.78538 
+## Number of obs: 451164, groups:  participant_phone, 86
+## 
+## Fixed effects:
+##                             Estimate Std. Error         df  t value Pr(&gt;|t|)
+## (Intercept)               -2.281e+00  2.175e-02  2.299e+02 -104.876  &lt; 2e-16
+## ot1                       -7.265e-01  1.798e-01  4.510e+05   -4.039 5.36e-05
+## ot2                        3.396e-01  1.798e-01  4.510e+05    1.888 0.059006
+## ot3                        4.863e-01  1.798e-01  4.510e+05    2.704 0.006851
+## ot4                        3.395e-02  1.798e-01  4.510e+05    0.189 0.850269
+## AOIneutral                -8.284e-03  2.293e-02  4.510e+05   -0.361 0.717922
+## AOIthreat                 -2.262e-01  2.293e-02  4.510e+05   -9.863  &lt; 2e-16
+## AOIpositive                6.984e-01  2.293e-02  4.510e+05   30.455  &lt; 2e-16
+## TargetHTA                  1.731e-01  3.014e-02  2.374e+02    5.743 2.84e-08
+## ot1:AOIneutral             3.653e-01  2.543e-01  4.510e+05    1.436 0.150907
+## ot1:AOIthreat              1.839e+00  2.543e-01  4.510e+05    7.232 4.76e-13
+## ot1:AOIpositive            1.078e+00  2.543e-01  4.510e+05    4.237 2.27e-05
+## ot2:AOIneutral            -4.502e-01  2.543e-01  4.510e+05   -1.770 0.076713
+## ot2:AOIthreat              4.074e-01  2.543e-01  4.510e+05    1.602 0.109233
+## ot2:AOIpositive           -1.434e+00  2.543e-01  4.510e+05   -5.637 1.73e-08
+## ot3:AOIneutral            -1.090e+00  2.543e-01  4.510e+05   -4.287 1.81e-05
+## ot3:AOIthreat             -3.005e-01  2.543e-01  4.510e+05   -1.182 0.237342
+## ot3:AOIpositive           -3.848e-01  2.543e-01  4.510e+05   -1.513 0.130273
+## ot4:AOIneutral            -4.314e-02  2.543e-01  4.510e+05   -0.170 0.865319
+## ot4:AOIthreat             -1.287e-03  2.543e-01  4.510e+05   -0.005 0.995963
+## ot4:AOIpositive           -1.318e-01  2.543e-01  4.510e+05   -0.518 0.604337
+## ot1:TargetHTA              1.258e+00  2.502e-01  4.510e+05    5.028 4.95e-07
+## ot2:TargetHTA             -6.424e-01  2.502e-01  4.510e+05   -2.568 0.010226
+## ot3:TargetHTA             -1.060e+00  2.502e-01  4.510e+05   -4.238 2.26e-05
+## ot4:TargetHTA              5.937e-01  2.502e-01  4.510e+05    2.373 0.017624
+## AOIneutral:TargetHTA      -3.261e-01  3.190e-02  4.510e+05  -10.224  &lt; 2e-16
+## AOIthreat:TargetHTA       -2.439e-01  3.190e-02  4.510e+05   -7.646 2.08e-14
+## AOIpositive:TargetHTA     -3.190e-02  3.190e-02  4.510e+05   -1.000 0.317340
+## ot1:AOIneutral:TargetHTA   2.506e-01  3.538e-01  4.510e+05    0.708 0.478733
+## ot1:AOIthreat:TargetHTA   -3.235e+00  3.538e-01  4.510e+05   -9.145  &lt; 2e-16
+## ot1:AOIpositive:TargetHTA -2.093e+00  3.538e-01  4.510e+05   -5.916 3.30e-09
+## ot2:AOIneutral:TargetHTA   1.008e+00  3.538e-01  4.510e+05    2.850 0.004378
+## ot2:AOIthreat:TargetHTA    9.096e-01  3.538e-01  4.510e+05    2.571 0.010138
+## ot2:AOIpositive:TargetHTA  8.142e-01  3.538e-01  4.510e+05    2.301 0.021364
+## ot3:AOIneutral:TargetHTA   2.044e+00  3.538e-01  4.510e+05    5.778 7.55e-09
+## ot3:AOIthreat:TargetHTA    4.580e-01  3.538e-01  4.510e+05    1.295 0.195471
+## ot3:AOIpositive:TargetHTA  1.199e+00  3.538e-01  4.510e+05    3.390 0.000698
+## ot4:AOIneutral:TargetHTA  -6.452e-02  3.538e-01  4.510e+05   -0.182 0.855293
+## ot4:AOIthreat:TargetHTA   -1.180e+00  3.538e-01  4.510e+05   -3.335 0.000853
+## ot4:AOIpositive:TargetHTA -8.100e-01  3.538e-01  4.510e+05   -2.290 0.022049
+##                              
+## (Intercept)               ***
+## ot1                       ***
+## ot2                       .  
+## ot3                       ** 
+## ot4                          
+## AOIneutral                   
+## AOIthreat                 ***
+## AOIpositive               ***
+## TargetHTA                 ***
+## ot1:AOIneutral               
+## ot1:AOIthreat             ***
+## ot1:AOIpositive           ***
+## ot2:AOIneutral            .  
+## ot2:AOIthreat                
+## ot2:AOIpositive           ***
+## ot3:AOIneutral            ***
+## ot3:AOIthreat                
+## ot3:AOIpositive              
+## ot4:AOIneutral               
+## ot4:AOIthreat                
+## ot4:AOIpositive              
+## ot1:TargetHTA             ***
+## ot2:TargetHTA             *  
+## ot3:TargetHTA             ***
+## ot4:TargetHTA             *  
+## AOIneutral:TargetHTA      ***
+## AOIthreat:TargetHTA       ***
+## AOIpositive:TargetHTA        
+## ot1:AOIneutral:TargetHTA     
+## ot1:AOIthreat:TargetHTA   ***
+## ot1:AOIpositive:TargetHTA ***
+## ot2:AOIneutral:TargetHTA  ** 
+## ot2:AOIthreat:TargetHTA   *  
+## ot2:AOIpositive:TargetHTA *  
+## ot3:AOIneutral:TargetHTA  ***
+## ot3:AOIthreat:TargetHTA      
+## ot3:AOIpositive:TargetHTA ***
+## ot4:AOIneutral:TargetHTA     
+## ot4:AOIthreat:TargetHTA   ***
+## ot4:AOIpositive:TargetHTA *  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
@@ -2182,44 +3257,44 @@ print(&quot;Time 1&quot;)</code></pre>
 ## Formula: Elog ~ (ot1 + ot2) * AOI * Target + (1 | participant_phone)
 ##    Data: dt
 ## 
-## REML criterion at convergence: 2421073
+## REML criterion at convergence: 2481710
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -0.9356 -0.6382 -0.5591  0.6292  2.1690 
+## -0.9347 -0.6399 -0.5587  0.6292  2.1698 
 ## 
 ## Random effects:
 ##  Groups            Name        Variance  Std.Dev.
-##  participant_phone (Intercept)  0.008318 0.0912  
-##  Residual                      14.327517 3.7852  
-## Number of obs: 440160, groups:  participant_phone, 86
+##  participant_phone (Intercept)  0.008323 0.09123 
+##  Residual                      14.331097 3.78564 
+## Number of obs: 451164, groups:  participant_phone, 86
 ## 
 ## Fixed effects:
 ##                              Estimate Std. Error         df  t value Pr(&gt;|t|)
-## (Intercept)                -2.504e+00  2.190e-02  2.332e+02 -114.326  &lt; 2e-16
-## ot1                         1.083e+00  1.798e-01  4.401e+05    6.022 1.72e-09
-## ot2                         7.800e-01  1.798e-01  4.401e+05    4.337 1.44e-05
-## AOIdysphoric                2.169e-01  2.322e-02  4.401e+05    9.342  &lt; 2e-16
-## AOIpositive                 9.266e-01  2.322e-02  4.401e+05   39.911  &lt; 2e-16
-## AOIneutral                  2.129e-01  2.322e-02  4.401e+05    9.169  &lt; 2e-16
-## TargetHTA                  -8.013e-02  3.035e-02  2.409e+02   -2.640 0.008820
-## ot1:AOIdysphoric           -1.727e+00  2.543e-01  4.401e+05   -6.792 1.11e-11
-## ot1:AOIpositive            -8.295e-01  2.543e-01  4.401e+05   -3.262 0.001108
-## ot1:AOIneutral             -1.432e+00  2.543e-01  4.401e+05   -5.629 1.81e-08
-## ot2:AOIdysphoric           -4.955e-01  2.543e-01  4.401e+05   -1.948 0.051396
-## ot2:AOIpositive            -1.828e+00  2.543e-01  4.401e+05   -7.189 6.53e-13
-## ot2:AOIneutral             -8.966e-01  2.543e-01  4.401e+05   -3.525 0.000423
-## ot1:TargetHTA              -1.871e+00  2.501e-01  4.401e+05   -7.481 7.42e-14
-## ot2:TargetHTA               2.389e-01  2.501e-01  4.401e+05    0.955 0.339617
-## AOIdysphoric:TargetHTA      2.556e-01  3.229e-02  4.401e+05    7.917 2.45e-15
-## AOIpositive:TargetHTA       2.187e-01  3.229e-02  4.401e+05    6.774 1.26e-11
-## AOIneutral:TargetHTA       -6.577e-02  3.229e-02  4.401e+05   -2.037 0.041668
-## ot1:AOIdysphoric:TargetHTA  3.128e+00  3.538e-01  4.401e+05    8.844  &lt; 2e-16
-## ot1:AOIpositive:TargetHTA   1.055e+00  3.538e-01  4.401e+05    2.982 0.002861
-## ot1:AOIneutral:TargetHTA    3.297e+00  3.538e-01  4.401e+05    9.320  &lt; 2e-16
-## ot2:AOIdysphoric:TargetHTA -9.820e-01  3.538e-01  4.401e+05   -2.776 0.005504
-## ot2:AOIpositive:TargetHTA  -4.174e-02  3.538e-01  4.401e+05   -0.118 0.906064
-## ot2:AOIneutral:TargetHTA    1.882e-01  3.538e-01  4.401e+05    0.532 0.594716
+## (Intercept)                -2.508e+00  2.175e-02  2.299e+02 -115.271  &lt; 2e-16
+## ot1                         1.113e+00  1.799e-01  4.511e+05    6.188 6.10e-10
+## ot2                         7.470e-01  1.799e-01  4.511e+05    4.153 3.28e-05
+## AOIdysphoric                2.262e-01  2.294e-02  4.511e+05    9.863  &lt; 2e-16
+## AOIpositive                 9.246e-01  2.294e-02  4.511e+05   40.315  &lt; 2e-16
+## AOIneutral                  2.179e-01  2.294e-02  4.511e+05    9.502  &lt; 2e-16
+## TargetHTA                  -7.080e-02  3.014e-02  2.375e+02   -2.349 0.019640
+## ot1:AOIdysphoric           -1.839e+00  2.544e-01  4.511e+05   -7.232 4.78e-13
+## ot1:AOIpositive            -7.618e-01  2.544e-01  4.511e+05   -2.995 0.002745
+## ot1:AOIneutral             -1.474e+00  2.544e-01  4.511e+05   -5.795 6.82e-09
+## ot2:AOIdysphoric           -4.074e-01  2.544e-01  4.511e+05   -1.602 0.109257
+## ot2:AOIpositive            -1.841e+00  2.544e-01  4.511e+05   -7.238 4.55e-13
+## ot2:AOIneutral             -8.576e-01  2.544e-01  4.511e+05   -3.372 0.000748
+## ot1:TargetHTA              -1.977e+00  2.502e-01  4.511e+05   -7.904 2.70e-15
+## ot2:TargetHTA               2.672e-01  2.502e-01  4.511e+05    1.068 0.285559
+## AOIdysphoric:TargetHTA      2.439e-01  3.190e-02  4.511e+05    7.645 2.09e-14
+## AOIpositive:TargetHTA       2.120e-01  3.190e-02  4.511e+05    6.645 3.03e-11
+## AOIneutral:TargetHTA       -8.226e-02  3.190e-02  4.511e+05   -2.579 0.009920
+## ot1:AOIdysphoric:TargetHTA  3.235e+00  3.538e-01  4.511e+05    9.145  &lt; 2e-16
+## ot1:AOIpositive:TargetHTA   1.142e+00  3.538e-01  4.511e+05    3.229 0.001243
+## ot1:AOIneutral:TargetHTA    3.486e+00  3.538e-01  4.511e+05    9.853  &lt; 2e-16
+## ot2:AOIdysphoric:TargetHTA -9.096e-01  3.538e-01  4.511e+05   -2.571 0.010143
+## ot2:AOIpositive:TargetHTA  -9.538e-02  3.538e-01  4.511e+05   -0.270 0.787478
+## ot2:AOIneutral:TargetHTA    9.852e-02  3.538e-01  4.511e+05    0.278 0.780647
 ##                               
 ## (Intercept)                ***
 ## ot1                        ***
@@ -2227,22 +3302,22 @@ print(&quot;Time 1&quot;)</code></pre>
 ## AOIdysphoric               ***
 ## AOIpositive                ***
 ## AOIneutral                 ***
-## TargetHTA                  ** 
+## TargetHTA                  *  
 ## ot1:AOIdysphoric           ***
 ## ot1:AOIpositive            ** 
 ## ot1:AOIneutral             ***
-## ot2:AOIdysphoric           .  
+## ot2:AOIdysphoric              
 ## ot2:AOIpositive            ***
 ## ot2:AOIneutral             ***
 ## ot1:TargetHTA              ***
 ## ot2:TargetHTA                 
 ## AOIdysphoric:TargetHTA     ***
 ## AOIpositive:TargetHTA      ***
-## AOIneutral:TargetHTA       *  
+## AOIneutral:TargetHTA       ** 
 ## ot1:AOIdysphoric:TargetHTA ***
 ## ot1:AOIpositive:TargetHTA  ** 
 ## ot1:AOIneutral:TargetHTA   ***
-## ot2:AOIdysphoric:TargetHTA ** 
+## ot2:AOIdysphoric:TargetHTA *  
 ## ot2:AOIpositive:TargetHTA     
 ## ot2:AOIneutral:TargetHTA      
 ## ---
@@ -2254,52 +3329,52 @@ print(&quot;Time 1&quot;)</code></pre>
 ## Formula: Elog ~ (ot1 + ot2 + ot3) * AOI * Target + (1 | participant_phone)
 ##    Data: dt
 ## 
-## REML criterion at convergence: 2421042
+## REML criterion at convergence: 2481680
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -0.9354 -0.6398 -0.5565  0.6330  2.1664 
+## -0.9342 -0.6403 -0.5561  0.6329  2.1650 
 ## 
 ## Random effects:
 ##  Groups            Name        Variance  Std.Dev.
-##  participant_phone (Intercept)  0.008317 0.0912  
-##  Residual                      14.326332 3.7850  
-## Number of obs: 440160, groups:  participant_phone, 86
+##  participant_phone (Intercept)  0.008323 0.09123 
+##  Residual                      14.329976 3.78550 
+## Number of obs: 451164, groups:  participant_phone, 86
 ## 
 ## Fixed effects:
 ##                              Estimate Std. Error         df  t value Pr(&gt;|t|)
-## (Intercept)                -2.504e+00  2.190e-02  2.332e+02 -114.331  &lt; 2e-16
-## ot1                         1.083e+00  1.798e-01  4.400e+05    6.022 1.72e-09
-## ot2                         7.800e-01  1.798e-01  4.400e+05    4.337 1.44e-05
-## ot3                         1.040e-01  1.798e-01  4.400e+05    0.578 0.563197
-## AOIdysphoric                2.169e-01  2.322e-02  4.400e+05    9.343  &lt; 2e-16
-## AOIpositive                 9.266e-01  2.322e-02  4.400e+05   39.913  &lt; 2e-16
-## AOIneutral                  2.129e-01  2.322e-02  4.400e+05    9.169  &lt; 2e-16
-## TargetHTA                  -8.013e-02  3.035e-02  2.409e+02   -2.641 0.008818
-## ot1:AOIdysphoric           -1.727e+00  2.543e-01  4.400e+05   -6.792 1.10e-11
-## ot1:AOIpositive            -8.295e-01  2.543e-01  4.400e+05   -3.262 0.001107
-## ot1:AOIneutral             -1.432e+00  2.543e-01  4.400e+05   -5.630 1.81e-08
-## ot2:AOIdysphoric           -4.955e-01  2.543e-01  4.400e+05   -1.948 0.051386
-## ot2:AOIpositive            -1.828e+00  2.543e-01  4.400e+05   -7.190 6.51e-13
-## ot2:AOIneutral             -8.966e-01  2.543e-01  4.400e+05   -3.525 0.000423
-## ot3:AOIdysphoric            4.727e-01  2.543e-01  4.400e+05    1.859 0.063081
-## ot3:AOIpositive             3.146e-02  2.543e-01  4.400e+05    0.124 0.901560
-## ot3:AOIneutral             -7.467e-01  2.543e-01  4.400e+05   -2.936 0.003322
-## ot1:TargetHTA              -1.871e+00  2.501e-01  4.400e+05   -7.481 7.40e-14
-## ot2:TargetHTA               2.389e-01  2.501e-01  4.400e+05    0.955 0.339597
-## ot3:TargetHTA              -6.431e-01  2.501e-01  4.400e+05   -2.571 0.010134
-## AOIdysphoric:TargetHTA      2.556e-01  3.229e-02  4.400e+05    7.917 2.44e-15
-## AOIpositive:TargetHTA       2.187e-01  3.229e-02  4.400e+05    6.774 1.25e-11
-## AOIneutral:TargetHTA       -6.577e-02  3.229e-02  4.400e+05   -2.037 0.041660
-## ot1:AOIdysphoric:TargetHTA  3.128e+00  3.537e-01  4.400e+05    8.844  &lt; 2e-16
-## ot1:AOIpositive:TargetHTA   1.055e+00  3.537e-01  4.400e+05    2.982 0.002859
-## ot1:AOIneutral:TargetHTA    3.297e+00  3.537e-01  4.400e+05    9.321  &lt; 2e-16
-## ot2:AOIdysphoric:TargetHTA -9.820e-01  3.537e-01  4.400e+05   -2.776 0.005502
-## ot2:AOIpositive:TargetHTA  -4.174e-02  3.537e-01  4.400e+05   -0.118 0.906060
-## ot2:AOIneutral:TargetHTA    1.882e-01  3.537e-01  4.400e+05    0.532 0.594701
-## ot3:AOIdysphoric:TargetHTA -3.381e-01  3.537e-01  4.400e+05   -0.956 0.339225
-## ot3:AOIpositive:TargetHTA   7.518e-01  3.537e-01  4.400e+05    2.125 0.033550
-## ot3:AOIneutral:TargetHTA    1.609e+00  3.537e-01  4.400e+05    4.549 5.39e-06
+## (Intercept)                -2.508e+00  2.175e-02  2.299e+02 -115.273  &lt; 2e-16
+## ot1                         1.113e+00  1.799e-01  4.510e+05    6.188 6.09e-10
+## ot2                         7.470e-01  1.799e-01  4.510e+05    4.153 3.28e-05
+## ot3                         1.858e-01  1.799e-01  4.510e+05    1.033 0.301658
+## AOIdysphoric                2.262e-01  2.293e-02  4.510e+05    9.863  &lt; 2e-16
+## AOIpositive                 9.246e-01  2.293e-02  4.510e+05   40.317  &lt; 2e-16
+## AOIneutral                  2.179e-01  2.293e-02  4.510e+05    9.502  &lt; 2e-16
+## TargetHTA                  -7.080e-02  3.014e-02  2.374e+02   -2.349 0.019639
+## ot1:AOIdysphoric           -1.839e+00  2.544e-01  4.510e+05   -7.232 4.77e-13
+## ot1:AOIpositive            -7.618e-01  2.544e-01  4.510e+05   -2.995 0.002744
+## ot1:AOIneutral             -1.474e+00  2.544e-01  4.510e+05   -5.796 6.81e-09
+## ot2:AOIdysphoric           -4.074e-01  2.544e-01  4.510e+05   -1.602 0.109243
+## ot2:AOIpositive            -1.841e+00  2.544e-01  4.510e+05   -7.239 4.54e-13
+## ot2:AOIneutral             -8.576e-01  2.544e-01  4.510e+05   -3.372 0.000747
+## ot3:AOIdysphoric            3.005e-01  2.544e-01  4.510e+05    1.182 0.237357
+## ot3:AOIpositive            -8.428e-02  2.544e-01  4.510e+05   -0.331 0.740371
+## ot3:AOIneutral             -7.898e-01  2.544e-01  4.510e+05   -3.105 0.001901
+## ot1:TargetHTA              -1.977e+00  2.502e-01  4.510e+05   -7.905 2.69e-15
+## ot2:TargetHTA               2.672e-01  2.502e-01  4.510e+05    1.068 0.285541
+## ot3:TargetHTA              -6.021e-01  2.502e-01  4.510e+05   -2.407 0.016096
+## AOIdysphoric:TargetHTA      2.439e-01  3.190e-02  4.510e+05    7.645 2.09e-14
+## AOIpositive:TargetHTA       2.120e-01  3.190e-02  4.510e+05    6.646 3.02e-11
+## AOIneutral:TargetHTA       -8.226e-02  3.190e-02  4.510e+05   -2.579 0.009917
+## ot1:AOIdysphoric:TargetHTA  3.235e+00  3.538e-01  4.510e+05    9.145  &lt; 2e-16
+## ot1:AOIpositive:TargetHTA   1.142e+00  3.538e-01  4.510e+05    3.229 0.001242
+## ot1:AOIneutral:TargetHTA    3.486e+00  3.538e-01  4.510e+05    9.853  &lt; 2e-16
+## ot2:AOIdysphoric:TargetHTA -9.096e-01  3.538e-01  4.510e+05   -2.571 0.010140
+## ot2:AOIpositive:TargetHTA  -9.538e-02  3.538e-01  4.510e+05   -0.270 0.787470
+## ot2:AOIneutral:TargetHTA    9.852e-02  3.538e-01  4.510e+05    0.278 0.780639
+## ot3:AOIdysphoric:TargetHTA -4.580e-01  3.538e-01  4.510e+05   -1.295 0.195485
+## ot3:AOIpositive:TargetHTA   7.415e-01  3.538e-01  4.510e+05    2.096 0.036100
+## ot3:AOIneutral:TargetHTA    1.586e+00  3.538e-01  4.510e+05    4.484 7.34e-06
 ##                               
 ## (Intercept)                ***
 ## ot1                        ***
@@ -2308,14 +3383,14 @@ print(&quot;Time 1&quot;)</code></pre>
 ## AOIdysphoric               ***
 ## AOIpositive                ***
 ## AOIneutral                 ***
-## TargetHTA                  ** 
+## TargetHTA                  *  
 ## ot1:AOIdysphoric           ***
 ## ot1:AOIpositive            ** 
 ## ot1:AOIneutral             ***
-## ot2:AOIdysphoric           .  
+## ot2:AOIdysphoric              
 ## ot2:AOIpositive            ***
 ## ot2:AOIneutral             ***
-## ot3:AOIdysphoric           .  
+## ot3:AOIdysphoric              
 ## ot3:AOIpositive               
 ## ot3:AOIneutral             ** 
 ## ot1:TargetHTA              ***
@@ -2323,16 +3398,121 @@ print(&quot;Time 1&quot;)</code></pre>
 ## ot3:TargetHTA              *  
 ## AOIdysphoric:TargetHTA     ***
 ## AOIpositive:TargetHTA      ***
-## AOIneutral:TargetHTA       *  
+## AOIneutral:TargetHTA       ** 
 ## ot1:AOIdysphoric:TargetHTA ***
 ## ot1:AOIpositive:TargetHTA  ** 
 ## ot1:AOIneutral:TargetHTA   ***
-## ot2:AOIdysphoric:TargetHTA ** 
+## ot2:AOIdysphoric:TargetHTA *  
 ## ot2:AOIpositive:TargetHTA     
 ## ot2:AOIneutral:TargetHTA      
 ## ot3:AOIdysphoric:TargetHTA    
 ## ot3:AOIpositive:TargetHTA  *  
 ## ot3:AOIneutral:TargetHTA   ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## [[4]][[5]]
+## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
+## lmerModLmerTest]
+## Formula: 
+## Elog ~ (ot1 + ot2 + ot3 + ot4) * AOI * Target + (1 | participant_phone)
+##    Data: dt
+## 
+## REML criterion at convergence: 2481657
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -0.9316 -0.6404 -0.5585  0.6311  2.1651 
+## 
+## Random effects:
+##  Groups            Name        Variance  Std.Dev.
+##  participant_phone (Intercept)  0.008323 0.09123 
+##  Residual                      14.329095 3.78538 
+## Number of obs: 451164, groups:  participant_phone, 86
+## 
+## Fixed effects:
+##                              Estimate Std. Error         df  t value Pr(&gt;|t|)
+## (Intercept)                -2.508e+00  2.175e-02  2.299e+02 -115.274  &lt; 2e-16
+## ot1                         1.113e+00  1.798e-01  4.510e+05    6.188 6.08e-10
+## ot2                         7.470e-01  1.798e-01  4.510e+05    4.153 3.28e-05
+## ot3                         1.858e-01  1.798e-01  4.510e+05    1.033 0.301643
+## ot4                         3.266e-02  1.798e-01  4.510e+05    0.182 0.855881
+## AOIdysphoric                2.262e-01  2.293e-02  4.510e+05    9.863  &lt; 2e-16
+## AOIpositive                 9.246e-01  2.293e-02  4.510e+05   40.318  &lt; 2e-16
+## AOIneutral                  2.179e-01  2.293e-02  4.510e+05    9.502  &lt; 2e-16
+## TargetHTA                  -7.080e-02  3.014e-02  2.374e+02   -2.349 0.019638
+## ot1:AOIdysphoric           -1.839e+00  2.543e-01  4.510e+05   -7.232 4.76e-13
+## ot1:AOIpositive            -7.618e-01  2.543e-01  4.510e+05   -2.995 0.002743
+## ot1:AOIneutral             -1.474e+00  2.543e-01  4.510e+05   -5.796 6.81e-09
+## ot2:AOIdysphoric           -4.074e-01  2.543e-01  4.510e+05   -1.602 0.109233
+## ot2:AOIpositive            -1.841e+00  2.543e-01  4.510e+05   -7.239 4.53e-13
+## ot2:AOIneutral             -8.576e-01  2.543e-01  4.510e+05   -3.372 0.000747
+## ot3:AOIdysphoric            3.005e-01  2.543e-01  4.510e+05    1.182 0.237342
+## ot3:AOIpositive            -8.428e-02  2.543e-01  4.510e+05   -0.331 0.740363
+## ot3:AOIneutral             -7.898e-01  2.543e-01  4.510e+05   -3.105 0.001900
+## ot4:AOIdysphoric            1.287e-03  2.543e-01  4.510e+05    0.005 0.995963
+## ot4:AOIpositive            -1.305e-01  2.543e-01  4.510e+05   -0.513 0.607871
+## ot4:AOIneutral             -4.185e-02  2.543e-01  4.510e+05   -0.165 0.869299
+## ot1:TargetHTA              -1.977e+00  2.502e-01  4.510e+05   -7.905 2.69e-15
+## ot2:TargetHTA               2.672e-01  2.502e-01  4.510e+05    1.068 0.285526
+## ot3:TargetHTA              -6.021e-01  2.502e-01  4.510e+05   -2.407 0.016093
+## ot4:TargetHTA              -5.861e-01  2.502e-01  4.510e+05   -2.343 0.019140
+## AOIdysphoric:TargetHTA      2.439e-01  3.190e-02  4.510e+05    7.646 2.08e-14
+## AOIpositive:TargetHTA       2.120e-01  3.190e-02  4.510e+05    6.646 3.02e-11
+## AOIneutral:TargetHTA       -8.226e-02  3.190e-02  4.510e+05   -2.579 0.009915
+## ot1:AOIdysphoric:TargetHTA  3.235e+00  3.538e-01  4.510e+05    9.145  &lt; 2e-16
+## ot1:AOIpositive:TargetHTA   1.142e+00  3.538e-01  4.510e+05    3.229 0.001242
+## ot1:AOIneutral:TargetHTA    3.486e+00  3.538e-01  4.510e+05    9.854  &lt; 2e-16
+## ot2:AOIdysphoric:TargetHTA -9.096e-01  3.538e-01  4.510e+05   -2.571 0.010138
+## ot2:AOIpositive:TargetHTA  -9.538e-02  3.538e-01  4.510e+05   -0.270 0.787464
+## ot2:AOIneutral:TargetHTA    9.852e-02  3.538e-01  4.510e+05    0.278 0.780632
+## ot3:AOIdysphoric:TargetHTA -4.580e-01  3.538e-01  4.510e+05   -1.295 0.195471
+## ot3:AOIpositive:TargetHTA   7.415e-01  3.538e-01  4.510e+05    2.096 0.036094
+## ot3:AOIneutral:TargetHTA    1.586e+00  3.538e-01  4.510e+05    4.484 7.34e-06
+## ot4:AOIdysphoric:TargetHTA  1.180e+00  3.538e-01  4.510e+05    3.335 0.000853
+## ot4:AOIpositive:TargetHTA   3.698e-01  3.538e-01  4.510e+05    1.045 0.295863
+## ot4:AOIneutral:TargetHTA    1.115e+00  3.538e-01  4.510e+05    3.153 0.001619
+##                               
+## (Intercept)                ***
+## ot1                        ***
+## ot2                        ***
+## ot3                           
+## ot4                           
+## AOIdysphoric               ***
+## AOIpositive                ***
+## AOIneutral                 ***
+## TargetHTA                  *  
+## ot1:AOIdysphoric           ***
+## ot1:AOIpositive            ** 
+## ot1:AOIneutral             ***
+## ot2:AOIdysphoric              
+## ot2:AOIpositive            ***
+## ot2:AOIneutral             ***
+## ot3:AOIdysphoric              
+## ot3:AOIpositive               
+## ot3:AOIneutral             ** 
+## ot4:AOIdysphoric              
+## ot4:AOIpositive               
+## ot4:AOIneutral                
+## ot1:TargetHTA              ***
+## ot2:TargetHTA                 
+## ot3:TargetHTA              *  
+## ot4:TargetHTA              *  
+## AOIdysphoric:TargetHTA     ***
+## AOIpositive:TargetHTA      ***
+## AOIneutral:TargetHTA       ** 
+## ot1:AOIdysphoric:TargetHTA ***
+## ot1:AOIpositive:TargetHTA  ** 
+## ot1:AOIneutral:TargetHTA   ***
+## ot2:AOIdysphoric:TargetHTA *  
+## ot2:AOIpositive:TargetHTA     
+## ot2:AOIneutral:TargetHTA      
+## ot3:AOIdysphoric:TargetHTA    
+## ot3:AOIpositive:TargetHTA  *  
+## ot3:AOIneutral:TargetHTA   ***
+## ot4:AOIdysphoric:TargetHTA ***
+## ot4:AOIpositive:TargetHTA     
+## ot4:AOIneutral:TargetHTA   ** 
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 </div>

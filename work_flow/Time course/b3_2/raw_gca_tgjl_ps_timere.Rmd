@@ -58,8 +58,8 @@ dt$Target <- factor(dt$Target, levels = c("LTA", "HTA"))
 
 # 针对timezone对数据进行切割
 dt3_1 <- dt3 %>% filter(between(Time,0,7900)) %>% mutate(Time2=Time)
-dt3_2 <- dt3 %>% filter(between(Time,7900,18000)) %>% mutate(Time2=Time, Time=Time-7900)
-dt3_3 <- dt3 %>% filter(between(Time,18000,30000)) %>% mutate(Time2=Time, Time=Time-18000)
+dt3_2 <- dt3 %>% filter(between(Time,7900,17700)) %>% mutate(Time2=Time, Time=Time-7900)
+dt3_3 <- dt3 %>% filter(between(Time,17700,30000)) %>% mutate(Time2=Time, Time=Time-17700)
 dt3_a <- dt3 %>% mutate(Time2=Time)
 
 
@@ -112,8 +112,9 @@ make.model <- function(dt){
   model.1 <- lmer(ps ~ ot1*Target + (1| participant_phone) + (1|trial_id), data = dt)
   model.2 <- lmer(ps ~ (ot1+ot2)*Target + (1| participant_phone) + (1|trial_id), data = dt)
   model.3 <- lmer(ps ~ (ot1+ot2+ot3)*Target + (1| participant_phone) + (1|trial_id), data = dt)
+  model.4 <- lmer(ps ~ (ot1+ot2+ot3+ot4)*Target + (1| participant_phone) + (1|trial_id), data = dt)
   
-  m.comparsion <- anova(model.base, model.0, model.1, model.2, model.3)
+  m.comparsion <- anova(model.base, model.0, model.1, model.2, model.3, model.4)
   
   p.base <- ggplot(dt, aes(x=Time2, y=ps, color=Target)) +
                        stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.75, size=0.3) +
@@ -145,7 +146,13 @@ make.model <- function(dt){
                        labs(title = "m.3")
   s.3 <- summary(model.3)
   
-  f <- list(m.comparsion, p.base, s.base, p.0, s.0, p.1, s.1, p.2, s.2, p.3, s.3)
+  p.4 <- ggplot(dt, aes(x=Time2, y=ps, color=Target)) +
+                       stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.75, size=0.3) +
+                       stat_summary(aes(y=predict(model.4,dt,re.form=NA)), fun.y=mean, geom="line") +
+                       labs(title = "m.4")
+  s.4 <- summary(model.4)
+  
+  f <- list(m.comparsion, p.base, s.base, p.0, s.0, p.1, s.1, p.2, s.2, p.3, s.3, p.4, s.4)
 }
 
 f3_1 <- make.model(dt3_1)
@@ -158,5 +165,21 @@ f3_1 <- make.model(dt3_1)
 print("Time 1")
 f3_1
 
+
+model.4 <- lmer(ps ~ (ot1+ot2+ot3+ot4)*Target + (1| participant_phone) + (1|trial_id), data = dt3_1)
+p.4 <- ggplot(dt3_1, aes(x=Time2/1000, y=ps, color=Target)) +
+                       stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.75, size=0.3) +
+                       stat_summary(aes(y=predict(model.4,dt3_1,re.form=NA)), fun.y=mean, geom="line") +
+                       theme(axis.title.y=element_blank(),
+                             axis.title.x=element_text(face = "bold"),
+                             axis.text.x=element_text(face = "bold"),
+                             axis.text.y=element_text(face = "bold"),
+                             strip.text.y=element_text(face = "bold"),
+                             legend.text=element_text(face = "bold")) +
+                       labs(colour = "Group") +
+                       labs(y="Pupil diameter (percentage)") +
+                       labs(x="Time(s)")
+p5_npg = p.4 + ggsci::scale_color_npg()
+p5_npg
 
 ```

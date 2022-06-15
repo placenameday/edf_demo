@@ -66,12 +66,14 @@ make.model2 <- function(dt, aoi){
   
   model.3 <- lmer(Elog ~ (ot1+ot2)*AOI*Target + (1| participant_phone), data = dt)
   model.4 <- lmer(Elog ~ (ot1+ot2+ot3)*AOI*Target + (1| participant_phone), data = dt)
+  model.5 <- lmer(Elog ~ (ot1+ot2+ot3+ot4)*AOI*Target + (1| participant_phone), data = dt)
 
   s.3 <- summary(model.3)
   
   s.4 <- summary(model.4)
+  s.5 <- summary(model.5)
   
-  f <- list(targetlevel, info, s.3, s.4)
+  f <- list(targetlevel, info, s.3, s.4, s.5)
 }
 
 alist <- c("ne", "pos", "neg", "thr")

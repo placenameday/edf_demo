@@ -414,7 +414,7 @@ quantile(dt$tgjl,c(0.3,0.7))</code></pre>
 ##  25  38</code></pre>
 <pre class="r"><code>dt &lt;- dt %&gt;% mutate(tgjl_g = case_when(tgjl&lt;=34~&quot;low&quot;,
                                        tgjl&gt;=42~&quot;high&quot;,
-                                       tgjl&lt;42&amp;tgjl&gt;34~&quot;mid&quot;),
+                                       tgjl&lt;34&amp;tgjl&gt;42~&quot;mid&quot;),
                   maas_g = case_when(maas&lt;= 41~&quot;low&quot;,
                                       maas&gt;=52~&quot;high&quot;,
                                       maas&lt;52&amp;maas&gt;41~ &quot;mid&quot;),

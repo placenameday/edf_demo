@@ -377,10 +377,13 @@ pre code {
 <pre class="r"><code>info &lt;- read_csv(&quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/scale_sum_r.csv&quot;)
 
 dt &lt;- read_csv(&quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/raw_time_b3.gz&quot;) %&gt;%
+  select(1:7,10,13) %&gt;% filter(Target!=&quot;mid&quot;)
+
+dt2 &lt;- read_csv(&quot;/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/raw_time_b3_tgjl.gz&quot;) %&gt;%
   select(1:7,10,13) %&gt;% filter(Target!=&quot;mid&quot;)</code></pre>
 </div>
-<div id="统计" class="section level3">
-<h3>统计</h3>
+<div id="统计1" class="section level3">
+<h3>统计1</h3>
 <pre class="r"><code>par &lt;- unique(dt$participant_phone)
 pi &lt;- info %&gt;% group_by(maas_g) %&gt;%
   filter(participant_phone %in% par) %&gt;%
@@ -400,6 +403,33 @@ pi</code></pre>
 ##   &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;
 ## 1 high    59.7  7.09    46  20.5    23      23  30.3
 ## 2 low     31.6  7.03    39  20.9    15      24  58.4</code></pre>
+</div>
+<div id="统计2" class="section level3">
+<h3>统计2</h3>
+<pre class="r"><code>par2 &lt;- unique(dt2$participant_phone)
+pi2 &lt;- info %&gt;% group_by(tgjl_g) %&gt;%
+  filter(participant_phone %in% par2) %&gt;%
+  mutate(nage=case_when(age==&quot;18-22&quot;~20,
+                        age==&quot;22-26&quot;~24,
+                        age==&quot;26-30&quot;~28),
+         nmale=case_when(sex==&quot;男&quot;~1),
+         nfemale=case_when(sex==&quot;女&quot;~1)) %&gt;%
+  summarise(mm=mean(tgjl), sdm=sd(tgjl), n=n(), mage=mean(nage), nmale=sum(nmale, na.rm=T), nfemale=sum(nfemale, na.rm=T))
+
+
+
+pi2</code></pre>
+<pre><code>## # A tibble: 2 × 7
+##   tgjl_g    mm   sdm     n  mage nmale nfemale
+##   &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;
+## 1 high    50.4  7.62    46  20.3    12      34
+## 2 low     29.2  3.83    40  21.2    21      19</code></pre>
+<pre class="r"><code>pi2</code></pre>
+<pre><code>## # A tibble: 2 × 7
+##   tgjl_g    mm   sdm     n  mage nmale nfemale
+##   &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;
+## 1 high    50.4  7.62    46  20.3    12      34
+## 2 low     29.2  3.83    40  21.2    21      19</code></pre>
 </div>
 </div>
 

@@ -65,7 +65,7 @@ response_time <- make_time_sequence_data(response_window_clean, time_bin_size = 
 
 
 # 保存时序数据
-write_csv(response_time, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/raw_time_b3_tgjl.gz")
+write_csv(response_time, "/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/raw_time_b3_tgjl_1.gz")
 
 # visualize time results
 plot(response_time, predictor_column = "Target") + 

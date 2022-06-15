@@ -423,7 +423,13 @@ tlist &lt;- unique(dt3$Time)
 
 k2 &lt;- bind_rows(map(tlist, mm2, dt=dt3))
 
-k3 &lt;- k2 %&gt;% filter(p.value&lt;(0.05/300))
+k2.2 &lt;- k2 %&gt;% arrange(p.value)
+n &lt;- length(k2.2[,1])
+k2.2$no &lt;- 1:n
+
+k2.3 &lt;- k2.2 %&gt;% mutate(hb=(0.05/(n-no+1))) %&gt;% filter(hb&gt;p.value)
+
+k3 &lt;- k2.3
 
 k3 &lt;- k3 %&gt;% rowwise() %&gt;%
   mutate(A1=str_split_fixed(contrast, &quot; - &quot;,2)[[1]], A2=str_split_fixed(contrast, &quot; - &quot;,2)[2]) %&gt;%

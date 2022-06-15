@@ -17,7 +17,7 @@ library("ggplot2")
 library("gridExtra")
 library(viridis)
 library(ggthemes)
-library(cowplot)
+library(patchwork)
 ```
 
 ### 读取数据初步时序图
@@ -58,7 +58,7 @@ ggplot(dt, aes(x=Time, y=ps, color=Target)) +
 dt_v2 <- dt_all %>% mutate(Time=Time/1000, AOI=factor(AOI, levels=c("threat",  "dysphoric", "positive", "neutral")))
 # 对AOI因子重新编码
 
-nt <- c(7.9,18)
+nt <- c(7.9,15.8)
 
 p4 <- ggplot(dt_v2, aes(x=Time, y=ps, color=Target)) +
   stat_summary(fun.y=mean, geom="line", size=1, alpha = 0.75) +
@@ -69,13 +69,16 @@ p4 <- ggplot(dt_v2, aes(x=Time, y=ps, color=Target)) +
         axis.text.x=element_text(face = "bold"),
         axis.text.y=element_text(face = "bold"),
         strip.text.y=element_text(face = "bold"),
-        legend.text=element_text(face = "bold"),
-        plot.margin=unit(c(0,1,1,1), "cm")) +
-  labs(colour = "Stimuli") +
-  labs(y="Gaze proportion") +
+        legend.text=element_text(face = "bold")) +
+  labs(colour = "Group") +
+  labs(y="Pupil diameter (percentage)") +
   labs(x="Time(s)")+
   scale_x_continuous(breaks = append(nt, c(0,30)))
 
 p4_npg = p4 + ggsci::scale_color_npg()
 p4_npg
+
+p.a <- p4_npg + p5_npg + plot_layout(guides = "collect")
+p.a
+ggsave(filename = "/Users/placenameday/Downloads/fig4a.pdf", width = 180, height = 120, units = "mm")
 ```

@@ -71,7 +71,13 @@ tlist <- unique(dt3$Time)
 
 k2 <- bind_rows(map(tlist, mm2, dt=dt3))
 
-k3 <- k2 %>% filter(p.value<(0.05/300))
+k2.2 <- k2 %>% arrange(p.value)
+n <- length(k2.2[,1])
+k2.2$no <- 1:n
+
+k2.3 <- k2.2 %>% mutate(hb=(0.05/(n-no+1))) %>% filter(hb>p.value)
+
+k3 <- k2.3
 
 k3 <- k3 %>% rowwise() %>%
   mutate(A1=str_split_fixed(contrast, " - ",2)[[1]], A2=str_split_fixed(contrast, " - ",2)[2]) %>%

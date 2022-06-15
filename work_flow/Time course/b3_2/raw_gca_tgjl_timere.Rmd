@@ -49,8 +49,8 @@ dt3 <- dt3 %>% select(-c('ot1','ot2','ot3','ot4','ot5','ot6','ot7'))
 
 # 针对timezone对数据进行切割
 dt3_1 <- dt3 %>% filter(between(Time,0,7900)) %>% mutate(Time2=Time)
-dt3_2 <- dt3 %>% filter(between(Time,7900,18000)) %>% mutate(Time2=Time, Time=Time-7900)
-dt3_3 <- dt3 %>% filter(between(Time,18000,30000)) %>% mutate(Time2=Time, Time=Time-18000)
+dt3_2 <- dt3 %>% filter(between(Time,7900,17700)) %>% mutate(Time2=Time, Time=Time-7900)
+dt3_3 <- dt3 %>% filter(between(Time,17700,30000)) %>% mutate(Time2=Time, Time=Time-17700)
 
 
 
@@ -99,8 +99,9 @@ make.model <- function(dt){
   model.1 <- lmer(Elog ~ ot1*AOI*Target + (1| participant_phone), data = dt)
   model.2 <- lmer(Elog ~ (ot1+ot2)*AOI*Target + (1| participant_phone), data = dt)
   model.3 <- lmer(Elog ~ (ot1+ot2+ot3)*AOI*Target + (1| participant_phone), data = dt)
+  model.4 <- lmer(Elog ~ (ot1+ot2+ot3+ot4)*AOI*Target + (1| participant_phone), data = dt)
   
-  m.comparsion <- anova(model.base, model.0, model.1, model.2, model.3)
+  m.comparsion <- anova(model.base, model.0, model.1, model.2, model.3, model.4)
   
   p.base <- ggplot(dt, aes(x=Time2, y=Elog, color=AOI)) +
                        facet_grid(rows = vars(Target)) +
@@ -137,7 +138,14 @@ make.model <- function(dt){
                        labs(title = "m.3")
   s.3 <- summary(model.3)
   
-  f <- list(m.comparsion, p.base, s.base, p.0, s.0, p.1, s.1, p.2, s.2, p.3, s.3)
+  p.4 <- ggplot(dt, aes(x=Time2, y=Elog, color=AOI)) +
+                       facet_grid(rows = vars(Target)) +
+                       stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.75, size=0.3) +
+                       stat_summary(aes(y=predict(model.4,dt,re.form=NA)), fun.y=mean, geom="line") +
+                       labs(title = "m.3")
+  s.4 <- summary(model.4)
+  
+  f <- list(m.comparsion, p.base, s.base, p.0, s.0, p.1, s.1, p.2, s.2, p.3, s.3, p.4, s.4)
 }
 
 f3_1 <- make.model(dt3_1)

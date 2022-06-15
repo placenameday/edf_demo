@@ -42,7 +42,7 @@ dt3_3<-read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking
 ```{r, message=FALSE, warning=FALSE}
 # 定义批量拟合方法
 
-model.1 <- lmer(Elog ~ (ot1+ot2+ot3)*AOI*Target + (1| participant_phone), data = dt3_1)
+model.1 <- lmer(Elog ~ (ot1+ot2+ot3+ot4)*AOI*Target + (1| participant_phone), data = dt3_1)
 model.2 <- lmer(Elog ~ (ot1+ot2)*AOI*Target + (1| participant_phone), data = dt3_2)
 model.3 <- lmer(Elog ~ (ot1+ot2)*AOI*Target + (1| participant_phone), data = dt3_3)
 
@@ -80,7 +80,7 @@ p.2 <- ggplot(dt3_2, aes(x=Time2/1000, y=Elog, color=AOI)) +
                            strip.text.y = element_blank(),
                            legend.position="none") +
                      coord_cartesian(ylim = c(-3.5, -0.5)) +
-                     scale_x_continuous(breaks = c(7.9,10,12,14,16,18))
+                     scale_x_continuous(breaks = c(7.9,10,12,14,16,17.7))
 
 p.3 <- ggplot(dt3_3, aes(x=Time2/1000, y=Elog, color=AOI)) +
                      facet_grid(rows = vars(Target)) +
@@ -97,7 +97,7 @@ p.3 <- ggplot(dt3_3, aes(x=Time2/1000, y=Elog, color=AOI)) +
                            strip.text.y = element_text(face = "bold"),
                            axis.title.y=element_blank()) +
                      coord_cartesian(ylim = c(-3.5, -0.5)) +
-                     scale_x_continuous(breaks = c(18,20,22,24,26,28,30))
+                     scale_x_continuous(breaks = c(17.7,20,22,24,26,28,30))
 
 p1 <- p.1 + ggsci::scale_color_npg()
 p2 <- p.2 + ggsci::scale_color_npg()
@@ -109,7 +109,7 @@ p3 <- p.3 + ggsci::scale_color_npg()
 
 p123 <- ((p1 + plot_layout(guides = "collect") & theme(legend.position = "top")) + plot_spacer() + (p2 + theme(legend.position = "none")) + plot_spacer() + (p3 + theme(legend.position = "none")))
 
-fig3 <- p123 + plot_layout(widths = c(4, -0.3 ,4.5,-0.3 ,3.5), guides = "collect")
+fig3 <- p123 + plot_layout(widths = c(4, -0.3 ,4.5,-0.3 ,4), guides = "collect")
 fig3
-#ggsave(filename = "/Users/placenameday/Downloads/fig3.pdf", width = 180, height = 120, units = "mm")
+ggsave(filename = "/Users/placenameday/Downloads/fig3a.pdf", width = 180, height = 120, units = "mm")
 ```

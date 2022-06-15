@@ -50,7 +50,7 @@ quantile(dt$maas,c(0.3,0.7))
 quantile(dt$sas,c(0.3,0.7))
 dt <- dt %>% mutate(tgjl_g = case_when(tgjl<=34~"low",
                                        tgjl>=42~"high",
-                                       tgjl<42&tgjl>34~"mid"),
+                                       tgjl<34&tgjl>42~"mid"),
                   maas_g = case_when(maas<= 41~"low",
                                       maas>=52~"high",
                                       maas<52&maas>41~ "mid"),

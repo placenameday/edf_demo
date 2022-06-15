@@ -20,9 +20,12 @@ info <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tackin
 
 dt <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/raw_time_b3.gz") %>%
   select(1:7,10,13) %>% filter(Target!="mid")
+
+dt2 <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/raw_time_b3_tgjl.gz") %>%
+  select(1:7,10,13) %>% filter(Target!="mid")
 ```
 
-### 统计
+### 统计1
 ```{r, message=FALSE, warning=FALSE}
 par <- unique(dt$participant_phone)
 pi <- info %>% group_by(maas_g) %>%
@@ -38,4 +41,22 @@ pi <- info %>% group_by(maas_g) %>%
 
 pi <- pi %>% mutate(maas=90-mm)
 pi
+```
+
+### 统计2
+```{r, message=FALSE, warning=FALSE}
+par2 <- unique(dt2$participant_phone)
+pi2 <- info %>% group_by(tgjl_g) %>%
+  filter(participant_phone %in% par2) %>%
+  mutate(nage=case_when(age=="18-22"~20,
+                        age=="22-26"~24,
+                        age=="26-30"~28),
+         nmale=case_when(sex=="男"~1),
+         nfemale=case_when(sex=="女"~1)) %>%
+  summarise(mm=mean(tgjl), sdm=sd(tgjl), n=n(), mage=mean(nage), nmale=sum(nmale, na.rm=T), nfemale=sum(nfemale, na.rm=T))
+
+
+
+pi2
+pi2
 ```
