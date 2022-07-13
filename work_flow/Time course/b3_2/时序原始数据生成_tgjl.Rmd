@@ -28,9 +28,9 @@ dt3_1 <- fread("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/
   select(1:15, b3_pos, b3_neg, b3_thr, b3_ne, trackloss)
 
 msg <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/tidy/scale_sum_r.csv") %>%
-  select(participant_phone, tgjl_g)
+  select(participant_phone, tgjl_g, tgjl_eg)
 
-dt_a <- full_join(dt3_1, msg) %>% drop_na(trial_id)
+dt_a <- full_join(dt3_1, msg) %>% drop_na(trial_id) %>% filter((tgjl_g=="high" & tgjl_eg=="high")|(tgjl_g=="low" & tgjl_eg!="high"))
 
 gc()
 

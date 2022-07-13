@@ -1,0 +1,140 @@
+---
+title: "static_tgjl"
+author: "Chen Xing"
+date: '2022-06-16'
+output: html_document
+---
+
+## 摘要
+进行静态分析
+
+### 必要的包
+```{r, message=FALSE, warning=FALSE, results='hide', echo=FALSE}
+library(tidyverse)
+library(lmerTest)
+library(emmeans)
+library("ggplot2")
+library("gridExtra")
+library(outliers)
+library(viridis)
+library(ggthemes)
+library(cowplot)
+library(rstatix)
+library(ggpubr)
+library(ggsignif)
+```
+
+### 读取数据初步时序图
+```{r, message=FALSE, warning=FALSE}
+dt <- read_csv("/Users/placenameday/R study/edf_demo/data/processed/eye_tacking/ea/data/raw_time_b3_tgjl.gz") %>%
+  select(1:7,10,13) %>% filter(Target!="mid") %>%
+  mutate(Target=case_when(Target=="high"~"HTA",
+                          Target=="low"~"LTA"),
+         AOI=case_when(AOI=="b3_ne"~"neutral",
+                       AOI=="b3_neg"~"dysphoric",
+                       AOI=="b3_pos"~"positive",
+                       AOI=="b3_thr"~"threat"))
+
+dt2 <- dt %>% filter(Target!="mid") %>%
+  group_by(Target, participant_phone, AOI, Time) %>%
+  summarise(Prop=mean(Prop, rm.na=T))
+
+ggplot(dt2, aes(x=Time, y=Prop, color=AOI)) +
+  facet_grid(rows = vars(Target)) +
+  stat_summary(fun.y=mean, geom="point")
+```
+
+### 混合模型数据准备,初步进行各个时间段两两对比
+```{r, message=FALSE, warning=FALSE}
+
+dt4 <- dt2
+
+
+
+dt4$Target <- factor(dt4$Target, levels=c("LTA", "HTA"))
+contrasts(dt4$Target) = contr.sum(2)
+
+dt4$AOI <- factor(dt4$AOI, levels=c("neutral", "positive", "dysphoric", "threat"))
+contrasts(dt4$AOI) = contr.sum(4)
+
+dt5 <- dt4 %>% mutate(time_bin = cut(Time, breaks = 3,labels = c(1,2,3)))
+dt5$Target <- factor(dt5$Target, levels=c("LTA", "HTA"))
+dt5$AOI <- factor(dt5$AOI, levels=c("neutral", "positive", "dysphoric", "threat"))
+dt5$time_bin <- factor(dt5$time_bin, levels=c("1", "2", "3"))
+
+dt6 <- dt5 %>% group_by(Target, participant_phone, time_bin, AOI) %>%
+  summarise(prop=mean(Prop, na.rm=T))
+
+dt5_1 <- dt5 %>% filter(Time<=200) %>% group_by(Target, participant_phone, AOI) %>%
+  summarise(prop=mean(Prop, na.rm=T), Duration="200")
+
+dt5_2 <- dt5 %>% filter(Time<=400) %>% group_by(Target, participant_phone, AOI) %>%
+  summarise(prop=mean(Prop, na.rm=T), Duration="400")
+
+dt5_3 <- dt5 %>% filter(Time<=800) %>% group_by(Target, participant_phone, AOI) %>%
+  summarise(prop=mean(Prop, na.rm=T), Duration="800")
+
+dt5_4 <- dt5 %>% filter(Time<=1600) %>% group_by(Target, participant_phone, AOI) %>%
+  summarise(prop=mean(Prop, na.rm=T), Duration="1600")
+
+dt5_5 <- dt5 %>% filter(Time<=3200) %>% group_by(Target, participant_phone, AOI) %>%
+  summarise(prop=mean(Prop, na.rm=T), Duration="3200")
+
+dt5_6 <- dt5 %>% filter(Time<=6400) %>% group_by(Target, participant_phone, AOI) %>%
+  summarise(prop=mean(Prop, na.rm=T), Duration="6400")
+
+dt5_7 <- dt5 %>% filter(Time<=12800) %>% group_by(Target, participant_phone, AOI) %>%
+  summarise(prop=mean(Prop, na.rm=T), Duration="12800")
+
+dt5_8 <- dt5 %>% filter(Time<=25600) %>% group_by(Target, participant_phone, AOI) %>%
+  summarise(prop=mean(Prop, na.rm=T), Duration="25600")
+
+dt5_9 <- dt5 %>% filter(Time<=30000) %>% group_by(Target, participant_phone, AOI) %>%
+  summarise(prop=mean(Prop, na.rm=T), Duration="30000")
+
+dt5_all <- bind_rows(dt5_1, dt5_2, dt5_3, dt5_4, dt5_5, dt5_6, dt5_7, dt5_8, dt5_9)
+
+out <- dt5_all %>% group_by(Duration, Target, AOI) %>%
+   identify_outliers(prop)
+
+dt5_all <- anti_join(dt5_all, out) %>% ungroup()
+
+dt5_all$Duration <- factor(dt5_all$Duration, levels=c("200", "400", "800", "1600", "3200", "6400", "12800", "25600", "30000"))
+
+res.aov <- anova_test(data = dt5_all, dv = prop, wid = participant_phone,
+                      between = Target, within = c(AOI, Duration))
+fangcha <- get_anova_table(res.aov)
+
+fangcha
+
+pwc <- dt5_all %>%
+  group_by(Duration, Target) %>%
+  pairwise_t_test(
+    prop ~ AOI, 
+    p.adjust.method = "bonferroni"
+    )
+
+pwc2 <- pwc %>% filter(p.adj.signif!="ns")
+write_csv(pwc2, "/Users/placenameday/Documents/Work/科研/pp/trait anxiety emotional sti/Sup./static_pwc_list.csv")
+
+p2 <- ggplot(dt5_all, aes(x = Target, y = prop, fill = AOI )) +
+  facet_wrap(~Duration, scales="free_y") +
+  geom_boxplot() +
+  theme(legend.key.size = unit(15, "pt"), 
+        legend.position = "top",
+        legend.title=element_text(face = "bold"), 
+        axis.title.x=element_blank(),
+        axis.title.y=element_text(face = "bold"),
+        axis.text.x=element_text(face = "bold"),
+        axis.text.y=element_text(face = "bold"),
+        strip.text.x=element_text(face = "bold"),
+        legend.text=element_text(face = "bold")) +
+  labs(fill = "Stimuli") +
+  labs(y="Gaze proportion")
+
+p2 + ggsci::scale_fill_nejm()
+
+ggsave(filename = "/Users/placenameday/Downloads/newFig/fig2.pdf", width = 180, height = 120, units = "mm")
+
+
+```

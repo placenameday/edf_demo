@@ -179,7 +179,16 @@ p.4 <- ggplot(dt3_1, aes(x=Time2/1000, y=ps, color=Target)) +
                        labs(colour = "Group") +
                        labs(y="Pupil diameter (percentage)") +
                        labs(x="Time(s)")
-p5_npg = p.4 + ggsci::scale_color_npg()
+p5_npg = p.4 + ggsci::scale_color_nejm()
 p5_npg
+
+
+f3_2 <- make.model(dt3_2)
+print("Time 2")
+f3_2
+
+f3_3 <- make.model(dt3_3)
+print("Time 3")
+f3_3
 
 ```

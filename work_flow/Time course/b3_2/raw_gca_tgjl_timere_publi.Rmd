@@ -102,14 +102,81 @@ p.3 <- ggplot(dt3_3, aes(x=Time2/1000, y=Elog, color=AOI)) +
 p1 <- p.1 + ggsci::scale_color_npg()
 p2 <- p.2 + ggsci::scale_color_npg()
 p3 <- p.3 + ggsci::scale_color_npg()
+```
+
+```{r, message=FALSE, warning=FALSE}
+p.1.2 <- ggplot(dt3_1, aes(x=Time2/1000, y=Elog, color=Target)) +
+                     facet_wrap(vars(AOI), nrow = 2) +
+                     stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.65, size=0.005) +
+                     stat_summary(aes(y=predict(model.1,dt3_1,re.form=NA)), fun.y=mean, geom="line",size=1,alpha=0.75) +
+                     labs(x="Time(s)") +
+                     labs(colour = "Stimuli") +
+                     theme(axis.text.x=element_text(face = "bold"),
+                           legend.title=element_text(face = "bold"),
+                           legend.text=element_text(face = "bold"),
+                           axis.text.y=element_text(face = "bold"),axis.title.y=element_text(face = "bold"),
+                           plot.title = element_text(hjust = 0.5),
+                           strip.text.x=element_text(face = "bold"),
+                           axis.title.x=element_text(face = "bold")) +
+                     coord_cartesian(ylim = c(-3.5, -0.5)) +
+                     scale_x_continuous(breaks = c(0,2,4,6,8))
+
+p11 <- p.1.2 + ggsci::scale_color_nejm()
+p11
+
+p.2.2 <- ggplot(dt3_2, aes(x=Time2/1000, y=Elog, color=Target)) +
+                     facet_wrap(vars(AOI), nrow = 2) +
+                     stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.65, size=0.005) +
+                     stat_summary(aes(y=predict(model.2,dt3_2,re.form=NA)), fun.y=mean, geom="line",size=1,alpha=0.75) +
+                     labs(x="Time(s)") +
+                     labs(colour = "Stimuli") +
+                     theme(axis.text.x=element_text(face = "bold"),
+                           legend.title=element_text(face = "bold"),
+                           legend.text=element_text(face = "bold"),
+                           axis.text.y=element_blank(),axis.title.y=element_blank(),
+                           plot.title = element_text(hjust = 0.5),
+                           strip.text.x=element_text(face = "bold"),
+                           axis.title.x=element_text(face = "bold")) +
+                     coord_cartesian(ylim = c(-3.5, -0.5)) +
+                     scale_x_continuous(breaks = c(8, 10,12, 14,16, 18))
+
+p12 <- p.2.2 + ggsci::scale_color_nejm()
+p12
+
+p.3.2 <- ggplot(dt3_3, aes(x=Time2/1000, y=Elog, color=Target)) +
+                     facet_wrap(vars(AOI), nrow = 2) +
+                     stat_summary(fun.data=mean_se, geom="pointrange",alpha=0.65, size=0.005) +
+                     stat_summary(aes(y=predict(model.3,dt3_3,re.form=NA)), fun.y=mean, geom="line",size=1,alpha=0.75) +
+                     labs(x="Time(s)") +
+                     labs(colour = "Stimuli") +
+                     theme(axis.text.x=element_text(face = "bold"),
+                           legend.title=element_text(face = "bold"),
+                           legend.text=element_text(face = "bold"),
+                           axis.text.y=element_blank(),axis.title.y=element_blank(),
+                           plot.title = element_text(hjust = 0.5),
+                           strip.text.x=element_text(face = "bold"),
+                           axis.title.x=element_text(face = "bold")) +
+                     coord_cartesian(ylim = c(-3.5, -0.5)) +
+                     scale_x_continuous(breaks = c(18,22,26,30))
+
+p13 <- p.3.2 + ggsci::scale_color_nejm()
 
 
+p222 <- ((p11 + plot_layout(guides = "collect") & theme(legend.position = "top")) + plot_spacer() + (p12 + theme(legend.position = "none")) + plot_spacer() + (p13 + theme(legend.position = "none")))
+p222
 
+fig32 <- p222 + plot_layout(widths = c(4, -0.3 ,4,-0.3 ,4), guides = "collect")
+fig32
+ggsave(filename = "/Users/placenameday/Downloads/newFig/fig4.pdf", width = 180, height = 120, units = "mm")
+```
+
+
+```{r, message=FALSE, warning=FALSE}
 # ggpubr::ggarrange(p1,p2,p3, nrow = 1, common.legend = TRUE,align="hv", labels="AUTO",hjust = -3.5)
 
 p123 <- ((p1 + plot_layout(guides = "collect") & theme(legend.position = "top")) + plot_spacer() + (p2 + theme(legend.position = "none")) + plot_spacer() + (p3 + theme(legend.position = "none")))
 
 fig3 <- p123 + plot_layout(widths = c(4, -0.3 ,4.5,-0.3 ,4), guides = "collect")
 fig3
-ggsave(filename = "/Users/placenameday/Downloads/fig3a.pdf", width = 180, height = 120, units = "mm")
+# ggsave(filename = "/Users/placenameday/Downloads/fig3a.pdf", width = 180, height = 120, units = "mm")
 ```

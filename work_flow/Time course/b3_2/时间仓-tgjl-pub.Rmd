@@ -69,11 +69,11 @@ nt <- t$Time/1000
 
 ### 进行叠加可视化
 ```{r, message=FALSE, warning=FALSE}
-dt_v2 <- full_join(dt2, nk2) %>% mutate(Time=Time/1000, AOI=factor(AOI, levels=c("threat",  "dysphoric", "positive", "neutral")))
+dt_v2 <- full_join(dt2, nk2) %>% mutate(Time=Time/1000, AOI=factor(AOI, levels=c("neutral", "positive", "dysphoric", "threat")))
 dt_v <- dt_v2 %>%
   mutate(Dominance_Times=factor(Dominance_Times, levels=c(0,1,2,3)))
 
-dt_rank <- dt_v2 %>% mutate(AOI=factor(AOI, levels=c("neutral", "positive", "dysphoric", "threat"))) %>%
+dt_rank <- dt_v2 %>% mutate(AOI=factor(AOI, levels=c("threat",  "dysphoric", "positive", "neutral"))) %>%
   group_by(Target, Time, AOI) %>%
   mutate(Dominance_Times=as.numeric(Dominance_Times)) %>%
   summarise(Dominance_Times=mean(Dominance_Times, na.rm=T))
@@ -112,13 +112,14 @@ p4 <- ggplot(dt_v, aes(x=Time, y=Prop, color=AOI)) +
   scale_x_continuous(breaks = append(nt, c(0,30)))
 
 p3_npg = p3
-p4_npg = p4 + ggsci::scale_color_npg()
+p4_npg = p4 + ggsci::scale_color_nejm()
 
 fig2 <- plot_grid(p3, p4_npg, ncol = 1, align = "v",rel_heights = c(1, 2), labels = c("A", "B"))
 
 fig2
 
-ggsave(filename = "/Users/placenameday/Downloads/afig2.pdf", width = 180, height = 120, units = "mm")
+ggsave(filename = "/Users/placenameday/Downloads/newFig/fig3.pdf", width = 180, height = 120, units = "mm")
+
 ```
 
 

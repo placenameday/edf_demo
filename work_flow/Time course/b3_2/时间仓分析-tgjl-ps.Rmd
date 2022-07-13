@@ -75,10 +75,10 @@ p4 <- ggplot(dt_v2, aes(x=Time, y=ps, color=Target)) +
   labs(x="Time(s)")+
   scale_x_continuous(breaks = append(nt, c(0,30)))
 
-p4_npg = p4 + ggsci::scale_color_npg()
+p4_npg = p4 + ggsci::scale_color_nejm()
 p4_npg
 
 p.a <- p4_npg + p5_npg + plot_layout(guides = "collect")
 p.a
-ggsave(filename = "/Users/placenameday/Downloads/fig4a.pdf", width = 180, height = 120, units = "mm")
+ggsave(filename = "/Users/placenameday/Downloads/newFig/fig5.pdf", width = 180, height = 120, units = "mm")
 ```
