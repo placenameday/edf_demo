@@ -108,7 +108,7 @@ fangcha <- get_anova_table(res.aov)
 fangcha
 
 pwc <- dt5_all %>%
-  group_by(Duration, Target) %>%
+  group_by(Duration) %>%
   pairwise_t_test(
     prop ~ AOI, 
     p.adjust.method = "bonferroni"
@@ -134,7 +134,7 @@ p2 <- ggplot(dt5_all, aes(x = Target, y = prop, fill = AOI )) +
 
 p2 + ggsci::scale_fill_nejm()
 
-ggsave(filename = "/Users/placenameday/Downloads/newFig/fig2.pdf", width = 180, height = 120, units = "mm")
+#ggsave(filename = "/Users/placenameday/Downloads/newFig/fig2.pdf", width = 180, height = 120, units = "mm")
 
 
 ```
